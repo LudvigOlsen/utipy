@@ -16,4 +16,8 @@ setup(name='utipy',
       author_email='mail@ludvigolsen.dk',
       license='MIT',
       packages=['utipy'],
+      install_requires=[
+          'pandas',
+          'numpy'
+      ],
       zip_safe=False)
