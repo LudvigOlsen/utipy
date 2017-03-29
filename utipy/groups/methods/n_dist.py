@@ -9,7 +9,7 @@ Created on Wed Mar 29 15:48:48 2017
 import numpy as np
 from random import shuffle
 
-def n_dist(v, n, randomize = False):
+def _n_dist(v, n, randomize = False):
     """
     Creates grouping factor with
     distributed excess elements

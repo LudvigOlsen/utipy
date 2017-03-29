@@ -7,7 +7,7 @@ Created on Wed Mar 29 15:16:39 2017
 """
 
 import numpy as np
-from pandas_utils.iqr import iqr
+from utipy.measures.iqr import iqr
 
 # For pandas objects
 

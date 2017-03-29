@@ -9,7 +9,7 @@ Created on Wed Mar 29 15:49:33 2017
 import numpy as np
 from random import shuffle
 
-def l_sizes(v, p, randomize = False, rounding = 'floor'):
+def _l_sizes(v, p, randomize = False, rounding = 'floor'):
     
     """
     Creates grouping factor from group size(s)
