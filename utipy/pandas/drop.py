@@ -80,7 +80,7 @@ def drop(df,
         data_cols = data.filter(items=cols)
 
         # Find columns / rows to drop
-        to_drop = find_exceeders_(data_cols, value, 
+        to_drop = _find_exceeders(data_cols, value, 
                                  thresh, direction,
                                  axis = axis, 
                                  verbose = verbose)
@@ -88,7 +88,7 @@ def drop(df,
     else:
 
         # Find columns / rows to drop
-        to_drop = find_exceeders_(data, value, thresh, 
+        to_drop = _find_exceeders(data, value, thresh, 
                                  direction, axis = axis, 
                                  verbose = verbose)
 
@@ -121,7 +121,7 @@ def drop(df,
             
             
 # Wrapper for calling exceede_tresh - for finding columns / rows to drop
-def find_exceeders_(data, value, thresh, direction, axis, verbose = False):
+def _find_exceeders(data, value, thresh, direction, axis, verbose = False):
 
     if verbose:
         logging.getLogger(__name__)
