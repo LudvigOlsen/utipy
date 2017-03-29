@@ -5,9 +5,11 @@ Utility functions for python.
 
 Pre-Alpha stage. Subject to change. 
 
->> https://pypi.python.org/pypi/utipy/
->>
->> $ pip install utipy
+>  
+> https://pypi.python.org/pypi/utipy/  
+>   
+> $ pip install utipy  
+>  
 
  - Pandas operations
  	- Is a Series made up of a specific value (more than / less than / equal to a threshold) ?
