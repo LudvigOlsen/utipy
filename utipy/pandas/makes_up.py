@@ -10,7 +10,7 @@ Created on Wed Mar 29 14:25:23 2017
 import operator
 #import pandas as pd
 import numpy as np
-import logging
+
 
 def makes_up(Series, value, thresh, direction = '>', missing_error = False):
 

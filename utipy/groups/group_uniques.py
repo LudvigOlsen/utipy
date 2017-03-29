@@ -7,8 +7,8 @@ Created on Wed Mar 29 15:52:54 2017
 """
 
 import pandas as pd
-from utipy.groups.methods import l_sizes
-from utipy.groups.methods import n_dist
+from .methods.l_sizes import _l_sizes
+from .methods.n_dist import _n_dist
 
 def group_uniques(data, n, col, method = 'n_dist'):
     """
@@ -22,9 +22,9 @@ def group_uniques(data, n, col, method = 'n_dist'):
 
     # Create grouping factor from unique IDs
     if method == 'n_dist':
-        all_group_ids = n_dist(uniques, n, randomize = True)
+        all_group_ids = _n_dist(uniques, n, randomize = True)
     elif method == 'l_sizes':
-        all_group_ids = l_sizes(uniques, n, randomize = True)
+        all_group_ids = _l_sizes(uniques, n, randomize = True)
     
     # Create dictionary with unique values
     # and groups

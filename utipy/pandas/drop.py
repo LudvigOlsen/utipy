@@ -9,7 +9,7 @@ Created on Wed Mar 29 14:24:02 2017
 #import pandas as pd
 #import numpy as np
 import logging
-from makes_up import makes_up
+from .makes_up import makes_up
 
 def drop(df, 
          value = 'NaN',

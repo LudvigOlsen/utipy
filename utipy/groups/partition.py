@@ -8,8 +8,8 @@ Created on Wed Mar 29 16:00:44 2017
 
 import pandas as pd
 from utipy.pandas import subset_by_levels
-from utipy.groups import group_uniques
-from utipy.groups import group
+from .group_uniques import group_uniques
+from .group import group
 
 def partition(data, p=0.2, id_col=None, cat_col=None):
     """
