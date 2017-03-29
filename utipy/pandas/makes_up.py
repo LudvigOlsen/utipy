@@ -18,8 +18,6 @@ def makes_up(Series, value, thresh, direction = '>', missing_error = False):
     Checks if value (or any value) appears in pandas Series more than,
     less than or equal to a threshhold given as percentage.
 
-    To do:
-     - Come up with a better name.
 
     direction -  '>', '<', '>=', '<=', or '=='
         defaults to '>' meaning 'more than [thresh] percent values' 
