@@ -26,6 +26,13 @@ def regenerate_as_noise(Series, distribution = 'uniform'):
     # type that it can't describe.
     # Alternatively just check if input is int, double or float?
     # Get descriptors
+
+    # Check for NaNs
+
+
+
+
+    # Get description of Series
     desc = _extended_describe(Series)
     
     if distribution == 'uniform':
