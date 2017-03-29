@@ -19,5 +19,3 @@ Pre-Alpha stage. Subject to change.
  	- Create grouping factor from different methods
  	- Balanced partitions for train/test
  	- Balanced folds for cross-validation
- - Measures
- 	- IQR

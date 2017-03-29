@@ -7,7 +7,7 @@ Created on Wed Mar 29 15:16:39 2017
 """
 
 import numpy as np
-from utipy.measures.iqr import iqr
+from utipy.measures.iqr import _iqr
 
 # For pandas objects
 
@@ -16,7 +16,7 @@ def _extended_describe(Series):
     desc = Series.describe()
     desc['dtype'] = Series.dtype
     desc['median'] = np.median(Series)
-    desc['IQR'] = iqr(Series)
+    desc['IQR'] = _iqr(Series)
     
     return(desc)
     
