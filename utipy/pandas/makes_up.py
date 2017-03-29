@@ -12,7 +12,7 @@ import operator
 import numpy as np
 import logging
 
-def makes_up(Series, value, thresh, direction = '>', missing_error = False, verbose = False):
+def makes_up(Series, value, thresh, direction = '>', missing_error = False):
 
     """
     Checks if value (or any value) appears in pandas Series more than,
@@ -31,14 +31,8 @@ def makes_up(Series, value, thresh, direction = '>', missing_error = False, verb
 
     """
     
-    logging.getLogger(__name__)
-    
     # Make sure directioon is given as '>', '<', '<=', '>=', or '=='
     if not (direction in ['>','<','<=', '>=', '==']):
-        
-        if verbose:
-            
-            logging.error('ValueError: direction can only be given as \'>\',\'<\',\'>=\',\'<=\', or \'==\'')
         
         raise ValueError('direction can only be given as \'>\',\'<\',\'>=\',\'<=\', or \'==\'')
  
@@ -53,9 +47,6 @@ def makes_up(Series, value, thresh, direction = '>', missing_error = False, verb
     # Make sure thresh is given as a number between 0 and 1
     if not (thresh >= 0 and thresh <= 1):
         
-        if verbose:
-            
-            logging.error('ValueError: threshold incorrect format. Give as percentage (between 0-1)')
         
         raise ValueError('threshold incorrect format. Give as percentage (between 0-1)')
 
@@ -80,10 +71,6 @@ def makes_up(Series, value, thresh, direction = '>', missing_error = False, verb
         # If asked to raise error if value is not found
         # raise error
         if missing_error:
-            
-            if verbose:
-            
-                logging.error('ValueError: value not found in Series')
             
             raise ValueError('value not found in Series')
         
