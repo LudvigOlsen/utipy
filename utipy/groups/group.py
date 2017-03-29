@@ -6,8 +6,8 @@ Created on Wed Mar 29 15:55:12 2017
 @author: ludvigolsen
 """
 
-from utipy.groups.methods import _l_sizes
-from utipy.groups.methods import _n_dist
+from utipy.groups.methods.l_sizes import _l_sizes
+from utipy.groups.methods.n_dist import _n_dist
 
 def group(data, n, col = None, method = 'n_dist'):
     """
