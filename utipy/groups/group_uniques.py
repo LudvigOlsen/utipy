@@ -16,6 +16,8 @@ def group_uniques(data, n, col, method = 'n_dist'):
     dataframe by unique values in col.
     
     """
+
+    data = data.copy()
     
     # Get unique IDs
     uniques = list(set(data[col]))

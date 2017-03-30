@@ -16,6 +16,8 @@ def group(data, n, col = None, method = 'n_dist'):
     
     """
     
+    data = data.copy()
+
     # If no column is given
     # We use the first column in data
     if col is None:
