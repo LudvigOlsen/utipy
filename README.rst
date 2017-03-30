@@ -15,6 +15,8 @@ Pre-Alpha stage. Subject to change.
  	- Drop rows / columns of dataframe based on the percentile appearance of a specified value
  	- Subset by each level of a categorical column
  	- Add polynomials to numeric columns, i.e. v1, v1^2, v1^3, ...
+ 	- Generate a Series resembling another Series
+
  - Data grouping
  	- Create grouping factor from different methods
  	- Balanced partitions for train/test
