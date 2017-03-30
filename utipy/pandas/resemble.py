@@ -10,7 +10,7 @@ from utipy.helpers import _extended_describe
 import numpy as np
 from random import shuffle
 
-def regenerate(Series, distribution = 'uniform'):
+def resemble(Series, distribution = 'uniform'):
     
     """
     distribs:   uniform, gaussian, poisson, robust gaussian (median/IQR),
