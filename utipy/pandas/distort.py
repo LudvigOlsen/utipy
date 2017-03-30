@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 from random import sample
 
-from . import regenerate_as_noise
+from . import regenerate
 from utipy.array.blend import blend
 
 # Different name?
@@ -64,7 +64,7 @@ def distort(data, distribution = 'uniform',
     
     ## Regenerate included columns as noise
     
-    data_regenerated = data_included.apply(regenerate_as_noise, distribution = distribution)
+    data_regenerated = data_included.apply(regenerate, distribution = distribution)
     
 
     ## Blend 

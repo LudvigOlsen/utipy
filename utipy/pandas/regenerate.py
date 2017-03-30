@@ -10,8 +10,7 @@ from utipy.helpers import _extended_describe
 import numpy as np
 from random import shuffle
 
-# find other name maybe?
-def regenerate_as_noise(Series, distribution = 'uniform'):
+def regenerate(Series, distribution = 'uniform'):
     
     """
     distribs:   uniform, gaussian, poisson, robust gaussian (median/IQR),
