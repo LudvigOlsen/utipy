@@ -11,14 +11,37 @@ import numpy as np
 from random import shuffle
 
 def resemble(Series, distribution = 'uniform'):
+    """Generate resembling Series
+
+    Generates data that resembles the original data by using descriptors
+    of the Series to create and sample from a specified distribution.
+
+
+    Parameters
+    ----------
+    Series : pd.Series
+        The Series to resemble.
+    distribution : str
+        Distribution to sample from.
+            'uniform'
+                between min. and max.
+            'gaussian'
+                from mean and std.
+            'robust gaussian'
+                from median and IQR.
+            'poisson' 
+                NOT IMPLEMENTED PROPERLY YET.
+            'shuffle'
+                shuffles original data.
     
+
+    Returns
+    -------
+    pd.Series
+
+
     """
-    distribs:   uniform, gaussian, poisson, robust gaussian (median/IQR),
-                shuffle
-                Perhaps even: brown noise, pink noise, etc. 
     
-    
-    """
     
     # Do a tryCatch on describe to
     # see if it's a character vector or other

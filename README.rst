@@ -24,3 +24,5 @@ Pre-Alpha stage. Subject to change.
 
 TODO
  - Add documentation
+ - Add brown noise, pink noise, etc. as 'distributions' in resemble()
+ - Add argument checks
