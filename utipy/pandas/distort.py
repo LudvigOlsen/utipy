@@ -1,11 +1,8 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Created on Wed Mar 30 13:16:39 2017
-
-@author: ludvigolsen
-"""
-
+Distort module
+"""  
 
 import pandas as pd
 import numpy as np
@@ -15,7 +12,8 @@ from . import resemble
 from utipy.array.blend import blend
 
 # Different name?
-def distort(data, distribution = 'uniform', 
+def distort(data, 
+            distribution = 'uniform', 
             amount = 1,
             size = 1,
             exclude = None,
@@ -23,23 +21,65 @@ def distort(data, distribution = 'uniform',
             keep_labels = True,
             new_label = 'noise', 
             append = False):
+
+    """Distort data in pandas DataFrame
+
+    Generates data that resembles the original data by using descriptors
+    of each column to create and sample from a specified distribution.
+    This new data is blended with the original data to taste.
+
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        The data to distort.
+    distribution : str
+        Distribution to sample from.
+            'uniform'
+                between min. and max.
+            'gaussian'
+                from mean and std.
+            'robust gaussian'
+                from median and IQR.
+            'poisson' 
+                NOT IMPLEMENTED PROPERLY YET.
+            'shuffle'
+                shuffles original data.
+    amount : float
+        Blend rate. Amount of generated data to keep.
+        Percentage between 0-1
+            0: Keep only original data.
+            1: Keep only generated data.
+            0.1: 10% generated / 90% original.
+    size : float
+        Size of data to return relative to original dataframe.
+        Percentage between 0-1.
+        Observations are randomly sampled.
+    exclude : list of strings
+        Names of columns not to generate.
+        Are filled with NaN.
+    label_column : str
+        Name of column with labels.
+        Used when having a categorical 
+        column that should either keep
+        its labels or get a new label.
+    keep_labels : bool
+        Leave label column untouched.
+    new_label : str
+        Label to fill label column with.
+        Used when keep_labels is False.
+    append : bool
+        Append output to original data
+
+
+    Returns
+    -------
+    pd.DataFrame
+        Distorted data. Either by itself or appended to original data.
+
+
+    """
     
-    """
-    data :          pd.DataFrame
-    distribution :  uniform, gaussian, poisson, 
-                    robust gaussian (median/IQR),
-                    shuffle
-    size :          0-1 (percentage of size of data)
-    exclude :       List of columns to exclude
-                    Will be filled with NaN
-                    Given in []
-    label_column :  Categorical variable
-                    Will be filled with new label
-    keep_labels :   Keep original labels
-    new_label :     Label to put in label_column
-                    Used if keep_labels is False
-                  
-    """
     
     ## Check inputs
     # exclude must be array not scalar
