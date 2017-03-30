@@ -2,7 +2,7 @@
 
 from .pandas.drop import drop
 from .pandas.makes_up import makes_up
-from .pandas.regenerate import regenerate
+from .pandas.resemble import resemble
 from .pandas.distort import distort
 from .pandas.subset_by_levels import subset_by_levels
 from .pandas.polynomializer import polynomializer
