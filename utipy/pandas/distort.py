@@ -1,16 +1,28 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Mar 30 13:16:39 2017
+
+@author: ludvigolsen
+"""
+
 
 import pandas as pd
 import numpy as np
 from random import sample
 
 from . import regenerate_as_noise
+from utipy.array.blend import blend
 
 # Different name?
-def sim_noise_data(data, distribution = 'uniform', 
-                 size = 1,
-                 exclude = None,
-                 label_column = None, new_label = 'noise', 
-                 append = False):
+def distort(data, distribution = 'uniform', 
+            amount = 1,
+            size = 1,
+            exclude = None,
+            label_column = None, 
+            keep_labels = True,
+            new_label = 'noise', 
+            append = False):
     
     """
     data :          pd.DataFrame
@@ -23,7 +35,9 @@ def sim_noise_data(data, distribution = 'uniform',
                     Given in []
     label_column :  Categorical variable
                     Will be filled with new label
+    keep_labels :   Keep original labels
     new_label :     Label to put in label_column
+                    Used if keep_labels is False
                   
     """
     
@@ -52,9 +66,33 @@ def sim_noise_data(data, distribution = 'uniform',
     
     data_regenerated = data_included.apply(regenerate_as_noise, distribution = distribution)
     
-    # Add label column with the new label
-    data_regenerated[label_column] = new_label
+
+    ## Blend 
     
+    # Based on amount, blend the two signals
+    if amount != 1:
+        
+        data_blended = pd.concat([blend(data_regenerated[v], data[v], amount = amount) for \
+                                  v in data_regenerated.columns], axis = 1)
+        
+    else:
+        
+        data_blended = data_regenerated
+
+
+    ## Label column
+
+    if label_column is not None:
+
+        if keep_labels:
+
+            data_blended[label_column] = data[label_column]
+
+        else:
+
+            # Add label column with the new label
+            data_blended[label_column] = new_label
+        
     
     ## Set excluded columns to NaN
     
@@ -69,13 +107,18 @@ def sim_noise_data(data, distribution = 'uniform',
         # Set column names 
         null_data.columns = exclude
         
-        # Add columns to the regenerated dataset
-        data_regenerated = pd.concat([data_regenerated, null_data], axis = 1)
-        
+        # Add columns to the blended dataset
+        data_blended = pd.concat([data_blended, null_data], axis = 1)
+
+
+    ## Reorder
+
     # Get columns in original order
-    data_ordered = data_regenerated.filter(items = data.columns)
-    
+    data_ordered = data_blended.filter(items = data.columns)
+
+
     ## Cut to 'size'
+
     # Sample indices from range 0: n rows
     keep_indices = sample(range(0,len(data)), int(len(data)*size))
     
