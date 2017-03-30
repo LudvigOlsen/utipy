@@ -13,7 +13,7 @@ def readme():
         return f.read()
 
 setup(name='utipy',
-      version='0.1',
+      version='0.1.2',
       description='Utility functions for python',
       long_description='Pandas operations. Data grouping, folding, and partitioning.',
       classifiers=[
