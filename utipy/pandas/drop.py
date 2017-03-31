@@ -102,15 +102,13 @@ def drop(data,
         # Find columns / rows to drop
         to_drop = _find_exceeders(data_cols, value, 
                                  thresh, direction,
-                                 axis = axis, 
-                                 verbose = verbose)
+                                 axis = axis)
 
     else:
 
         # Find columns / rows to drop
         to_drop = _find_exceeders(data, value, thresh, 
-                                 direction, axis = axis, 
-                                 verbose = verbose)
+                                 direction, axis = axis)
 
     # Drop columns / rows
 
