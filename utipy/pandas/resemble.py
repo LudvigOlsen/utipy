@@ -1,9 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Created on Wed Mar 29 15:14:44 2017
-
-@author: ludvigolsen
+Resemble module
 """
 
 from utipy.helpers import _extended_describe
