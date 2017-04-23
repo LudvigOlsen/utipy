@@ -50,28 +50,27 @@ def resemble(Series, distribution = 'uniform'):
     # Check for NaNs
 
 
-
-
     # Get description of Series
     desc = _extended_describe(Series)
+
     
     if distribution == 'uniform':
         
-        generated = np.random.uniform(low=desc['min'], high=desc['max'], size=desc['count'])
+        generated = np.random.uniform(low=desc['min'], high=desc['max'], size=int(desc['count']))
     
     elif distribution == 'gaussian':
         
-        generated = np.random.normal(loc=desc['mean'], scale=desc['std'], size=desc['count'])
+        generated = np.random.normal(loc=desc['mean'], scale=desc['std'], size=int(desc['count']))
         
     elif distribution == 'robust gaussian':
         
-        generated = np.random.normal(loc=desc['median'], scale=desc['IQR'], size=desc['count'])
+        generated = np.random.normal(loc=desc['median'], scale=desc['IQR'], size=int(desc['count']))
     
     elif distribution == 'poisson':
         
         # CHECK UP ON THIS ONE! SHOULD THERE BE A MIN / MAX? 
         # HOW DOES POISSON REALLY WORK?
-        generated = np.random.poisson(lam=desc['max'], size=desc['count'])
+        generated = np.random.poisson(lam=desc['max'], size=int(desc['count']))
         
     elif distribution == 'shuffle':
         
