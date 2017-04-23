@@ -49,10 +49,11 @@ def distort(data,
                 shuffles original data.
     amount : float
         Blend rate. Amount of generated data to keep.   
-        Percentage between 0-1                              ############ Fraction?
+        Percentage between 0-1
             0: Keep only original data.
             1: Keep only generated data.
             0.1: 10% generated / 90% original.
+        A value in-between 0-1 will result in integers becoming floats.
     size : float
         Size of data to return relative to original dataframe.
         Percentage between 0-1.
@@ -88,8 +89,9 @@ def distort(data,
     ## Check inputs
     # exclude must be array not scalar
 
-    # If data is a pd.Series
-    # Make into a dataframe and set bool
+    # If data is a pd.Series or np.ndarray
+    # Make into a dataframe and 
+    # remember what type it originally was
     data, data_type = convert_to_df(data)
     
     ## Subsets
