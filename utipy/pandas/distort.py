@@ -10,12 +10,14 @@ from random import sample
 
 from . import resemble
 from utipy.array.blend import blend
+from utipy.helpers.convert_to_df import convert_to_df
 
 # Different name?
 def distort(data, 
             distribution = 'uniform', 
             amount = 1,
             size = 1,
+            randomize_original = False,
             exclude = None,
             label_column = None, 
             keep_labels = True,
@@ -46,8 +48,8 @@ def distort(data,
             'shuffle'
                 shuffles original data.
     amount : float
-        Blend rate. Amount of generated data to keep.
-        Percentage between 0-1
+        Blend rate. Amount of generated data to keep.   
+        Percentage between 0-1                              ############ Fraction?
             0: Keep only original data.
             1: Keep only generated data.
             0.1: 10% generated / 90% original.
@@ -55,6 +57,8 @@ def distort(data,
         Size of data to return relative to original dataframe.
         Percentage between 0-1.
         Observations are randomly sampled.
+    randomize_original : bool
+        Should the values of the inputted data be randomized?
     exclude : list of strings
         Names of columns not to generate.
         Are filled with NaN.
@@ -83,6 +87,10 @@ def distort(data,
     
     ## Check inputs
     # exclude must be array not scalar
+
+    # If data is a pd.Series
+    # Make into a dataframe and set bool
+    data, data_type = convert_to_df(data)
     
     ## Subsets
 
@@ -112,7 +120,7 @@ def distort(data,
     # Based on amount, blend the two signals
     if amount != 1:
         
-        data_blended = pd.concat([blend(data_regenerated[v], data[v], amount = amount) for \
+        data_blended = pd.concat([blend(data[v], data_regenerated[v], amount = amount) for \
                                   v in data_regenerated.columns], axis = 1)
         
     else:
@@ -159,16 +167,22 @@ def distort(data,
 
     ## Cut to 'size'
 
-    # Sample indices from range 0: n rows
-    keep_indices = sample(range(0,len(data)), int(len(data)*size))
+    if randomize_original:
+        # Sample indices from range 0: n rows
+        keep_indices = sample(range(0,len(data)), int(len(data)*size))
+        
+        # Get the rows with the sampled indices
+        keep_data = data_ordered.iloc[keep_indices]
     
-    # Get the rows with the sampled indices
-    keep_data = data_ordered.iloc[keep_indices]
-    
+    else:
+
+        keep_data = data_ordered[:int(len(data)*size)]
+        
     
     # Append
     if append:
-        return(pd.concat([data, keep_data]))
+        # Make sure they are the same size
+        return(pd.concat([data[:len(keep_data)], keep_data])) 
     else:
         return(keep_data)
     
