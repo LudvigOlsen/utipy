@@ -7,6 +7,9 @@
 import pandas as pd
 import numpy as np
 import warnings
+import sys
+
+from utipy.helpers.convert_to_df import convert_to_df
 
 def polynomializer(data, degree = 2, suffix = '_poly', exclude = []):
     
@@ -48,6 +51,8 @@ def polynomializer(data, degree = 2, suffix = '_poly', exclude = []):
     # Create copy of data
     data = data.copy()
     
+    data,_ = convert_to_df(data)
+
     if exclude != []:
 
         cols_include = [c for c in data.columns if c not in exclude]
@@ -87,16 +92,11 @@ def polynomializer(data, degree = 2, suffix = '_poly', exclude = []):
             except TypeError:
                 raise("Something went wrong when creating polynomials.")
             except:
-                print "Unexpected error:", sys.exc_info()[0]
+                print("Unexpected error:", sys.exc_info()[0])
                 raise
         else:
-            except ValueError:
-                raise("Something went wrong when creating polynomials.")
-            except TypeError:
-                raise("Something went wrong when creating polynomials.")
-            except:
-                print "Unexpected error:", sys.exc_info()[0]
-                raise
+            raise("Something went wrong when creating polynomials.")
+            
     
     # Function for adding suffix to column names
     def suffixicate(df, deg):
