@@ -134,7 +134,7 @@ def test_drop_DF_rows():
     droppedany = ut.drop(data = df, 
                          axis = 1,
                          value = 'any',
-                         thresh = 2/8, # more than two appearances of any value
+                         thresh = 2./8, # more than two appearances of any value
                          direction = '>')
 
     assert droppedany.shape == (2,8)
