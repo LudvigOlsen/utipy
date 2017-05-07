@@ -7,7 +7,7 @@
 # Import operator module for dynamically passing operators
 import operator
 import numpy as np
-
+from utipy.helpers.convert_to_type import convert_to_type
 
 def makes_up(Series, value, thresh, direction = '>', missing_error = False):
     
@@ -22,8 +22,8 @@ def makes_up(Series, value, thresh, direction = '>', missing_error = False):
 
     Parameters
     ----------
-    Series : pd.Series
-        The Series to check.
+    Series : pd.Series, np.ndarray, list
+        The Series to check. Array-like objects will be converted to pd.Series internally.
     value : str / int / float
         The value to match.
             Regular value,  
@@ -81,8 +81,11 @@ def makes_up(Series, value, thresh, direction = '>', missing_error = False):
     # Make sure thresh is given as a number between 0 and 1
     if not (thresh >= 0 and thresh <= 1):
         
-        
         raise ValueError('threshold incorrect format. Give as percentage (between 0-1)')
+
+    # Check if Series is a pd.Series
+    # and convert if necessary
+    Series = convert_to_type(Series, 'pd.Series')
 
     if value == 'NaN':
         n_value = Series.isnull().sum()
