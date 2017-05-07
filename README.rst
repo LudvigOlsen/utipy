@@ -3,7 +3,7 @@ utipy
 
 Utility functions for python.
 
-Pre-Alpha stage. Subject to change. 
+Alpha stage. Subject to change. 
 
 > https://pypi.python.org/pypi/utipy/     
 
