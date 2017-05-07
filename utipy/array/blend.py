@@ -1,8 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env 
 # -*- coding: utf-8 -*-
 """
-Created on Wed Mar 30 13:16:39 2017
-
 @author: ludvigolsen
 """
 
@@ -11,8 +9,8 @@ from utipy.helpers.check_instance import check_instance
 from utipy.helpers.convert_to_type import convert_to_type
 
 def blend(x1, x2, amount = 0.5):
-	"""
-    Blend two arrays
+	
+	"""Blend two arrays
 
     Parameters
     ----------
@@ -23,20 +21,28 @@ def blend(x1, x2, amount = 0.5):
     amount : float
     	Blend rate. 
         Percentage between 0-1
-            0: Keep only x1.
-            1: Keep only x2.
-            0.1: 10% x2 / 90% x1.
+            0: Keep only x1.  
+            1: Keep only x2.  
+            0.1: 10% x2 / 90% x1.  
         A value in-between 0-1 will result in integers becoming floats.
+
 
     Returns
     -------
     list, np.ndarray, pd.Series
     	Blended array with type of the original (x1)
 
+
     Examples
     --------
-	x1 = 1,2,3,4,5; x2 = 4,5,6,7,8; amount = 0.5
-		returns 2.5,3.5,4.5,5.5,6.5
+
+    Uncomment code to run.
+
+	# x1 = [1,2,3,4,5]  
+	# x2 = [4,5,6,7,8]  
+	# blend(x1, x2, amount = 0.5)  
+	
+	returns [2.5,3.5,4.5,5.5,6.5]
 	
     """
 

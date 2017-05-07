@@ -1,31 +1,67 @@
-#!/usr/bin/env python2
+#!/usr/bin/env 
 # -*- coding: utf-8 -*-
 """
-Created on Wed Mar 29 14:25:23 2017
-
 @author: ludvigolsen
 """
 
 # Import operator module for dynamically passing operators
 import operator
-#import pandas as pd
 import numpy as np
 
 
 def makes_up(Series, value, thresh, direction = '>', missing_error = False):
+    
+    """Checks the percent-wise appearance of a specific value (or any value) in a Series
+    against a threshold and a given direction.
 
-    """
-    Checks if value (or any value) appears in pandas Series more than,
-    less than or equal to a threshhold given as percentage.
+    Asks:
+        'Does [value] make up [direction] than [thresh] percent of the Series?'
+    E.g.:
+        'Does 0 make up more than 90 percent of the Series?'
 
 
-    direction -  '>', '<', '>=', '<=', or '=='
-        defaults to '>' meaning 'more than [thresh] percent values' 
-    thresh : given as percentage (between 0-1)
-    value : value to match. 
-        To find 'NaN's, pass 'NaN
-        To find 'inf's, pass 'inf'
-        'Any
+    Parameters
+    ----------
+    Series : pd.Series
+        The Series to check.
+    value : str / int / float
+        The value to match.
+            Regular value,  
+            'any',  
+            'NaN',  
+            'inf'  
+    thresh : float
+        Threshold.
+        Percentage between 0-1.
+    direction : str
+        Operator sign for comparison.
+            '>', '<', '>=', '<=', '=='.
+    missing_error : bool
+        Raise error if value is not in Series.
+
+
+    Returns
+    -------
+    bool
+
+
+    Examples
+    --------
+    
+    Uncomment code to run.
+    
+    Any NaNs in the Series?
+    # makes_up(Series, value = 'NaN', thresh = 0, 
+    #          direction = '>')
+         
+    Does the Series only contain 1 unique value?
+    I.e. the same value in 100% of the rows.
+    # makes_up(Series, value = 'any', thresh = 1, 
+    #          direction = '==')
+    
+    Does '0' make up less than 30% of the Series?
+    # makes_up(Series, value = '0', thresh = 0.3, 
+    #          direction = '<')
 
     """
     
