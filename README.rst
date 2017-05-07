@@ -3,6 +3,8 @@ utipy
 
 Utility functions for python.
 
+Pandas and array operations. Data grouping, folding, and partitioning.
+
 Alpha stage. Subject to change. 
 
 > https://pypi.python.org/pypi/utipy/     
