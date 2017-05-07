@@ -23,6 +23,10 @@ def test_makes_up_Series():
 	assert not ut.makes_up(xinf, 'inf', thresh = 1, direction = '<')
 	assert ut.makes_up(xinf, 'inf', thresh = 0.5, direction = '>')
 
+	assert ut.makes_up(xinf, 'any', thresh = 1, direction = '==')
+	assert not ut.makes_up(xinf, 'any', thresh = 1, direction = '<')
+	assert ut.makes_up(xinf, 'any', thresh = 0.5, direction = '>')
+
 	assert not ut.makes_up(x6, 6, thresh = 1, direction = '==')
 	assert ut.makes_up(x6, 6, thresh = 1, direction = '<')
 	assert not ut.makes_up(x6, 6, thresh = 0.5, direction = '>')
