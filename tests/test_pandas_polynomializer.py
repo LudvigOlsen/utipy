@@ -1,4 +1,4 @@
-# Testing array.blend
+# Testing pandas.polynomializer
 
 import utipy as ut
 import numpy as np
@@ -16,25 +16,6 @@ def test_polynomializer_DataFrame():
                            'c': ['a','b','c','d','e'],
                            'a_poly2': [1,4,9,16,25], 
                            'b_poly2': [4,9,16,25,36],	
-                           'a_poly3': [1,8,27,64, 125],
-                           'b_poly3': [8,27,64, 125, 216]}, 
-                            columns = ['a', 'b', 'c', 'a_poly2', 'b_poly2', 
-                                       'a_poly3', 'b_poly3'])
-
-    assert polynomialized.equals(out_df)
-
-def test_polynomializer():
-
-    df = pd.DataFrame({'a': [1,2,3,4,5],
-                       'b': [2,3,4,5,6],
-                       'c': ['a','b','c','d','e']})
-    polynomialized = ut.polynomializer(df, degree = 3, exclude = ['c'])
-
-    out_df = pd.DataFrame({'a': [1,2,3,4,5],
-                           'b': [2,3,4,5,6],
-                           'c': ['a','b','c','d','e'],
-                           'a_poly2': [1,4,9,16,25], 
-                           'b_poly2': [4,9,16,25,36],   
                            'a_poly3': [1,8,27,64, 125],
                            'b_poly3': [8,27,64, 125, 216]}, 
                             columns = ['a', 'b', 'c', 'a_poly2', 'b_poly2', 
