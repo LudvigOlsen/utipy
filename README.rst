@@ -22,6 +22,10 @@ Pre-Alpha stage. Subject to change.
  	- Balanced partitions for train/test
  	- Balanced folds for cross-validation
 
+ - Array operations
+ 	- Blend two arrays of same length
+ 	- Reverse array within windows
+
 TODO
  - Add documentation
  - Add brown noise, pink noise, etc. as 'distributions' in resemble()
