@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env 
 # -*- coding: utf-8 -*-
 """
-Resemble module
+@author: ludvigolsen
 """
 
 from utipy.helpers import _extended_describe
@@ -9,6 +9,7 @@ import numpy as np
 from random import shuffle
 
 def resemble(Series, distribution = 'uniform'):
+    
     """Generate resembling Series
 
     Generates data that resembles the original data by using descriptors

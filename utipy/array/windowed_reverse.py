@@ -1,10 +1,16 @@
+#!/usr/bin/env 
+# -*- coding: utf-8 -*-
+"""
+@author: ludvigolsen
+"""
+
 import numpy as np
 from utipy.helpers.check_instance import check_instance
 from utipy.helpers.convert_to_type import convert_to_type
 
 def windowed_reverse(x, wsize = 2):
-    """
-    Reverse / flip windows of array
+    
+    """Reverse / flip windows of array
 
     Parameters
     ----------

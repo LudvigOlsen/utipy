@@ -1,8 +1,8 @@
-#!/usr/bin/env python2
+#!/usr/bin/env 
 # -*- coding: utf-8 -*-
 """
-Distort module
-"""  
+@author: ludvigolsen
+"""
 
 import pandas as pd
 import numpy as np
@@ -12,7 +12,6 @@ from . import resemble
 from utipy.array.blend import blend
 from utipy.helpers.convert_to_df import convert_to_df
 
-# Different name?
 def distort(data, 
             distribution = 'uniform', 
             amount = 1,
@@ -23,7 +22,7 @@ def distort(data,
             keep_labels = True,
             new_label = 'noise', 
             append = False):
-
+    
     """Distort data in pandas DataFrame
 
     Generates data that resembles the original data by using descriptors

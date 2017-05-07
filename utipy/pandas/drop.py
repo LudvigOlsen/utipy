@@ -1,12 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env 
 # -*- coding: utf-8 -*-
 """
-
-Drop module
+@author: ludvigolsen
 """
 
-#import pandas as pd
-#import numpy as np
 import logging
 from .makes_up import makes_up
 
@@ -35,8 +32,8 @@ def drop(data,
         The data to distort.
     value : str / int / float
         The value to match.
-            Regular value 
-            'any'
+            Regular value, 
+            'any',
             'NaN',
             'inf'
     thresh : float

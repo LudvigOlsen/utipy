@@ -1,8 +1,6 @@
 #!/usr/bin/env 
 # -*- coding: utf-8 -*-
 """
-Created on Wed May 7 13:50:39 2017
-
 @author: ludvigolsen
 """
 
