@@ -12,7 +12,8 @@ def drop(data,
          thresh = 0,
          direction = '>',
          axis = 0,
-         cols = None,
+         include = None,
+         exclude = None,
          verbose = False):
 
     """Drop rows or columns from pandas DataFrame based on values.
@@ -44,8 +45,12 @@ def drop(data,
             '>', '<', '>=', '<=', '=='.
     axis : int
         0 for columns, 1 for rows.
-    cols : list of strings
-        Column names to search within.
+    include : list of strings
+        Names of columns to search within. 
+        None means ALL are included unless otherwise specified, see *exclude*.
+    exclude : list of strings
+        Names of columns NOT to search within.
+        None means no columns are excluded unless otherwise specified, see *include*.
     verbose : bool
         Log number of dropped rows / columns
 
@@ -90,11 +95,18 @@ def drop(data,
     
     # Create copy of dataframe
     data = data.copy()
-    
-    if cols is not None:
 
-        # Subset dataframe to only work on cols
-        data_cols = data.filter(items=cols)
+    if exclude is not None and include is not None:
+        raise(ValueError("Either include or exclude must be None."))
+    elif exclude is not None:
+        # Create include list
+        include = [col for col in data.columns if col not in exclude]
+
+
+    if include is not None:
+
+        # Subset dataframe to only work on included cols
+        data_cols = data.filter(items=include)
 
         # Find columns / rows to drop
         to_drop = _find_exceeders(data_cols, value, 
@@ -139,7 +151,10 @@ def drop(data,
 def _find_exceeders(data, value, thresh, direction, axis):
     """Internal wrapper function for calling makes_up()"""
 
-    
+    # Notice:
+    # pd apply() passes the Series as objects, even
+    # when it's the columns it's working with!
+
     exceeders = data.apply(makes_up, axis = axis, value=value, 
                thresh=thresh, direction=direction)
 
