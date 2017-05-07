@@ -1,28 +1,54 @@
-#!/usr/bin/env python2
+#!/usr/bin/env 
 # -*- coding: utf-8 -*-
 """
-Created on Wed Mar 29 15:55:12 2017
-
 @author: ludvigolsen
 """
 
 import pandas as pd
 import numpy as np
+import warnings
 
-def polynomializer(data, degree = 2, suffix = '_poly', exclude = None):
+def polynomializer(data, degree = 2, suffix = '_poly', exclude = []):
     
-    """
-    Creates polymonial features
-    Adds suffix with information on which
-    degree a column represents
+    """Creates polymonial features.
+    Adds suffix with information on which degree a column represents.
     
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        The data to add polynomial features to.
+    degree : int
+        How many degrees to add.
+    suffix: str
+        Text between column name and degree number.
+        Added to the new columns.
+    exclude: list
+        List of column names to exclude, e.g. non-numeric
+        columns.
+
+
+    Returns
+    -------
+    pd.DataFrame with added polynomial features / columns.
+
+
+    Examples
+    --------
+    
+    Uncomment code to run.
+    
+    # df = pd.DataFrame({'a': [1,2,3,4,5],
+    #                    'b': [2,3,4,5,6],
+    #                    'c': ['a','b','c','d','e']})
+    # polynomializer(df, degree = 3, exclude = ['c'])
 
     """
     
     # Create copy of data
     data = data.copy()
     
-    if exclude is not None:
+    if exclude != []:
 
         cols_include = [c for c in data.columns if c not in exclude]
         data_include =  data.filter(items = cols_include)
@@ -31,8 +57,46 @@ def polynomializer(data, degree = 2, suffix = '_poly', exclude = None):
 
         data_include = data
 
-    # Create dataframes with exponential columns
-    polynomialized = [data_include ** deg for deg in range(degree+1)[1:]]
+
+    try:
+        # Create dataframes with exponential columns
+        polynomialized = [data_include ** deg for deg in range(degree+1)[1:]]
+    
+    except:
+
+        # This exception is most likely seen
+        # because a column in data_include is NOT numeric.
+        # So we exclude non-numeric columns, warn the user
+        # and try again.
+
+        numeric_data = data_include.select_dtypes(include=[np.number])
+        
+        # Get excluded columns and add to exclude
+        auto_excluded = [i for i in data_include.columns if i not in numeric_data.columns] 
+        exclude = np.concatenate([exclude, auto_excluded])
+
+        if len(auto_excluded) != 0:
+            warnings.warn("Excluded {} non-numeric columns.".format(len(auto_excluded)))
+
+            try:
+                # Create dataframes with exponential columns
+                polynomialized = [numeric_data ** deg for deg in range(degree+1)[1:]]
+
+            except ValueError:
+                raise("Something went wrong when creating polynomials.")
+            except TypeError:
+                raise("Something went wrong when creating polynomials.")
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                raise
+        else:
+            except ValueError:
+                raise("Something went wrong when creating polynomials.")
+            except TypeError:
+                raise("Something went wrong when creating polynomials.")
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                raise
     
     # Function for adding suffix to column names
     def suffixicate(df, deg):
