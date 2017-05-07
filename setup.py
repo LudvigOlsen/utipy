@@ -6,19 +6,17 @@
 
 from setuptools import setup
 
-def readme():
-    with open('README.rst') as f:
-        return f.read()
-
 setup(name='utipy',
-      version='0.2.0',
+      version='0.2.1',
       description='Utility functions for python',
       long_description='Pandas and array operations. Data grouping, folding, and partitioning.',
       classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Topic :: Utilities',
       ],
       keywords='pandas numpy array ndarray groups folds kfold partitioning utilities tools',
       url='http://github.com/ludvigolsen/utipy',
