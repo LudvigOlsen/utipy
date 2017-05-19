@@ -149,22 +149,17 @@ def test_drop_DF_rows():
     assert droppednone.shape == (5,8)
     assert (droppednone.index.values == np.asarray([0,1,2,3,4])).all()
 
+    # include
+    droppedinc = ut.drop(data = df, 
+                         axis = 1,
+                         value = 'any',
+                         thresh = 2./8, # more than two appearances of any value
+                         direction = '>',
+                         include = [1,2])
 
-    # Needs testing / thinking about include and exclude for axis = 1?
-    # Do they take indices?
-
-    # assert (droppednone.columns == ['a', 'b','c', 's','na','infs','zero','zeros']).all()
-    # assert (droppednone.dtypes == df.dtypes).all()
-    # # exclude
-    # droppedexc = ut.drop(data = df, 
-    #                      axis = 1,
-    #                      value = 'NaN',
-    #                      thresh = 0,
-    #                      direction = '>',
-    #                      exclude = ['infs'])
-
-    # assert (droppedexc.columns == ['a', 'b','c', 's','infs','zero','zeros']).all()
-
+    assert droppedinc.shape == (3,8)
+    assert (droppedinc.index.values == np.asarray([0,3,4])).all()
+    
     # # include
     # droppedinc = ut.drop(data = df, 
     #                      axis = 1,

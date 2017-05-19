@@ -46,11 +46,11 @@ def drop(data,
     axis : int
         0 for columns, 1 for rows.
     include : list of strings
-        Names of columns to search within. 
+        Names of columns / indices of rows to search within. 
         None means ALL are included unless otherwise specified, see *exclude*.
     exclude : list of strings
-        Names of columns NOT to search within.
-        None means no columns are excluded unless otherwise specified, see *include*.
+        Names of columns / indices of rows NOT to search within.
+        None means no columns/rows are excluded unless otherwise specified, see *include*.
     verbose : bool
         Log number of dropped rows / columns
 
@@ -98,38 +98,57 @@ def drop(data,
 
     if exclude is not None and include is not None:
         raise(ValueError("Either include or exclude must be None."))
-    elif exclude is not None:
-        # Create include list
-        include = [col for col in data.columns if col not in exclude]
-
-
-    if include is not None:
-
-        # Subset dataframe to only work on included cols
-        data_cols = data.filter(items=include)
-
-        # Find columns / rows to drop
-        to_drop = _find_exceeders(data_cols, value, 
-                                 thresh, direction,
-                                 axis = axis)
-
-    else:
-
-        # Find columns / rows to drop
-        to_drop = _find_exceeders(data, value, thresh, 
-                                 direction, axis = axis)
-
-    # Drop columns / rows
+    
+    
+    # Columns
 
     if axis == 0:
 
+        if exclude is not None:
+            # Create include list
+            include = [col for col in data.columns if col not in exclude]
+
+
+        if include is not None:
+
+            # Subset dataframe to only work on included cols
+            data_cols = data.filter(items=include)
+
+            # Find columns / rows to drop
+            to_drop = _find_exceeders(data_cols, value, 
+                                     thresh, direction,
+                                     axis = axis)
+
+        else:
+
+            # Find columns / rows to drop
+            to_drop = _find_exceeders(data, value, thresh, 
+                                     direction, axis = axis)
+
+        # Drop columns
         if verbose:
 
             logging.info('Dropped {} columns'.format(len(to_drop)))
             
         return(data.drop(to_drop,axis=1))
  
+
+    # Rows
+
     elif axis == 1: 
+
+        # Find columns / rows to drop
+        to_drop = _find_exceeders(data, value, thresh, 
+                                 direction, axis = axis)
+
+        # Remove indices not in include or in exclude
+
+        if exclude is not None:
+            to_drop = [i for i in to_drop if i not in exclude]
+        elif include is not None:
+            to_drop = [i for i in to_drop if i in include]
+
+        # Drop rows
 
         if verbose:
 
