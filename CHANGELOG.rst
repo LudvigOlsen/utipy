@@ -1,6 +1,9 @@
 Changelog
 --------
 
+v/0.2.3:
+ - minor bugfix
+
 v/0.2.2:
 
  - pandas.drop gets arguments *include* and *exclude*. This removes *cols* argument.
