@@ -4,10 +4,10 @@
 @author: ludvigolsen
 """
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(name='utipy',
-      version='0.2.2',
+      version='0.2.9',
       description='Utility functions for python',
       long_description='Pandas and array operations. Data grouping, folding, and partitioning.',
       classifiers=[
@@ -23,7 +23,7 @@ setup(name='utipy',
       author='Ludvig Renbo Olsen',
       author_email='mail@ludvigolsen.dk',
       license='MIT',
-      packages=['utipy'],
+      packages=find_packages(),
       install_requires=[
           'pandas',
           'numpy'
