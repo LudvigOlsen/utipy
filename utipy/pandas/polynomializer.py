@@ -7,9 +7,9 @@
 import pandas as pd
 import numpy as np
 import warnings
-import sys
 
 from utipy.helpers.convert_to_df import convert_to_df
+
 
 def polynomializer(data, degree = 2, suffix = '_poly', exclude = []):
     
@@ -86,18 +86,20 @@ def polynomializer(data, degree = 2, suffix = '_poly', exclude = []):
             try:
                 # Create dataframes with exponential columns
                 polynomialized = [numeric_data ** deg for deg in range(degree+1)[1:]]
-
             except ValueError:
-                raise("Something went wrong when creating polynomials.")
-            except TypeError:
-                raise("Something went wrong when creating polynomials.")
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
+                print("Something went wrong when creating polynomials.")
                 raise
+            except TypeError:
+                print("Something went wrong when creating polynomials.")
+                raise
+            except:
+                print("Something went wrong when creating polynomials.")
+                raise
+        
         else:
-            raise("Something went wrong when creating polynomials.")
-            
-    
+            print("Something went wrong when creating polynomials.")
+            raise
+
     # Function for adding suffix to column names
     def suffixicate(df, deg):
         if deg != 0:
@@ -128,4 +130,3 @@ def polynomializer(data, degree = 2, suffix = '_poly', exclude = []):
 
     
     return(data_ordered)
-    
