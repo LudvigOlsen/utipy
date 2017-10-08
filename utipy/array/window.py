@@ -36,7 +36,7 @@ def window(x, size = 2, gap=1, sample_rate = 1,
         Does not change order of elements within windows.
     discard_shorts: bool
         If the given array is shorter than size*sample_rate,
-        return (np.Nan,np.Nan) if (True) or (x,0) if (False).
+        return ([],0) if (True) or ([x],0) if (False).
 
 
     Returns
@@ -68,9 +68,9 @@ def window(x, size = 2, gap=1, sample_rate = 1,
     # If the array is too short
     if len(x) < n_samples:
         if discard_shorts:
-            return(np.NaN,np.NaN)
+            return([],0)
         else:
-            return(x, 0)
+            return([x], 0)
 
 
     if rolling:

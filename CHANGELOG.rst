@@ -1,6 +1,9 @@
 Changelog
 --------
 
+v/0.3.1
+ - Changes output when arrays are too short in array.window
+
 v/0.3.0
  - Adds array.window
 

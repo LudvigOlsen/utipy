@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 
 setup(name='utipy',
-      version='0.3.0',
+      version='0.3.1',
       description='Utility functions for python',
       long_description='Pandas and array operations. Data grouping, folding, and partitioning.',
       classifiers=[
@@ -18,7 +18,7 @@ setup(name='utipy',
         'Programming Language :: Python :: 3.6',
         'Topic :: Utilities',
       ],
-      keywords='pandas numpy array ndarray groups folds kfold partitioning utilities tools',
+      keywords='pandas numpy array ndarray groups folds kfold partitioning utilities tools rolling windows',
       url='http://github.com/ludvigolsen/utipy',
       author='Ludvig Renbo Olsen',
       author_email='mail@ludvigolsen.dk',

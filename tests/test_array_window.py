@@ -40,11 +40,12 @@ def test_window_list_not_rolling():
 	w7, nw7 = ut.window(x1, size = 7, gap=0, sample_rate = 1, 
            rolling=False, reverse_direction = False,
            discard_shorts=True)
+	w7_ = []
 
 	w8, nw8 = ut.window(x1, size = 7, gap=0, sample_rate = 1, 
            rolling=False, reverse_direction = False,
            discard_shorts=False)
-	w8_ = x1
+	w8_ = [np.asarray(x1)]
 
 	assert np.array_equal(w1,w1_)
 	assert np.array_equal(w2,w2_)
@@ -52,7 +53,7 @@ def test_window_list_not_rolling():
 	assert np.array_equal(w4,w4_)
 	assert np.array_equal(w5,w5_)
 	assert np.array_equal(w6,w6_)
-	assert np.isnan(w7) 
+	assert np.array_equal(w7,w7_)
 	assert np.array_equal(w8,w8_)
 
 	assert nw1 == 2
@@ -61,7 +62,7 @@ def test_window_list_not_rolling():
 	assert nw4 == 1
 	assert nw5 == 2
 	assert nw6 == 2
-	assert np.isnan(nw7) 
+	assert nw7 == 0 
 	assert nw8 == 0
 
 
@@ -102,12 +103,13 @@ def test_window_ndarray_not_rolling():
 	w7, nw7 = ut.window(x1, size = 7, gap=0, sample_rate = 1, 
            rolling=False, reverse_direction = False,
            discard_shorts=True)
+	w7_ = []
 	
 
 	w8, nw8 = ut.window(x1, size = 7, gap=0, sample_rate = 1, 
            rolling=False, reverse_direction = False,
            discard_shorts=False)
-	w8_ = x1
+	w8_ = [x1]
 
 	assert np.array_equal(w1,w1_)
 	assert np.array_equal(w2,w2_)
@@ -115,7 +117,7 @@ def test_window_ndarray_not_rolling():
 	assert np.array_equal(w4,w4_)
 	assert np.array_equal(w5,w5_)
 	assert np.array_equal(w6,w6_)
-	assert np.isnan(w7)
+	assert np.array_equal(w7,w7_)
 	assert np.array_equal(w8,w8_)
 
 	assert nw1 == 2
@@ -124,7 +126,7 @@ def test_window_ndarray_not_rolling():
 	assert nw4 == 1
 	assert nw5 == 2
 	assert nw6 == 2
-	assert np.isnan(nw7)
+	assert nw7 == 0
 	assert nw8 == 0
 
 
