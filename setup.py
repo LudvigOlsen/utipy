@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 
 setup(name='utipy',
-      version='0.2.9',
+      version='0.3.0',
       description='Utility functions for python',
       long_description='Pandas and array operations. Data grouping, folding, and partitioning.',
       classifiers=[

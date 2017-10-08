@@ -27,6 +27,7 @@ Alpha stage. Subject to change.
  - Array operations
  	- Blend two arrays of same length
  	- Reverse array within windows
+ 	- Split array into rolling windows
 
 TODO
  - Add documentation

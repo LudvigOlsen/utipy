@@ -14,3 +14,4 @@ from .groups.partition import partition
 
 from .array.blend import blend
 from .array.windowed_reverse import windowed_reverse
+from .array.window import window

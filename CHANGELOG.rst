@@ -1,6 +1,9 @@
 Changelog
 --------
 
+v/0.3.0
+ - Adds array.window
+
 v/0.2.9:
  - minor bugfix
 
