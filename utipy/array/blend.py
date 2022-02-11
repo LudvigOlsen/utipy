@@ -1,5 +1,3 @@
-#!/usr/bin/env 
-# -*- coding: utf-8 -*-
 """
 @author: ludvigolsen
 """
@@ -8,9 +6,10 @@ import numpy as np
 from utipy.helpers.check_instance import check_instance
 from utipy.helpers.convert_to_type import convert_to_type
 
-def blend(x1, x2, amount = 0.5):
-	
-	"""Blend two arrays
+
+def blend(x1, x2, amount=0.5):
+    """
+    Blend two arrays
 
     Parameters
     ----------
@@ -19,7 +18,7 @@ def blend(x1, x2, amount = 0.5):
     x2 : list, np.ndarray, pd.Series
         The second array
     amount : float
-    	Blend rate. 
+        Blend rate. 
         Percentage between 0-1
             0: Keep only x1.  
             1: Keep only x2.  
@@ -30,7 +29,7 @@ def blend(x1, x2, amount = 0.5):
     Returns
     -------
     list, np.ndarray, pd.Series
-    	Blended array with type of the original (x1)
+        Blended array with type of the original (x1)
 
 
     Examples
@@ -38,24 +37,21 @@ def blend(x1, x2, amount = 0.5):
 
     Uncomment code to run.
 
-	# x1 = [1,2,3,4,5]  
-	# x2 = [4,5,6,7,8]  
-	# blend(x1, x2, amount = 0.5)  
-	
-	returns [2.5,3.5,4.5,5.5,6.5]
-	
+        # x1 = [1,2,3,4,5]  
+        # x2 = [4,5,6,7,8]  
+        # blend(x1, x2, amount = 0.5)  
+
+        returns [2.5,3.5,4.5,5.5,6.5]
+
     """
 
     # Get instance types (np.ndarray, list, pd.Series)
-	instance_type = check_instance(x1)
+    instance_type = check_instance(x1)
 
-	x1_weighted = np.multiply(x1, (1 - amount))
-	x2_weighted = np.multiply(x2, amount)
-    
-	blended = x1_weighted + x2_weighted
-    
+    x1_weighted = np.multiply(x1, (1 - amount))
+    x2_weighted = np.multiply(x2, amount)
+
+    blended = x1_weighted + x2_weighted
+
     # Convert to original type (np.ndarray, list, pd.Series)
-	return(convert_to_type(blended, instance_type))
-
-
-
+    return(convert_to_type(blended, instance_type))

@@ -1,5 +1,3 @@
-#!/usr/bin/env 
-# -*- coding: utf-8 -*-
 """
 @author: ludvigolsen
 """

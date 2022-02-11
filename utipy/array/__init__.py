@@ -3,6 +3,3 @@
 from .blend import blend
 from .windowed_reverse import windowed_reverse
 from .window import window
-
-
-
