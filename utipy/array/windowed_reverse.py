@@ -3,8 +3,8 @@
 """
 
 import numpy as np
-from utipy.helpers.check_instance import check_instance
-from utipy.helpers.convert_to_type import convert_to_type
+from utipy.utils.check_instance import check_instance
+from utipy.utils.convert_to_type import convert_to_type
 
 def windowed_reverse(x, wsize = 2):
     
@@ -40,5 +40,5 @@ def windowed_reverse(x, wsize = 2):
     flattened_array = np.concatenate(reversed_windows)
     
     # Convert to original type (np.ndarray, list, pd.Series)
-    return(convert_to_type(flattened_array, instance_type))
+    return convert_to_type(flattened_array, instance_type)
     

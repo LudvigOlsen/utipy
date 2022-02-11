@@ -1,5 +1,3 @@
-#!/usr/bin/env 
-# -*- coding: utf-8 -*-
 """
 @author: ludvigolsen
 """
@@ -20,36 +18,36 @@ def convert_to_type(data, data_type):
     """
     if data_type == 'list' and not isinstance(data, list):
         try:
-            return(list(data))
+            return list(data)
         except:
-            raise(TypeError("Could not convert to list"))
+            raise TypeError("Could not convert to list")
     
     elif data_type == 'tuple' and not isinstance(data, tuple):
         try:
-            return(tuple(data))
+            return tuple(data)
         except:
-            raise(TypeError("Could not convert to tuple"))
+            raise TypeError("Could not convert to tuple")
     
     elif data_type == 'np.ndarray' and type(data).__module__ != np.__name__:
         try:
-            return(np.asarray(data))
+            return np.asarray(data)
         except:
-            raise(TypeError("Could not convert to numpy.ndarray"))
+            raise TypeError("Could not convert to numpy.ndarray")
             
     elif data_type == 'pd.Series' and not isinstance(data, pd.Series):
         try:
-            return(pd.Series(data))
+            return pd.Series(data)
         except:
-            raise(TypeError("Could not convert to pandas.Series"))
+            raise TypeError("Could not convert to pandas.Series")
     
     elif data_type == 'pd.DataFrame' and not isinstance(data, pd.DataFrame):
         try:
             try:
-                return(pd.DataFrame(data))
+                return pd.DataFrame(data)
             except:
-                return(pd.DataFrame({'x':data}))
+                return pd.DataFrame({'x':data})
         except:
-            raise(TypeError("Could not convert to pandas.DataFrame"))
+            raise TypeError("Could not convert to pandas.DataFrame")
     else:
-        return(data)
+        return data
         

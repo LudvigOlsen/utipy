@@ -70,4 +70,4 @@ def partition(data, p=0.2, id_col=None, cat_col=None, copy=True):
     # Subset data by grouping factor
     partitions = subset_by_levels(data, 'group', drop_cat_col=True)
 
-    return(partitions)
+    return partitions

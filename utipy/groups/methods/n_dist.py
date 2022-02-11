@@ -28,4 +28,4 @@ def _n_dist(v, n, randomize=False):
     if randomize:
         shuffle(v_ceiled)
 
-    return(v_ceiled)
+    return v_ceiled

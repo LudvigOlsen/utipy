@@ -84,4 +84,4 @@ def _l_sizes(v, p, randomize=False, rounding='floor'):
     if randomize:
         shuffle(grouping_factor)
 
-    return(grouping_factor)
+    return grouping_factor

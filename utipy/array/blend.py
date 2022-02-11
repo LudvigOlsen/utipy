@@ -3,8 +3,8 @@
 """
 
 import numpy as np
-from utipy.helpers.check_instance import check_instance
-from utipy.helpers.convert_to_type import convert_to_type
+from utipy.utils.check_instance import check_instance
+from utipy.utils.convert_to_type import convert_to_type
 
 
 def blend(x1, x2, amount=0.5):
@@ -54,4 +54,4 @@ def blend(x1, x2, amount=0.5):
     blended = x1_weighted + x2_weighted
 
     # Convert to original type (np.ndarray, list, pd.Series)
-    return(convert_to_type(blended, instance_type))
+    return convert_to_type(blended, instance_type)

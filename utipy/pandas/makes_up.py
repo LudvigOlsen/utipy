@@ -7,7 +7,7 @@
 # Import operator module for dynamically passing operators
 import operator
 import numpy as np
-from utipy.helpers.convert_to_type import convert_to_type
+from utipy.utils.convert_to_type import convert_to_type
 
 
 def makes_up(Series, value, thresh, direction='>', missing_error=False):
@@ -66,10 +66,9 @@ def makes_up(Series, value, thresh, direction='>', missing_error=False):
     """
 
     # Make sure directioon is given as '>', '<', '<=', '>=', or '=='
-    if not (direction in ['>', '<', '<=', '>=', '==']):
-
+    if not direction in ['>', '<', '<=', '>=', '==']:
         raise ValueError(
-            'direction can only be given as \'>\',\'<\',\'>=\',\'<=\', or \'==\'')
+            '`direction` can only be given as \'>\',\'<\',\'>=\',\'<=\', or \'==\'.')
 
     # Create dictionary for calling operator
     # Uses module: operator
@@ -81,9 +80,9 @@ def makes_up(Series, value, thresh, direction='>', missing_error=False):
 
     # Make sure thresh is given as a number between 0 and 1
     if not (thresh >= 0 and thresh <= 1):
-
         raise ValueError(
-            'threshold incorrect format. Give as percentage (between 0-1)')
+            '`thresh` had an incorrect format. '
+            'Pass as a percentage (between 0-1).')
 
     # Check if Series is a pd.Series
     # and convert if necessary
@@ -91,9 +90,7 @@ def makes_up(Series, value, thresh, direction='>', missing_error=False):
 
     # If it is an object, we can only recognize NaN and inf as strings
     # and fall back to checking it as a string
-
     if Series.dtype in [np.dtype('object')] and value in ['NaN', 'inf', 'any']:
-
         # When converted to string,
         # np.nan becomes 'nan'
         if value == 'NaN':
@@ -104,37 +101,31 @@ def makes_up(Series, value, thresh, direction='>', missing_error=False):
 
         # First check if value is 'any'
         if value == 'any':
-            n_value = Series.value_counts().max()
+            n_value = Series.value_counts(dropna=False).max()
 
         # First we check if value is in the Series at all
         elif not (value in set(Series)):
-
             # If asked to raise error if value is not found
             # raise error
             if missing_error:
-
-                raise ValueError('value not found in Series')
-
+                raise ValueError('`value` not found in Series')
             # Else, it was found 0 times in series
             else:
                 n_value = 0
         else:
-
             # If it IS in the Series,
             # count how many times
-            n_value = Series.value_counts()[value]
+            n_value = Series.value_counts(dropna=False)[value]
 
     elif value == 'NaN':
         n_value = Series.isnull().sum()
 
     elif value == 'inf':
-
         try:
             n_value = np.isinf(Series).sum()
-
         except:
-            raise(ValueError(
-                  "Value 'inf' could not be searched for in Series"))
+            raise ValueError(
+                "`value` ('inf') could not be searched for in `Series`.")
 
     elif value == 'any':
         n_value = Series.value_counts(dropna=False).max()
@@ -145,22 +136,16 @@ def makes_up(Series, value, thresh, direction='>', missing_error=False):
         if np.isnan(n_value):
             n_value = Series.isnull().sum()
 
-    # Check if value is not in Series
-    elif not (value in set(Series)):
-
+    # Check if value is not in `Series`
+    elif value not in set(Series):
         # If asked to raise error if value is not found
-        # raise error
         if missing_error:
-
             raise ValueError('value not found in Series')
-
-        # Else, set it was found 0 times in series
+        # Else, it was found 0 times in series
         else:
             n_value = 0
-
     # If value in Series
     else:
-
         # Get how many times value is in col
         n_value = Series.value_counts()[value]
 
@@ -169,7 +154,4 @@ def makes_up(Series, value, thresh, direction='>', missing_error=False):
 
     # Check with the given direction (operator) if n_value
     # exceeds the threshold
-    if ops[direction]((n_value / float(total_values)), thresh):
-        return(True)
-    else:
-        return(False)
+    return ops[direction]((n_value / float(total_values)), thresh)

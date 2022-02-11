@@ -39,4 +39,4 @@ def group(data, n, col=None, method='n_dist', copy=True):
     # Add grouping factor to data
     data['group'] = all_group_ids
 
-    return(data)
+    return data

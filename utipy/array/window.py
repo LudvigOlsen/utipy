@@ -3,8 +3,8 @@
 """
 
 import numpy as np
-from utipy.helpers.check_instance import check_instance
-from utipy.helpers.convert_to_type import convert_to_type
+from utipy.utils.check_instance import check_instance
+from utipy.utils.convert_to_type import convert_to_type
 
 
 def window(x, size=2, gap=1, sample_rate=1,
@@ -67,9 +67,9 @@ def window(x, size=2, gap=1, sample_rate=1,
     # If the array is too short
     if len(x) < n_samples:
         if discard_shorts:
-            return([], 0)
+            return [], 0
         else:
-            return([x], 0)
+            return [x], 0
 
     if rolling:
         n_windows = np.int32((len(x) - n_samples) / gap_samples) + 1
@@ -97,4 +97,4 @@ def window(x, size=2, gap=1, sample_rate=1,
                      (stimuli + 1) * n_samples + stimuli * gap_samples]
                      for stimuli in range(n_windows)]
 
-    return(stims, n_windows)
+    return stims, n_windows
