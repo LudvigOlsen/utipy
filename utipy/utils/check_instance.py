@@ -1,11 +1,10 @@
-#!/usr/bin/env 
-# -*- coding: utf-8 -*-
 """
 @author: ludvigolsen
 """
 
 import numpy as np
 import pandas as pd
+
 
 def check_instance(data):
     """
@@ -15,17 +14,17 @@ def check_instance(data):
         np.ndarray
         pd.Series
         pd.DataFrame
-    
+
     """
     if isinstance(data, list):
-        return('list')
+        return 'list'
     elif isinstance(data, tuple):
-        return('tuple')
+        return 'tuple'
     elif type(data).__module__ == np.__name__:
-        return('np.ndarray')
+        return 'np.ndarray'
     elif isinstance(data, pd.Series):
-        return('pd.Series')
+        return 'pd.Series'
     elif isinstance(data, pd.DataFrame):
-        return('pd.DataFrame')
+        return 'pd.DataFrame'
     else:
-        raise(TypeError("Doesn't recognize instance type"))
+        raise TypeError("Doesn't recognize instance type")
