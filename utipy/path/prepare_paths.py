@@ -2,27 +2,29 @@
 import os
 import pathlib
 from itertools import combinations
+from typing import Union
 
 
 # TODO Test (e.g. with "-" path included)
 # TODO Add checks of path validity (bad symbols etc.) - Perhaps pathlib.Path does that?
 # TODO allow checking if output is nested in input dir
 # TODO Perhaps check compatibility on windows and other platforms
+# TODO Convert docs to other format
 
 def prepare_in_out_paths(
-    in_files=None,
-    in_dirs=None,
-    out_files=None,
-    out_dirs=None,
-    tmp_files=None,
-    allow_none=False,
-    allow_overwriting=True,
-    allow_duplicates_in_files=False,
-    allow_duplicates_in_dirs=True,
-    allow_duplicates_out_files=False,
-    allow_duplicates_out_dirs=True,
-    allow_duplicates_tmp_files=False,
-    pathlib_out=True
+    in_files: dict = None,
+    in_dirs: dict = None,
+    out_files: dict = None,
+    out_dirs: dict = None,
+    tmp_files: dict = None,
+    allow_none: bool = False,
+    allow_overwriting: bool = True,
+    allow_duplicates_in_files: bool = False,
+    allow_duplicates_in_dirs: bool = True,
+    allow_duplicates_out_files: bool = False,
+    allow_duplicates_out_dirs: bool = True,
+    allow_duplicates_tmp_files: bool = False,
+    pathlib_out: bool = True
 ):
     """
     Checks paths and converts them to `pathlib.Path` objects.
@@ -162,8 +164,16 @@ def prepare_in_out_paths(
 
 # Utilities
 
-def _check_paths_dict(d, d_name, allow_none=False, check_duplicates=True,
-                      assert_exists=False, assert_missing=False, path_type="file"):
+def _check_paths_dict(
+    d: Union[dict, None],
+    d_name: str,
+    allow_none: bool = False,
+    check_duplicates: bool = True,
+    assert_exists: bool = False,
+    assert_missing: bool = False,
+    path_type: str = "file"
+):
+
     if assert_exists and assert_missing:
         raise ValueError(
             "Both `assert_exists` and `assert_missing` were enabled.")
@@ -188,14 +198,14 @@ def _check_paths_dict(d, d_name, allow_none=False, check_duplicates=True,
     return d
 
 
-def _rm_none_elements(d):
+def _rm_none_elements(d: dict):
     if d is not None:
         return {k: v for k, v in d.items() if v is not None}
     else:
         return None
 
 
-def _normalize_paths(d, type_fn=str):
+def _normalize_paths(d: dict, type_fn=str):
     def path_formatter(v):
         if isinstance(v, str) and v == "-":
             return str(v)
@@ -208,7 +218,7 @@ def _normalize_paths(d, type_fn=str):
     return None
 
 
-def _check_elements(d):
+def _check_elements(d: dict):
     if d is not None:
 
         # Check values
@@ -230,7 +240,7 @@ def _check_elements(d):
                 f"The following keys were of an invalid type: {invalid_keys}. Keys must be strings.")
 
 
-def _find_duplicate_value_to_keys(d):
+def _find_duplicate_value_to_keys(d: dict):
     unique_values = set([str(v) for v in d.values()])
     if "-" in unique_values:
         unique_values = unique_values.difference(set("-"))
@@ -243,7 +253,7 @@ def _find_duplicate_value_to_keys(d):
     return {}
 
 
-def _check_duplicates(d):
+def _check_duplicates(d: dict):
     if d is not None:
         if len(set(d.values())) != len(d.values()):
             duplicate_keys = _find_duplicate_value_to_keys(d).keys()
@@ -255,7 +265,7 @@ def _check_duplicates(d):
                     f"Found duplicate paths for the following arguments: {duplicate_keys}")
 
 
-def _check_paths_exist(d, check_type="file", raise_when="unkown"):
+def _check_paths_exist(d: dict, check_type: str = "file", raise_when: str = "unkown"):
     assert raise_when in ["unknown", "known"]
     assert check_type in ["file", "directory"]
     check_fn = os.path.isfile if check_type == "file" else os.path.isdir
@@ -270,7 +280,7 @@ def _check_paths_exist(d, check_type="file", raise_when="unkown"):
                 f"`{k}` is an existing {check_type}."
 
 
-def _check_duplicates_across_dicts(d1, d2):
+def _check_duplicates_across_dicts(d1: Union[dict, None], d2: Union[dict, None]):
 
     if d1 is None or d2 is None:
         return None
@@ -304,7 +314,7 @@ def _check_duplicates_across_dicts(d1, d2):
     _check_duplicates(combined)
 
 
-def _check_different_keys(d1, d2, names):
+def _check_different_keys(d1: Union[dict, None], d2: Union[dict, None], names: list):
     if d1 is not None and d2 is not None:
         key_intersection = list(
             set(d1.keys()).intersection(
