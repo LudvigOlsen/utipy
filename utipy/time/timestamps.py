@@ -4,6 +4,8 @@ from typing import Union
 
 from .format_time import format_time_hhmmss
 
+# TODO Add tests
+
 
 class Timestamps:
 

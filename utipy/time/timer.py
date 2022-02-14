@@ -6,6 +6,7 @@ from .timestamps import Timestamps
 
 
 # TODO Use logging instead to allow disabling verbose when not debugging
+# TODO Add tests
 
 class StepTimer(Timestamps):
 
