@@ -1,5 +1,6 @@
 
 # TODO Add documentation and tests
+# TODO Allow yielding?
 
 class StepIdx:
 
