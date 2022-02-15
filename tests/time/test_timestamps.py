@@ -63,6 +63,7 @@ def test_timestamps_merge():
 
     df = stamper_1.to_data_frame()
     print(df)
+    assert all(df.columns == ["Name", "Time Raw", "Time From Start"])
     assert all(df["Name"] == [
         "", "second_0", "",
         "second_1", "", "fourth",
