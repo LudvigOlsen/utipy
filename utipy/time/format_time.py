@@ -2,14 +2,13 @@
 from numbers import Number
 import numpy as np
 
+# TODO cythonize
+# TODO add tests
 
 def format_time_hhmmss(t: int) -> str:
     """
-    Format a count of seconds into hh:mm:ss where hh is allowed to be >24.
-
-    NOTE: As `time.strftime(fmt, time.gmtime(t))` is not perfect when dealing with multiday running times
-    we just wrote our own formatting that allows >24 hours. We don't need to split into days.
-    Only 2x in speed, so does not affect running time in practice. (5000 runs < 0.1s)
+    Format a count of seconds into hh:mm:ss where hh is allowed to be >24 
+    (i.e. hhh, hhhh or even MORE 'h's!).
 
     Parameters
     ----------
@@ -21,6 +20,11 @@ def format_time_hhmmss(t: int) -> str:
     str
         The timepoint formatted as a hh:mm:ss string.
     """
+    # Handle negative numbers
+    is_negative = t < 0
+    if is_negative:
+        t *= -1
+
     # Hours
     hours = np.floor(t / 60 / 60)
     hours_seconds = hours * 60 * 60
@@ -32,7 +36,8 @@ def format_time_hhmmss(t: int) -> str:
     # Seconds
     secs = (t - hours_seconds - mins_seconds)
 
-    return f"{_format_part(hours)}:{_format_part(mins)}:{_format_part(secs)}"
+    neg_string = "-" if is_negative else ""
+    return f"{neg_string}{_format_part(hours)}:{_format_part(mins)}:{_format_part(secs)}"
 
 
 def _format_part(t: Number) -> str:
