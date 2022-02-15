@@ -1,16 +1,15 @@
 
 from contextlib import contextmanager
-from typing import Union
+from typing import Callable, Union
 
 from .timestamps import Timestamps
 
-
-# TODO Use logging instead to allow disabling verbose when not debugging
 # TODO Add tests
+
 
 class StepTimer(Timestamps):
 
-    def __init__(self, message: str = "Took:", verbose: bool = True) -> None:
+    def __init__(self, message: str = "Took:", verbose: bool = True, msg_fn: Callable = print) -> None:
         """
         A `StepTimer` can be used in `with` statements
         to time steps of code and print the execution time.
@@ -18,10 +17,23 @@ class StepTimer(Timestamps):
         total time in the end as well.
 
         See `Timestamps` for methods that can be applied to recorded timestamps.
+
+        Parameters
+        ----------
+        message : str
+            Default message to prefix time with.
+            Can be overridden for separate timings with the `message` 
+            argument in `.time_step()`.
+        verbose : bool
+            Whether to print/log/.. the time a step took when using `.time_step()`.
+        msg_fn : callable
+            The function to use for printing/logging the message.
+            E.g. `print` or `logging.info`.
         """
         super().__init__()
         self.message = message
         self.verbose = verbose
+        self.msg_fn = msg_fn
 
     @contextmanager
     def time_step(self, indent: int = 4, message: Union[str, None] = None, name_prefix=None) -> None:
@@ -71,8 +83,14 @@ class StepTimer(Timestamps):
                 self.stamp()
             mess = self.message if message is None else message
             if self.verbose:
-                self._print_runtime(indent=indent, message=mess)
+                self._print_runtime(
+                    indent=indent,
+                    message=mess
+                )
 
-    def _print_runtime(self, indent, message):
+    def _print_runtime(self, indent: int, message: str) -> None:
+        """
+        Prints the indented message and step time.
+        """
         indent_str = "".join([" " for _ in range(indent)])
-        print(f"{indent_str}{message} {self.took()}")
+        self.msg_fn(f"{indent_str}{message} {self.took()}")
