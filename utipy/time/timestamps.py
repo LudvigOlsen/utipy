@@ -3,6 +3,7 @@
 import time
 from typing import Union
 import numpy as np
+import pandas as pd
 
 from .format_time import format_time_hhmmss
 
@@ -48,6 +49,10 @@ class Timestamps:
             self.timestamps == other.timestamps
             and self.name_to_idx == other.name_to_idx
         )
+
+    def __str__(self) -> str:
+        string = "Timestamps:\n\n"
+        return string + self.to_data_frame().to_string(max_rows=30) + "\n"
 
     def _stamp(self) -> None:
         """
@@ -148,7 +153,28 @@ class Timestamps:
         if np.abs(idx) > len(self) - 1:
             raise ValueError(
                 f"`idx` was out of bounds: '{idx}'. Currently stores {len(self)} timestamps.")
-        return self.idx_to_name.get(idx, default=None)
+        return self.idx_to_name.get(idx, None)
+
+    def to_data_frame(self):
+        """
+        Get times as `pandas.DataFrame` with columns [`Name`, `Time`].
+
+        Returns
+        -------
+        `pandas.DataFrame`
+            Data frame with names and times in the recorded order.
+        """
+        names = [""] * len(self)
+        for idx, name in self.idx_to_name.items():
+            names[idx] = name
+        times = self.timestamps.copy()
+        times_from_start = [t - times[0] for t in times]
+        times_from_start = [format_time_hhmmss(t) for t in times_from_start]
+        return pd.DataFrame({
+            "Name": names,
+            "Time Raw": times,
+            "Time From Start": times_from_start
+        })
 
     def took(self, start: Union[int, str] = -2, end: Union[int, str] = -1,
              as_str: bool = True, raise_negative: bool = True) -> Union[int, str]:
@@ -216,8 +242,8 @@ class Timestamps:
             either as a number or a formatted string.
         """
         return self.took(
-            start_idx=0,
-            end_idx=-1,
+            start=0,
+            end=-1,
             as_str=as_str
         )
 
@@ -262,9 +288,9 @@ class Timestamps:
         # of which collection it came from
         combined_timestamps = \
             _list_to_enumerated_tuple(
-                l=self.timestamps, id="this") + \
+                l=self.timestamps, identifier="this") + \
             _list_to_enumerated_tuple(
-                l=other.timestamps, id="other")
+                l=other.timestamps, identifier="other")
 
         # Sort by ascending time
         combined_timestamps = sorted(combined_timestamps, key=lambda x: x[0])
@@ -273,7 +299,7 @@ class Timestamps:
         colls = {"this": self, "other": other}
         for new_idx, (_, old_idx, coll_id) in enumerate(combined_timestamps):
             coll = colls[coll_id]
-            name = coll.idx_to_name.get(old_idx, default=None)
+            name = coll.idx_to_name.get(old_idx, None)
             if name is not None:
                 coll.name_to_idx[name] = new_idx
 
@@ -298,6 +324,9 @@ class Timestamps:
         # Create idx_to_name dict
         self.idx_to_name = {v: k for k, v in self.name_to_idx.items()}
 
+        # Assign the combined timestamps
+        self.timestamps = [x[0] for x in combined_timestamps]
+
 
 def _list_to_enumerated_tuple(l, identifier):
     def make_tuple(t, i, identifier):
@@ -314,4 +343,3 @@ def _create_unique_name(name, l):
     while name + str(counter) in l:
         counter += 1
     return name + str(counter)
-        
