@@ -9,7 +9,6 @@ from utipy.measures.iqr import _iqr
 
 def _extended_describe(Series):
     desc = Series.describe()
-    desc['dtype'] = Series.dtype
     desc['median'] = np.median(Series)
     desc['IQR'] = _iqr(Series)
     return desc
