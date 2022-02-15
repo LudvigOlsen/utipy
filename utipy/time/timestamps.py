@@ -16,7 +16,7 @@ class Timestamps:
         timestamps (e.g. the latest 2).
         """
         self.timestamps = []
-        self.special_stamp_name_to_idx = {}
+        self.name_to_idx = {}
 
     def __len__(self) -> int:
         """
@@ -24,49 +24,69 @@ class Timestamps:
         """
         return len(self.timestamps)
 
-    def stamp(self):
+    def __eq__(self, other: object) -> bool:
+        """
+        Equality test.
+
+        Checks whether the list of timestamps and the dict 
+        mapping `stamp name -> index` are equal.
+
+        Parameters
+        ----------
+        other : `Timestamps`
+            Another `Timestamps` collection.
+
+        Returns
+        -------
+        bool
+            Whether the two `Timestamps` collections are equal.
+        """
+        return (
+            self.timestamps == other.timestamps
+            and self.name_to_idx == other.name_to_idx
+        )
+
+    def _stamp(self) -> None:
         """
         Add current time to list of timestamps.
         """
         t = time.time()
         self.timestamps.append(t)
 
-    def special_stamp(self, name: str) -> None:
+    def stamp(self, name: str = None) -> None:
         """
-        Add current time to list of timestamps and
-        save the timestamp index with a name in the 
-        `special_stamp_name_to_idx` dictionary.
+        Add current time to list of timestamps.
 
-        Can be used to get time difference between
+        *Optionally* save the timestamp index with a name in the 
+        `name_to_idx` dictionary to allow easy extraction later. 
+        E.g. use to get the time difference between
         two larger blocks of code with in-between timestamps.
 
         Parameters
         ----------
         name : str
-            Unique name to store index of timestamp with.
+            (Optional) Unique name to store the index of the timestamp with.
         """
-        self.stamp()
-        if name in self.special_stamp_name_to_idx:
+        self._stamp()
+        if name in self.name_to_idx:
             raise ValueError("`name` was already used. Use a unique name.")
-        self.special_stamp_name_to_idx[name] = len(self) - 1
+        self.name_to_idx[name] = len(self) - 1
 
-    def get_stamp(self, idx: Union[int, None] = None, name: Union[str, None] = None, as_string: bool = True) -> Union[int, str]:
+    def get_stamp(self, idx: Union[int, None] = None, name: Union[str, None] = None, as_str: bool = True) -> Union[int, str]:
         """
-        Get specific timestamp from either 1) the index it was recorded under or 
-        2) the special stamp name (when recorded with `.special_stamp()`).
+        Get specific timestamp from either the index or name it was recorded under.
 
         Note: The raw list of timestamps are also available as `.timestamps` 
-        while the special time stamp name to index dict is available as 
-        `.special_stamp_name_to_idx`.
+        while the `name->index` dict is available as 
+        `.name_to_idx`.
 
         Parameters
         ----------
         idx : int
             Index of the timestamp to get.
         name : str
-            Name the (special) timestamp was saved under.
-            See `.special_stamp()`.
-        as_string : bool
+            Name of the timestamp.
+        as_str : bool
             Whether to format the difference as a string.
 
         Returns
@@ -81,12 +101,12 @@ class Timestamps:
         if idx is not None:
             t = self.timestamps[idx]
         else:
-            t = self.get_special_stamp_idx(name=name)
-        if as_string:
+            t = self.timestamps[self.get_stamp_idx(name=name)]
+        if as_str:
             t = format_time_hhmmss(t)
         return t
 
-    def get_special_stamp_idx(self, name: str) -> int:
+    def get_stamp_idx(self, name: str) -> int:
         """
         Get timestamp index from name of special timestamp.
 
@@ -100,23 +120,33 @@ class Timestamps:
         int
             Index of special timestamp stored with `name`.
         """
-        if name not in self.special_stamp_name_to_idx:
-            raise ValueError("`name` was not a known name.")
-        return self.special_stamp_name_to_idx[name]
+        if name not in self.name_to_idx:
+            raise ValueError(f"`name` was not a known name: '{name}'.")
+        return self.name_to_idx[name]
 
-    def took(self, start_idx: int = -2, end_idx: int = -1, as_string: bool = True) -> Union[int, str]:
+    def took(self, start: Union[int, str] = -2, end: Union[int, str] = -1,
+             as_str: bool = True, raise_negative: bool = True) -> Union[int, str]:
         """
         Get the difference between two timestamps.
         By default, the two latest timestamps are used.
 
         Parameters
         ----------
-        start_idx : int
-            The index of the starting timestamp.
-        end_idx : int
-            The index of the starting timestamp.
-        as_string : bool
+        start : int or str
+            Either:
+                1) The index of the starting timestamp.
+                2) The name of the starting timestamp.
+        end_idx : int or str
+            Either:
+                1) The index of the end timestamp.
+                2) The name of the end timestamp.
+        as_str : bool
             Whether to format the difference as a string.
+        raise_negative : bool
+            Whether to raise an error when the time difference
+            between the two stamps are negative.
+            In thus case, `end` came before `start`.
+            When `False`, a negative number is returned.
 
         Returns
         -------
@@ -124,22 +154,33 @@ class Timestamps:
             Difference in time between two given timestamps,
             either as a number or a formatted string.
         """
-        diff = self.timestamps[end_idx] - self.timestamps[start_idx]
-        if diff < 0:
+        start_time = self.get_stamp(
+            idx=None if not isinstance(start, int) else start,
+            name=None if not isinstance(start, str) else start,
+            as_str=False
+        )
+        end_time = self.get_stamp(
+            idx=None if not isinstance(end, int) else end,
+            name=None if not isinstance(end, str) else end,
+            as_str=False
+        )
+        diff = end_time - start_time
+        if diff < 0 and raise_negative:
             raise ValueError((
                 "Difference between timestamps was negative. "
-                "`start_idx` should correspond to an earlier timestamp than `end_idx`."))
-        if as_string:
+                "`start` should correspond to an earlier timestamp than `end` "
+                "(or disable `raise_negative`)."))
+        if as_str:
             return format_time_hhmmss(diff)
         return diff
 
-    def get_total_time(self, as_string: str = True) -> Union[int, str]:
+    def get_total_time(self, as_str: str = True) -> Union[int, str]:
         """
         Get the time difference between the first and last timestamps.
 
         Parameters
         ----------
-        as_string : bool
+        as_str : bool
             Whether to format the difference as a string.
 
         Returns
@@ -151,5 +192,5 @@ class Timestamps:
         return self.took(
             start_idx=0,
             end_idx=-1,
-            as_string=as_string
+            as_str=as_str
         )
