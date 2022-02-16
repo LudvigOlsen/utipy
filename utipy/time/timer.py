@@ -4,8 +4,6 @@ from typing import Callable, Union
 
 from .timestamps import Timestamps
 
-# TODO Add tests
-
 
 class StepTimer(Timestamps):
 
@@ -55,7 +53,7 @@ class StepTimer(Timestamps):
             When `None`, the message supplied during 
             inialization is used.
         name_prefix : str or None
-            Prefix to record special timestamp with.
+            Prefix to record timestamp with.
                 The initial timestamp will be recorded with the name `name_prefix + '_start'`.
                 The final timestamp will be recorded with the name `name_prefix + '_end'`.
             This allows easily getting the specific timepoints with `.get_stamp()` or 
@@ -70,17 +68,18 @@ class StepTimer(Timestamps):
         When `self.verbose` is `True`, 
             prints message + formatted time.
         """
+        assert indent >= 0
         try:
+            args = {}
             if name_prefix:
-                self.special_stamp(name=name_prefix + "_start")
-            else:
-                self.stamp()
+                args["name"] = name_prefix + "_start"
+            self.stamp(**args)
             yield None
         finally:
+            args = {}
             if name_prefix:
-                self.special_stamp(name=name_prefix + "_end")
-            else:
-                self.stamp()
+                args["name"] = name_prefix + "_end"
+            self.stamp(**args)
             mess = self.message if message is None else message
             if self.verbose:
                 self._print_runtime(
