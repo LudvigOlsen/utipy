@@ -8,6 +8,7 @@ Alpha stage. Subject to change.
 > https://pypi.python.org/pypi/utipy/     
 
 > $ pip install utipy  
+> $ python -m pip install git+https://github.com/ludvigolsen/utipy
   
 
 ### Pandas operations
