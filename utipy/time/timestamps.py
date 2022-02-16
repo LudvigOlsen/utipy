@@ -7,8 +7,6 @@ import pandas as pd
 
 from .format_time import format_time_hhmmss
 
-# TODO Add tests
-
 
 class Timestamps:
 
