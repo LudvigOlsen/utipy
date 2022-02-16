@@ -2,7 +2,7 @@
 import os
 import pathlib
 from sys import path
-from typing import Union
+from typing import Callable, Union
 
 from utipy.path.mk_dir import mk_dir
 from utipy.path.prepare_paths import prepare_in_out_paths
@@ -375,7 +375,7 @@ class InOutPaths:
         self._set_collection("tmp_files", tmp_files)
         self.all_paths = all_paths
 
-    def mk_output_dir(self, name: str, verbose: bool = True):
+    def mk_output_dir(self, name: str, verbose: bool = True, indent: int = 0, msg_fn: Callable = print):
         """
         Create non-existing output directory for a given path.
 
@@ -387,12 +387,18 @@ class InOutPaths:
             Name of path to create output directory for.
         verbose : bool
             Whether to print message on creation of a new folder.
+        indent : int
+            How much to indent messages.
+        msg_fn : callable
+            The function to use for printing/logging the message.
+            E.g. `print` or `logging.info`.
         """
         path = self.get_path(name=name)
         dir_path = pathlib.Path(path).parent
-        mk_dir(path=dir_path, arg_name=name, verbose=verbose)
+        mk_dir(path=dir_path, arg_name=name, verbose=verbose,
+               indent=indent, msg_fn=msg_fn)
 
-    def mk_output_dirs(self, collection: str = None, verbose: bool = True):
+    def mk_output_dirs(self, collection: str = None, verbose: bool = True, indent: int = 0, msg_fn: Callable = print):
         """
         Create non-existing output directories.
 
@@ -406,6 +412,11 @@ class InOutPaths:
             When `None`, directories are created for all three collections.
         verbose : bool
             Whether to print message on creation of a new folder.
+        indent : int
+            How much to indent messages.
+        msg_fn : callable
+            The function to use for printing/logging the message.
+            E.g. `print` or `logging.info`.
         """
 
         # Find which collections to create output dirs for
@@ -431,7 +442,8 @@ class InOutPaths:
             if out_dirs is None:
                 raise ValueError("`out_dirs` collection was `None`.")
             for k, v in out_dirs.items():
-                mk_dir(path=v, arg_name=k, verbose=verbose)
+                mk_dir(path=v, arg_name=k, verbose=verbose,
+                       indent=indent, msg_fn=msg_fn)
 
         # For output files' directories
         if mkdirs_for_out_files:
@@ -441,7 +453,8 @@ class InOutPaths:
             for k, v in out_files.items():
                 # Get directory the file should be place in
                 dir_path = pathlib.Path(v).parent
-                mk_dir(path=dir_path, arg_name=k, verbose=verbose)
+                mk_dir(path=dir_path, arg_name=k, verbose=verbose,
+                       indent=indent, msg_fn=msg_fn)
 
         # For tmp files' directories
         if mkdirs_for_tmp_files:
@@ -451,7 +464,8 @@ class InOutPaths:
             for k, v in tmp_files.items():
                 # Get directory the file should be place in
                 dir_path = pathlib.Path(v).parent
-                mk_dir(path=dir_path, arg_name=k, verbose=verbose)
+                mk_dir(path=dir_path, arg_name=k, verbose=verbose,
+                       indent=indent, msg_fn=msg_fn)
 
     def rm_file(self, name: str, raise_on_fail: bool = True):
         """
