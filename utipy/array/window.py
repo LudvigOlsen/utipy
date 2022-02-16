@@ -2,14 +2,17 @@
 @author: ludvigolsen
 """
 
+from typing import List, Tuple, Union
 import numpy as np
+import pandas as pd
 from utipy.utils.check_instance import check_instance
 from utipy.utils.convert_to_type import convert_to_type
 
+# TODO: Cythonize
 
-def window(x, size=2, gap=1, sample_rate=1,
-           rolling=True, reverse_direction=False,
-           discard_shorts=True):
+def window(x: Union[list, np.ndarray, pd.Series], size: int = 2, gap: int = 1, sample_rate: int = 1,
+           rolling: bool = True, reverse_direction: bool = False,
+           discard_shorts: bool = True) -> Tuple[List[np.ndarray], int]:
     """
 
     Splits array, e.g. time series, into rolling (optional) windows and returns as list of arrays and the number of windows.
@@ -36,7 +39,6 @@ def window(x, size=2, gap=1, sample_rate=1,
     discard_shorts: bool
         If the given array is shorter than size*sample_rate,
         return ([],0) if (True) or ([x],0) if (False).
-
 
     Returns
     -------
