@@ -50,6 +50,20 @@ class Timestamps:
             and self.name_to_idx == other.name_to_idx
         )
 
+    def __getitem__(self, idx_or_name: Union[str, int]) -> int:
+        """
+        Get numeric timestamp (as recorded with `time.time()`)
+        by indexing (via idx or name) in square brackets.
+
+        Parameters
+        ----------
+        idx_or_name : int or str
+            Index or name of timestamp.
+        """
+        assert isinstance(idx_or_name, (str, int))
+        key = "idx" if isinstance(idx_or_name, int) else "name"
+        return self.get_stamp(**{key: idx_or_name}, as_str=False)
+
     def __str__(self) -> str:
         string = "Timestamps:\n\n"
         return string + self.to_data_frame().to_string(max_rows=30) + "\n"
@@ -112,6 +126,8 @@ class Timestamps:
         if idx is not None:
             t = self.timestamps[idx]
         else:
+            if name not in self.name_to_idx:
+                raise KeyError(f"`name` '{name}' was not found.")
             t = self.timestamps[self.get_stamp_idx(name=name)]
         if as_str:
             t = format_time_hhmmss(t)
@@ -132,7 +148,7 @@ class Timestamps:
             Index of timestamp stored with `name`.
         """
         if name not in self.name_to_idx:
-            raise ValueError(f"`name` was not a known name: '{name}'.")
+            raise KeyError(f"`name` '{name}' was not found.")
         return self.name_to_idx[name]
 
     def get_stamp_name(self, idx: int) -> str:
