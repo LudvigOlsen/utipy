@@ -16,6 +16,7 @@ from .groups.partition import partition
 from .array.blend import blend
 from .array.windowed_reverse import windowed_reverse
 from .array.window import window
+from .array.nan_stats import nan_stats, print_nan_stats
 
 from .time.timestamps import Timestamps
 from .time.timer import StepTimer
