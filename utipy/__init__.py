@@ -26,3 +26,5 @@ from .path.mk_dir import mk_dir
 
 from .utils.recursive_attributes import recursive_getattr, recursive_hasattr, recursive_setattr
 from .utils.messenger import Messenger, msg_if
+
+from .about import __version__, __title__
