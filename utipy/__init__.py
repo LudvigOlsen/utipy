@@ -22,7 +22,7 @@ from .time.timestamps import Timestamps
 from .time.timer import StepTimer
 
 from .path.in_out_paths import InOutPaths
-from .path.mk_dir import mk_dir
+from .path.mk_rm_dir import mk_dir, rm_dir
 
 from .utils.recursive_attributes import recursive_getattr, recursive_hasattr, recursive_setattr
 from .utils.messenger import Messenger, msg_if

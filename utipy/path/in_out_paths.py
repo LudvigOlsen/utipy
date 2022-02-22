@@ -4,7 +4,7 @@ import pathlib
 from sys import path
 from typing import Callable, Union
 
-from utipy.path.mk_dir import mk_dir
+from utipy.path.mk_rm_dir import mk_dir
 from utipy.path.prepare_paths import prepare_in_out_paths
 
 
