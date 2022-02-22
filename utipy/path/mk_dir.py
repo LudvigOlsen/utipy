@@ -31,16 +31,18 @@ def mk_dir(path: Union[str, pathlib.Path], arg_name: Union[str, None] = 'out_pat
     path = pathlib.Path(path)
     path_exists = path.exists()
 
+    # Prepare arg name
+    if arg_name is None or not arg_name:
+        arg_name = ""
+    else:
+        arg_name = f"`{arg_name}` "
+
     # Fail for existing directory (when specified)
     if raise_on_exists and path_exists:
-        raise RuntimeError(f"`path` already exists: {path}")
+        raise RuntimeError(f"{arg_name}directory already exists: {path}")
 
     # Message user about the creation of a new directory
     if verbose and not path_exists:
-        if arg_name is None or not arg_name:
-            arg_name = ""
-        else:
-            arg_name = f"`{arg_name}` "
         messenger = Messenger(verbose=verbose, indent=indent, msg_fn=msg_fn)
         messenger(
             f"{arg_name}directory does not exist and will be created: "
