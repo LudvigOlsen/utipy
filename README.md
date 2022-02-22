@@ -50,7 +50,8 @@ Alpha stage. Subject to change.
 | Class/Function   | Description |
 |:-----------------|:------------|
 | `InOutPaths`     | Keep track of in-/out paths with checks, directory creation, and a print summary |
-| `mk_dir()`       | Create directory if it doesn't exist, with messaging of the created path         | 
+| `mk_dir()`       | Create directory if it doesn't exist, with messaging of the created path         |
+| `rm_dir()`       | Remove directory if it exists, with messaging of the deleted path                | 
 
 ### Other utilities
 
