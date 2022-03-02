@@ -9,6 +9,9 @@ Alpha stage. Subject to change.
 
 > $ pip install utipy  
 > $ python -m pip install git+https://github.com/ludvigolsen/utipy
+
+Update this package but not dependencies:
+> $ python -m pip install --force-reinstall --no-deps git+https://github.com/ludvigolsen/utipy
   
 
 ### Pandas operations
