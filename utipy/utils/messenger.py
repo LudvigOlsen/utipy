@@ -56,6 +56,11 @@ class Messenger:
         # >> "INFO  Mr.Logger:script.py:xz  anything printable - even multiple arguments"
 
         """
+        # Check types
+        assert isinstance(verbose, bool)
+        assert callable(msg_fn)
+        assert isinstance(indent, int)
+
         self.verbose = verbose
         self.msg_fn = msg_fn
         self.indent = indent
