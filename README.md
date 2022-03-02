@@ -53,6 +53,12 @@ Alpha stage. Subject to change.
 | `mk_dir()`       | Create directory if it doesn't exist, with messaging of the created path         |
 | `rm_dir()`       | Remove directory if it exists, with messaging of the deleted path                | 
 
+### String operations
+
+| Function      | Description |
+|:--------------|:------------|
+| `letter_strings()` | Generate n letter strings (aa, ab, ac, ...) |
+
 ### Other utilities
 
 | Class/Function      | Description |

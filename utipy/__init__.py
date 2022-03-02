@@ -24,6 +24,8 @@ from .time.timer import StepTimer
 from .path.in_out_paths import InOutPaths
 from .path.mk_rm_dir import mk_dir, rm_dir
 
+from .string.letter_strings import letter_strings
+
 from .utils.recursive_attributes import recursive_getattr, recursive_hasattr, recursive_setattr
 from .utils.messenger import Messenger, msg_if
 
