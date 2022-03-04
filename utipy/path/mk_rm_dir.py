@@ -3,12 +3,15 @@ import pathlib
 import shutil
 from typing import Callable, Optional, Union
 
-from utipy.utils.messenger import Messenger
+from utipy.utils.messenger import Messenger, check_messenger
 
 
-def mk_dir(path: Union[str, pathlib.Path], arg_name: Union[str, None] = "",
-           raise_on_exists: bool = False, verbose: bool = True, indent: int = 0,
-           msg_fn: Callable = print):
+def mk_dir(
+    path: Union[str, pathlib.Path], arg_name: Union[str, None] = "",
+    raise_on_exists: bool = False,
+    messenger: Optional[Callable] = Messenger(
+        verbose=True, indent=0, msg_fn=print)
+):
     """
     Make directory if it doesn't exist.
 
@@ -18,16 +21,14 @@ def mk_dir(path: Union[str, pathlib.Path], arg_name: Union[str, None] = "",
         Path to directory to make.
     arg_name : str or None
         Name of path argument/variable for message 
-        when creating a directory and `verbose` is `True`.
+        when creating a directory and `messenger.verbose` is `True`.
     raise_on_exists : bool
         Whether to raise a RuntimeError when the directory already exists.
-    verbose : bool
-        Whether to print/log/... a message when creating a directory.
-    indent : int
-        How much to indent messages.
-    msg_fn : callable
-        The function to use for printing/logging the message.
-        E.g. `print` or `logging.info`.
+    messenger : `utipy.Messenger` or None
+        A `utipy.Messenger` instance used to print/log/... information.
+        When `None`, no printing/logging is performed.
+        The messenger determines the messaging function (e.g. `print`)
+        and potential indentation.
     """
     path = pathlib.Path(path)
     path_exists = path.exists()
@@ -35,14 +36,16 @@ def mk_dir(path: Union[str, pathlib.Path], arg_name: Union[str, None] = "",
     # Prepare arg name
     arg_name = _prep_arg_name(arg_name)
 
+    # Check messenger (always returns Messenger instance)
+    messenger = check_messenger(messenger)
+
     # Fail for existing directory (when specified)
     if raise_on_exists and path_exists:
         raise RuntimeError(
             f"{arg_name}directory already exists: {path.resolve()}")
 
     # Message user about the creation of a new directory
-    if verbose and not path_exists:
-        messenger = Messenger(verbose=verbose, indent=indent, msg_fn=msg_fn)
+    if not path_exists:
         messenger(
             f"{arg_name}directory does not exist and will be created: "
             f"{path.resolve()}"
@@ -59,9 +62,8 @@ def rm_dir(
     raise_not_dir: bool = True,
     shutil_ignore_errors: bool = False,
     shutil_onerror: Optional[Callable] = None,
-    verbose: bool = True,
-    indent: int = 0,
-    msg_fn: Callable = print
+    messenger: Optional[Callable] = Messenger(
+        verbose=True, indent=0, msg_fn=print)
 ):
     """
     Remove directory and its contents if it exists using `shutil.rmtree()`.
@@ -72,7 +74,7 @@ def rm_dir(
         Path to directory to remove.
     arg_name : str or None
         Name of path argument/variable for message 
-        when creating a directory and `verbose` is `True`.
+        when creating a directory and `messenger.verbose` is `True`.
     raise_missing : bool
         Whether to raise a RuntimeError when the directory does not exist.
     raise_not_dir : bool
@@ -81,19 +83,20 @@ def rm_dir(
         Passed to the `ignore_errors` argument in `shutil.rmtree()`.
     shutil_onerror : bool
         Passed to the `onerror` argument in `shutil.rmtree()`.
-    verbose : bool
-        Whether to print/log/... a message when creating a directory.
-    indent : int
-        How much to indent messages.
-    msg_fn : callable
-        The function to use for printing/logging the message.
-        E.g. `print` or `logging.info`.
+    messenger : `utipy.Messenger` or None
+        A `utipy.Messenger` instance used to print/log/... information.
+        When `None`, no printing/logging is performed.
+        The messenger determines the messaging function (e.g. `print`)
+        and potential indentation.
     """
     path = pathlib.Path(path)
     path_exists = path.exists()
 
     # Prepare arg name
     arg_name = _prep_arg_name(arg_name)
+
+    # Check messenger (always returns Messenger instance)
+    messenger = check_messenger(messenger)
 
     if raise_missing and not path_exists:
         raise RuntimeError(f"{arg_name}path did not exist: {path}")
@@ -103,13 +106,10 @@ def rm_dir(
 
     if path_exists and path.is_dir():
         # Message user about the removal of the directory
-        if verbose:
-            messenger = Messenger(
-                verbose=verbose, indent=indent, msg_fn=msg_fn)
-            messenger(
-                f"{arg_name}directory will be removed: "
-                f"{path.resolve()}"
-            )
+        messenger(
+            f"{arg_name}directory will be removed: "
+            f"{path.resolve()}"
+        )
         shutil.rmtree(path, ignore_errors=shutil_ignore_errors,
                       onerror=shutil_onerror)
 

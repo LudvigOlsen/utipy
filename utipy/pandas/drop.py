@@ -2,19 +2,24 @@
 @author: ludvigolsen
 """
 
-import logging
+from typing import Callable, Optional
+
+from utipy.utils.messenger import Messenger, check_messenger
 from .makes_up import makes_up
 
 
-def drop(data,
-         value='NaN',
-         thresh=0,
-         direction='>',
-         axis=0,
-         include=None,
-         exclude=None,
-         copy=True,
-         verbose=False):
+def drop(
+    data,
+    value='NaN',
+    thresh=0,
+    direction='>',
+    axis=0,
+    include=None,
+    exclude=None,
+    copy=True,
+    messenger: Optional[Callable] = Messenger(
+        verbose=True, indent=0, msg_fn=print)
+):
     """
     Drop rows or columns from pandas DataFrame based on values.
 
@@ -51,8 +56,11 @@ def drop(data,
     exclude : list of strings
         Names of columns / indices of rows NOT to search within.
         None means no columns/rows are excluded unless otherwise specified, see *include*.
-    verbose : bool
-        Log number of dropped rows / columns
+    messenger : `utipy.Messenger` or None
+        A `utipy.Messenger` instance used to print/log/... information.
+        When `None`, no printing/logging is performed.
+        The messenger determines the messaging function (e.g. `print`)
+        and potential indentation.
 
 
     Returns
@@ -80,9 +88,8 @@ def drop(data,
 
     """
 
-    if verbose:
-        # Get logger
-        logging.getLogger(__name__).addHandler(logging.NullHandler())
+    # Check messenger (always returns Messenger instance)
+    messenger = check_messenger(messenger)
 
     if value is None:
         raise ValueError('value cannot be None.')
@@ -118,8 +125,7 @@ def drop(data,
                                       direction, axis=axis)
 
         # Drop columns
-        if verbose:
-            logging.info('Dropped {} columns'.format(len(to_drop)))
+        messenger(f'Dropped {len(to_drop)} columns.')
 
         return data.drop(to_drop, axis=1)
 
@@ -137,8 +143,7 @@ def drop(data,
             to_drop = [i for i in to_drop if i in include]
 
         # Drop rows
-        if verbose:
-            logging.info('Dropped {} rows'.format(len(to_drop)))
+        messenger(f'Dropped {len(to_drop)} rows.')
 
         return data.drop(data.index[to_drop], axis=0)
 

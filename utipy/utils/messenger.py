@@ -1,5 +1,5 @@
 
-from typing import Any, Callable, Union
+from typing import Any, Callable, Optional, Union
 
 
 class Messenger:
@@ -110,3 +110,26 @@ def msg_if(*args: Any, verbose: bool, indent: int = 0, msg_fn: Callable = print)
 
 def _args_to_string(*args):
     return " ".join([str(a) for a in args])
+
+
+def check_messenger(messenger: Optional[Callable]):
+    """
+    Check that `messenger` is a `utipy.Messenger` object or `None`, 
+    in which case a `utipy.Messenger` with `verbose=False` is returned.
+
+    Parameters
+    ----------
+    messenger : `utipy.Messenger` or None
+        A Messenger instance to check.
+        Or `None`, in which case a `utipy.Messenger` with `verbose=False` is returned.
+
+    Returns
+    -------
+    `utipy.Messenger`
+    """
+    # Check the messenger function
+    if messenger is None:
+        messenger = Messenger(verbose=False)
+    else:
+        assert issubclass(messenger, Messenger)
+    return messenger

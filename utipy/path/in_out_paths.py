@@ -1,11 +1,11 @@
 
 import os
 import pathlib
-from sys import path
-from typing import Callable, Union
+from typing import Callable, Optional, Union
 
 from utipy.path.mk_rm_dir import mk_dir
 from utipy.path.prepare_paths import prepare_in_out_paths
+from utipy.utils.messenger import Messenger
 
 
 # TODO Add tests
@@ -375,7 +375,12 @@ class InOutPaths:
         self._set_collection("tmp_files", tmp_files)
         self.all_paths = all_paths
 
-    def mk_output_dir(self, name: str, verbose: bool = True, indent: int = 0, msg_fn: Callable = print):
+    def mk_output_dir(
+        self,
+        name: str,
+        messenger: Optional[Callable] = Messenger(
+            verbose=True, indent=0, msg_fn=print)
+    ):
         """
         Create non-existing output directory for a given path.
 
@@ -385,20 +390,26 @@ class InOutPaths:
         ----------
         name : str
             Name of path to create output directory for.
-        verbose : bool
-            Whether to print message on creation of a new folder.
-        indent : int
-            How much to indent messages.
-        msg_fn : callable
-            The function to use for printing/logging the message.
-            E.g. `print` or `logging.info`.
+        messenger : `utipy.Messenger` or None
+            A `utipy.Messenger` instance used to print/log/... information.
+            When `None`, no printing/logging is performed.
+            The messenger determines the messaging function (e.g. `print`)
+            and potential indentation.
         """
         path = self.get_path(name=name)
         dir_path = pathlib.Path(path).parent
-        mk_dir(path=dir_path, arg_name=name, verbose=verbose,
-               indent=indent, msg_fn=msg_fn)
+        mk_dir(
+            path=dir_path,
+            arg_name=name,
+            messenger=messenger
+        )
 
-    def mk_output_dirs(self, collection: str = None, verbose: bool = True, indent: int = 0, msg_fn: Callable = print):
+    def mk_output_dirs(
+        self,
+        collection: str = None,
+        messenger: Optional[Callable] = Messenger(
+            verbose=True, indent=0, msg_fn=print)
+    ):
         """
         Create non-existing output directories.
 
@@ -410,13 +421,11 @@ class InOutPaths:
             Name of collection to create output directories for.
                 One of: ('out_dirs', 'out_files', 'tmp_files')
             When `None`, directories are created for all three collections.
-        verbose : bool
-            Whether to print message on creation of a new folder.
-        indent : int
-            How much to indent messages.
-        msg_fn : callable
-            The function to use for printing/logging the message.
-            E.g. `print` or `logging.info`.
+        messenger : `utipy.Messenger` or None
+            A `utipy.Messenger` instance used to print/log/... information.
+            When `None`, no printing/logging is performed.
+            The messenger determines the messaging function (e.g. `print`)
+            and potential indentation.
         """
 
         # Find which collections to create output dirs for
@@ -442,8 +451,7 @@ class InOutPaths:
             if out_dirs is None:
                 raise ValueError("`out_dirs` collection was `None`.")
             for k, v in out_dirs.items():
-                mk_dir(path=v, arg_name=k, verbose=verbose,
-                       indent=indent, msg_fn=msg_fn)
+                mk_dir(path=v, arg_name=k, messenger=messenger)
 
         # For output files' directories
         if mkdirs_for_out_files:
@@ -453,8 +461,7 @@ class InOutPaths:
             for k, v in out_files.items():
                 # Get directory the file should be place in
                 dir_path = pathlib.Path(v).parent
-                mk_dir(path=dir_path, arg_name=k, verbose=verbose,
-                       indent=indent, msg_fn=msg_fn)
+                mk_dir(path=dir_path, arg_name=k, messenger=messenger)
 
         # For tmp files' directories
         if mkdirs_for_tmp_files:
@@ -464,8 +471,7 @@ class InOutPaths:
             for k, v in tmp_files.items():
                 # Get directory the file should be place in
                 dir_path = pathlib.Path(v).parent
-                mk_dir(path=dir_path, arg_name=k, verbose=verbose,
-                       indent=indent, msg_fn=msg_fn)
+                mk_dir(path=dir_path, arg_name=k, messenger=messenger)
 
     def rm_file(self, name: str, raise_on_fail: bool = True):
         """
