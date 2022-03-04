@@ -1,7 +1,7 @@
 
 
 import time
-from typing import Union
+from typing import Any, Union
 import numpy as np
 import pandas as pd
 
@@ -189,6 +189,23 @@ class Timestamps:
             "Time Raw": times,
             "Time From Start": times_from_start
         })
+
+    def to_csv(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Write timestamps to a csv file.
+
+        Converts a copy of the collection to a `pandas.DataFrame`
+        and saves it with `pandas.DataFrame.to_csv()`.
+
+        Parameters
+        ----------
+        args
+            positional arguments for `pandas.DataFrame.to_csv()`.
+        kwargs
+            keyword arguments for `pandas.DataFrame.to_csv()`.
+        """
+        df = self.to_data_frame()
+        df.to_csv(*args, **kwargs)
 
     def took(self, start: Union[int, str] = -2, end: Union[int, str] = -1,
              as_str: bool = True, raise_negative: bool = True) -> Union[int, str]:
