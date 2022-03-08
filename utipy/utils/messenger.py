@@ -131,5 +131,5 @@ def check_messenger(messenger: Optional[Callable]):
     if messenger is None:
         messenger = Messenger(verbose=False)
     else:
-        assert issubclass(messenger, Messenger)
+        assert isinstance(messenger, Messenger)
     return messenger
