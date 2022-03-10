@@ -13,7 +13,7 @@ from typing import Dict, List, Optional, Union
 # TODO Convert docs to other format
 
 def prepare_in_out_paths(
-    named_collections: Dict[dict] = None,
+    named_collections: Dict[str, dict] = None,
     allow_none: bool = False,
     allow_overwriting: bool = True,
     allow_duplicates_in: List[str] = [
