@@ -187,20 +187,20 @@ class InOutPaths:
             for coll in InOutPaths.COLLECTION_NAMES
         }
 
-    def get_collection_size(self, collection: str):
+    def get_collection_size(self, name: str):
         """
         Get size (number of paths) of a given collection.
 
         Parameters
         ----------
-        collection : str
+        name : str
             Name of collection to get size of.
 
         Returns
         -------
         Int
         """
-        coll = self.get_collection(collection)
+        coll = self.get_collection(name)
         if coll is None:
             return 0
         return len(coll)
@@ -507,7 +507,7 @@ class InOutPaths:
         assert isinstance(other, InOutPaths)
         for coll_name in InOutPaths.COLLECTION_NAMES:
             self._update_collection(
-                paths=other.get_collection(collection=coll_name),
+                paths=other.get_collection(name=coll_name),
                 collection=coll_name
             )
 
@@ -529,11 +529,11 @@ class InOutPaths:
         assert isinstance(other, InOutPaths)
         diff_dicts = {}
         for coll_name in InOutPaths.COLLECTION_NAMES:
-            this_coll = self.get_collection(collection=coll_name)
+            this_coll = self.get_collection(name=coll_name)
             if this_coll is None:
                 diff_dicts[coll_name] = None
                 continue
-            other_coll = other.get_collection(collection=coll_name)
+            other_coll = other.get_collection(name=coll_name)
             if other_coll is None:
                 diff_dicts[coll_name] = this_coll
                 continue
@@ -564,8 +564,8 @@ class InOutPaths:
         if self.npaths != other.npaths:
             return False
         for coll_name in InOutPaths.COLLECTION_NAMES:
-            this_coll = self.get_collection(collection=coll_name)
-            other_coll = other.get_collection(collection=coll_name)
+            this_coll = self.get_collection(name=coll_name)
+            other_coll = other.get_collection(name=coll_name)
             if sum([other_coll is None, this_coll is None]) == 1:
                 return False
             if this_coll != other_coll:
@@ -630,7 +630,7 @@ class InOutPaths:
         lines = []
         lines.append("Input and output paths")
         for coll_name in InOutPaths.COLLECTION_NAMES:
-            collection = self.get_collection(collection=coll_name)
+            collection = self.get_collection(name=coll_name)
             if collection is None:
                 lines.append(f"  {coll_name} (0)")
             else:
