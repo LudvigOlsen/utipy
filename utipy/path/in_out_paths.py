@@ -361,7 +361,8 @@ class InOutPaths:
             allow_overwriting=self.allow_overwriting,
             allow_duplicates_in=self.allow_duplicates_in,
             disallowed_nestings=self.disallowed_nestings,
-            pathlib_out=True)
+            pathlib_out=True,
+            copy=True)
 
     def mk_output_dir(
         self,

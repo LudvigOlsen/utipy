@@ -1,6 +1,6 @@
 
 import os
-import copy
+from copy import deepcopy
 import pathlib
 from itertools import combinations
 from typing import Dict, List, Optional, Union
@@ -62,7 +62,7 @@ def prepare_in_out_paths(
 
     if copy:
         # Nested dictionaries -> deep copy
-        named_collections = copy.deepcopy(named_collections)
+        named_collections = deepcopy(named_collections)
 
     # Check keys are unique
 
