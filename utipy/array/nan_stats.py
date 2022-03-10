@@ -1,28 +1,39 @@
 
 
-from typing import Tuple, Union
+from typing import Callable, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 
+from utipy.utils.messenger import Messenger, check_messenger
 
-def print_nan_stats(x: Union[np.ndarray, pd.DataFrame], message: str, indent: int = 4) -> None:
+
+def print_nan_stats(
+        x: Union[np.ndarray, pd.DataFrame],
+        message: str,
+        messenger: Optional[Callable] = Messenger(
+            verbose=True, indent=0, msg_fn=print),
+        indent: Optional[int] = None) -> None:
     """
     Print statistics about NaNs in an array.
 
     Parameters
     ----------
-    x : numpy.ndarray or pandas.DataFrame
+    x : `numpy.ndarray` or `pandas.DataFrame`
         The array / data frame to count NaNs in.
     message : str
         The message prior to the stats. Full message becomes:
             `indentation + message + ": " + num NaNs (percentage)` 
+    messenger : `utipy.Messenger` or None
+        A `utipy.Messenger` instance used to print/log/... information.
+        When `None`, no printing/logging is performed.
+        The messenger determines the messaging function (e.g. `print` or `log.info`)
+        and indentation when `indent` is `None`.
     indent : int
-        How many whitespaces to indent the message.
+        Indentation of message. When `None`, indentation is determined by `messenger`.
     """
-    assert indent >= 0
+    messenger = check_messenger(messenger)
     num_nans, perc = nan_stats(x)
-    indent_str = "".join([" " for _ in range(indent)])
-    print(f"{indent_str}{message}: {num_nans} ({perc}%)")
+    messenger(f"{message}: {num_nans} ({perc}%)", indent=indent)
 
 
 def nan_stats(x: Union[np.ndarray, pd.DataFrame]) -> Tuple[int, float]:
@@ -31,7 +42,7 @@ def nan_stats(x: Union[np.ndarray, pd.DataFrame]) -> Tuple[int, float]:
 
     Parameters
     ----------
-    x : numpy.ndarray
+    x : `numpy.ndarray`
         A numpy array.
 
     Returns
