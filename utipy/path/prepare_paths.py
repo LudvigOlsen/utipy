@@ -2,7 +2,7 @@
 import os
 import pathlib
 from itertools import combinations
-from typing import Union
+from typing import List, Union
 
 
 # TODO Test (e.g. with "-" path included)
@@ -17,13 +17,11 @@ def prepare_in_out_paths(
     out_files: dict = None,
     out_dirs: dict = None,
     tmp_files: dict = None,
+    tmp_dirs: dict = None,
     allow_none: bool = False,
     allow_overwriting: bool = True,
-    allow_duplicates_in_files: bool = False,
-    allow_duplicates_in_dirs: bool = True,
-    allow_duplicates_out_files: bool = False,
-    allow_duplicates_out_dirs: bool = True,
-    allow_duplicates_tmp_files: bool = False,
+    allow_duplicates_in: List[str] = [
+        "in_dirs", "out_dirs", "tmp_dirs"],
     pathlib_out: bool = True
 ):
     """
@@ -46,14 +44,9 @@ def prepare_in_out_paths(
         in which case they will be ignored.
     :param allow_overwriting: Whether to allow `out_files` paths 
         to already exist.
-    :param allow_duplicates_in_files: Whether to allow duplicate
-        values (i.e. paths) in `in_files`.
-    :param allow_duplicates_in_dirs: Whether to allow duplicate
-        values (i.e. paths) in `in_dirs`.
-    :param allow_duplicates_out_files: Whether to allow duplicate
-        values (i.e. paths) in `out_files`.
-    :param allow_duplicates_out_dirs: Whether to allow duplicate
-        values (i.e. paths) in `out_dirs`.
+    allow_duplicates_in : list
+            List of collections to allow duplicate paths in. One of:
+                {'in_files', 'in_dirs', 'out_files', 'out_dirs', 'tmp_files', 'tmp_dirs'}.
     :param pathlib_out: Whether to convert the paths to 
         `pathlib.Path` objects on return.
     :returns: Updated dicts (or `None`) for `in_files`, `in_dirs`, `out_files` and `out_dirs`.
@@ -68,7 +61,8 @@ def prepare_in_out_paths(
         "out_files": out_files,
         "in_dirs": in_dirs,
         "out_dirs": out_dirs,
-        "tmp_files": tmp_files
+        "tmp_files": tmp_files,
+        "tmp_dirs": tmp_dirs
     }
 
     # Assert non-overlapping keys in all combinations of collections
@@ -86,7 +80,7 @@ def prepare_in_out_paths(
         d=in_files,
         d_name="in_files",
         allow_none=allow_none,
-        check_duplicates=not allow_duplicates_in_files,
+        check_duplicates="in_files" not in allow_duplicates_in,
         assert_exists=True,
         path_type="file"
     )
@@ -96,7 +90,7 @@ def prepare_in_out_paths(
         d=out_files,
         d_name="out_files",
         allow_none=allow_none,
-        check_duplicates=not allow_duplicates_out_files,
+        check_duplicates="out_files" not in allow_duplicates_in,
         assert_exists=False,
         assert_missing=not allow_overwriting,
         path_type="file"
@@ -107,7 +101,7 @@ def prepare_in_out_paths(
         d=tmp_files,
         d_name="tmp_files",
         allow_none=allow_none,
-        check_duplicates=not allow_duplicates_tmp_files,
+        check_duplicates="tmp_files" not in allow_duplicates_in,
         assert_exists=False,
         assert_missing=not allow_overwriting,
         path_type="file"
@@ -118,7 +112,7 @@ def prepare_in_out_paths(
         d=in_dirs,
         d_name="in_dirs",
         allow_none=allow_none,
-        check_duplicates=not allow_duplicates_in_dirs,
+        check_duplicates="in_dirs" not in allow_duplicates_in,
         assert_exists=True,
         path_type="directory"
     )
@@ -128,7 +122,16 @@ def prepare_in_out_paths(
         d=out_dirs,
         d_name="out_dirs",
         allow_none=allow_none,
-        check_duplicates=not allow_duplicates_out_dirs,
+        check_duplicates="out_dirs" not in allow_duplicates_in,
+        path_type="directory"
+    )
+
+    # Check temporary directory paths
+    out_dirs = _check_paths_dict(
+        d=tmp_dirs,
+        d_name="tmp_dirs",
+        allow_none=allow_none,
+        check_duplicates="tmp_dirs" not in allow_duplicates_in,
         path_type="directory"
     )
 
@@ -137,6 +140,11 @@ def prepare_in_out_paths(
     _check_duplicates_across_dicts(d1=in_files, d2=tmp_files)
     _check_duplicates_across_dicts(d1=out_files, d2=tmp_files)
 
+    # Make sure `tmp_dirs` are unique!
+    # As they might be deleted after use
+    _check_duplicates_across_dicts(d1=tmp_dirs, d2=in_dirs)
+    _check_duplicates_across_dicts(d1=tmp_dirs, d2=out_dirs)
+
     # Convert all paths to pathlib.Path objects
     if pathlib_out:
         in_files = _normalize_paths(in_files, type_fn=pathlib.Path)
@@ -144,13 +152,14 @@ def prepare_in_out_paths(
         out_files = _normalize_paths(out_files, type_fn=pathlib.Path)
         out_dirs = _normalize_paths(out_dirs, type_fn=pathlib.Path)
         tmp_files = _normalize_paths(tmp_files, type_fn=pathlib.Path)
+        tmp_dirs = _normalize_paths(tmp_dirs, type_fn=pathlib.Path)
 
     # Combine collections to single dict
     # for faster and simpler look-up
     # Hence the need for unique keys
     # across the dicts
     specified_collections = [
-        coll for coll in [in_files, in_dirs, out_files, out_dirs, tmp_files]
+        coll for coll in [in_files, in_dirs, out_files, out_dirs, tmp_files, tmp_dirs]
         if coll is not None
     ]
     for i, coll in enumerate(specified_collections):
@@ -159,7 +168,7 @@ def prepare_in_out_paths(
         else:
             all_paths.update(coll)
 
-    return in_files, in_dirs, out_files, out_dirs, tmp_files, all_paths
+    return in_files, in_dirs, out_files, out_dirs, tmp_files, tmp_dirs, all_paths
 
 
 # Utilities
@@ -281,6 +290,8 @@ def _check_paths_exist(d: dict, check_type: str = "file", raise_when: str = "unk
 
 
 def _check_duplicates_across_dicts(d1: Union[dict, None], d2: Union[dict, None]):
+
+    # TODO This requires documentation!
 
     if d1 is None or d2 is None:
         return None

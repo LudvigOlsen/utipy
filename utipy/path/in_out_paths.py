@@ -1,9 +1,9 @@
 
 import os
 import pathlib
-from typing import Callable, Optional, Union
+from typing import Callable, List, Optional, Union
 
-from utipy.path.mk_rm_dir import mk_dir
+from utipy.path.mk_rm_dir import mk_dir, rm_dir as remove_dir
 from utipy.path.prepare_paths import prepare_in_out_paths
 from utipy.utils.messenger import Messenger
 
@@ -18,7 +18,8 @@ class InOutPaths:
         "in_dirs",
         "out_files",
         "out_dirs",
-        "tmp_files"
+        "tmp_files",
+        "tmp_dirs"
     ]
 
     def __init__(self,
@@ -27,13 +28,11 @@ class InOutPaths:
                  out_files: dict = None,
                  out_dirs: dict = None,
                  tmp_files: dict = None,
+                 tmp_dirs: dict = None,
                  allow_none: bool = False,
                  allow_overwriting: bool = True,
-                 allow_duplicates_in_files: bool = False,
-                 allow_duplicates_in_dirs: bool = True,
-                 allow_duplicates_out_files: bool = False,
-                 allow_duplicates_out_dirs: bool = True,
-                 allow_duplicates_tmp_files: bool = True,
+                 allow_duplicates_in: List[str] = [
+                     "in_dirs", "out_dirs", "tmp_dirs"],
                  print_note: bool = "",
                  ) -> None:
         """
@@ -50,32 +49,28 @@ class InOutPaths:
         Parameters
         ----------
         in_files : dict
-            Dict with named paths to input files, mapping `argument name -> input filepath`.
+            Dict with named paths to input files, mapping `(argument) name -> input filepath`.
             A path can also be "-" when streaming input. 
             This value will remain a string and will not be checked
             for duplication, existence, etc.
         in_dirs : dict
-            Dict with named paths to input directories, mapping `argument name -> input directory path`.
+            Dict with named paths to input directories, mapping `(argument) name -> input directory path`.
         out_files : dict
-            Dict with named paths to output files, mapping `argument name -> output filepath`.
+            Dict with named paths to output files, mapping `(argument) name -> output filepath`.
         out_dirs : dict
-            Dict with named paths to output directories, mapping `argument name -> output directory path`.
+            Dict with named paths to output directories, mapping `(argument) name -> output directory path`.
         tmp_files : dict
             Dict with named paths to temporary files, mapping `(argument) name -> temporary filepath`.
-                The names do not have to be argument names.
+        tmp_dirs : dict
+            Dict with named paths to temporary directories, mapping `(argument) name -> temporary directory path`.
         allow_none : bool
             Whether to allow paths (i.e. dict values) to be `None`,
             in which case they will be ignored.
         allow_overwriting : bool
             Whether to allow `out_files` paths to already exist.
-        allow_duplicates_in_files : bool
-            Whether to allow duplicate values (i.e. paths) in `in_files`.
-        allow_duplicates_in_dirs : bool
-            Whether to allow duplicate values (i.e. paths) in `in_dirs`.
-        allow_duplicates_out_files : bool
-            Whether to allow duplicate values (i.e. paths) in `out_files`.
-        allow_duplicates_out_dirs : bool
-            Whether to allow duplicate values (i.e. paths) in `out_dirs`.
+        allow_duplicates_in : list
+            List of collections to allow duplicate paths in. One of:
+                {'in_files', 'in_dirs', 'out_files', 'out_dirs', 'tmp_files', 'tmp_dirs'}.
         print_note : string
             String to add to end of `__str__` method.
             That is a suffix added when printing the collection.
@@ -147,15 +142,12 @@ class InOutPaths:
             "out_files": out_files,
             "out_dirs": out_dirs,
             "tmp_files": tmp_files,
+            "tmp_dirs": tmp_dirs,
         }
 
         self.allow_none = allow_none
         self.allow_overwriting = allow_overwriting
-        self.allow_duplicates_in_files = allow_duplicates_in_files
-        self.allow_duplicates_in_dirs = allow_duplicates_in_dirs
-        self.allow_duplicates_out_files = allow_duplicates_out_files
-        self.allow_duplicates_out_dirs = allow_duplicates_out_dirs
-        self.allow_duplicates_tmp_files = allow_duplicates_tmp_files
+        self.allow_duplicates_in = allow_duplicates_in
         self.print_note = print_note
 
         self._prepare_paths()
@@ -352,19 +344,16 @@ class InOutPaths:
     def _prepare_paths(self):
 
         # Prepare paths
-        in_files, in_dirs, out_files, out_dirs, tmp_files, all_paths = prepare_in_out_paths(
+        in_files, in_dirs, out_files, out_dirs, tmp_files, tmp_dirs, all_paths = prepare_in_out_paths(
             in_files=self.get_collection("in_files"),
             in_dirs=self.get_collection("in_dirs"),
             out_files=self.get_collection("out_files"),
             out_dirs=self.get_collection("out_dirs"),
             tmp_files=self.get_collection("tmp_files"),
+            tmp_dirs=self.get_collection("tmp_dirs"),
             allow_none=self.allow_none,
             allow_overwriting=self.allow_overwriting,
-            allow_duplicates_in_files=self.allow_duplicates_in_files,
-            allow_duplicates_in_dirs=self.allow_duplicates_in_dirs,
-            allow_duplicates_out_files=self.allow_duplicates_out_files,
-            allow_duplicates_out_dirs=self.allow_duplicates_out_dirs,
-            allow_duplicates_tmp_files=self.allow_duplicates_tmp_files,
+            allow_duplicates_in=self.allow_duplicates_in,
             pathlib_out=True)
 
         # Assign updated collections
@@ -373,6 +362,7 @@ class InOutPaths:
         self._set_collection("out_files", out_files)
         self._set_collection("out_dirs", out_dirs)
         self._set_collection("tmp_files", tmp_files)
+        self._set_collection("tmp_dirs", tmp_dirs)
         self.all_paths = all_paths
 
     def mk_output_dir(
@@ -432,8 +422,9 @@ class InOutPaths:
         mkdirs_for_out_files = True
         mkdirs_for_out_dirs = True
         mkdirs_for_tmp_files = True
+        mkdirs_for_tmp_dirs = True
         if collection is not None:
-            if collection not in ["out_dirs", "out_files", "tmp_files"]:
+            if collection not in ["out_files", "out_dirs", "tmp_files", "tmp_dirs"]:
                 raise ValueError(
                     f"`collection` must be one of the output path collections but was {collection}.")
             if collection != "out_files":
@@ -442,6 +433,8 @@ class InOutPaths:
                 mkdirs_for_out_files = False
             if collection != "tmp_files":
                 mkdirs_for_tmp_files = False
+            if collection != "tmp_dirs":
+                mkdirs_for_tmp_dirs = False
 
         # Create output directories if they don't exist
 
@@ -462,6 +455,14 @@ class InOutPaths:
                 # Get directory the file should be place in
                 dir_path = pathlib.Path(v).parent
                 mk_dir(path=dir_path, arg_name=k, messenger=messenger)
+
+        # For tmp directories
+        if mkdirs_for_tmp_dirs:
+            tmp_dirs = self.get_collection("tmp_dirs")
+            if tmp_dirs is None:
+                raise ValueError("`tmp_dirs` collection was `None`.")
+            for k, v in tmp_dirs.items():
+                mk_dir(path=v, arg_name=k, messenger=messenger)
 
         # For tmp files' directories
         if mkdirs_for_tmp_files:
@@ -494,6 +495,59 @@ class InOutPaths:
         else:
             os.remove(str(path))
 
+    def rm_dir(self, name: str, raise_on_fail: bool = True,
+               messenger: Optional[Callable] = Messenger(
+                   verbose=True, indent=0, msg_fn=print)) -> None:
+        """
+        Remove a directory from disk.
+
+        Parameters
+        ----------
+        name : str
+            Name of path to a directory to remove from disk.
+        raise_on_fail : bool
+            Whether to raise an error when the path does not exist.
+        messenger : `utipy.Messenger` or None
+            A `utipy.Messenger` instance used to print/log/... information.
+            When `None`, no printing/logging is performed.
+            The messenger determines the messaging function (e.g. `print`)
+            and potential indentation.
+        """
+        path = self[name]
+        if path is None:
+            raise ValueError(f"Path object for `{name}` was `None`.")
+        remove_dir(
+            path=path,
+            arg_name=f'{name} path',
+            raise_missing=raise_on_fail,
+            raise_not_dir=raise_on_fail,
+            messenger=messenger
+        )
+
+    def rm_tmp_dirs(self, raise_on_fail: bool = True,
+                    messenger: Optional[Callable] = Messenger(
+                        verbose=True, indent=0, msg_fn=print)) -> None:
+        """
+        Remove all temporary directories from disk.
+
+        Parameters
+        ----------
+        raise_on_fail : bool
+            Whether to raise an error when the path does not exist.
+        messenger : `utipy.Messenger` or None
+            A `utipy.Messenger` instance used to print/log/... information.
+            When `None`, no printing/logging is performed.
+            The messenger determines the messaging function (e.g. `print`)
+            and potential indentation.
+        """
+        # Delete each path in `tmp_dirs``
+        for path in self.get_collection(name="tmp_dirs").keys():
+            self.rm_dir(
+                name=path,
+                raise_on_fail=raise_on_fail,
+                messenger=messenger
+            )
+
     def update(self, other: object):
         """
         Update with paths from another `InOutPaths` collection.
@@ -525,6 +579,13 @@ class InOutPaths:
         other : `InOutPaths` instance
             Another `InOutPaths` instance with paths.
             Each sub collection is dict-updated one at a time.
+
+        Returns
+        -------
+        `InOutPaths` instance
+            A new `InOutPaths` instance with the keys and paths in 
+            the collections of this object that are not in the collections 
+            of the `other` object.
         """
         assert isinstance(other, InOutPaths)
         diff_dicts = {}
@@ -545,7 +606,8 @@ class InOutPaths:
             in_dirs=diff_dicts["in_dirs"],
             out_files=diff_dicts["out_files"],
             out_dirs=diff_dicts["out_dirs"],
-            tmp_files=diff_dicts["tmp_files"]
+            tmp_files=diff_dicts["tmp_files"],
+            tmp_dirs=diff_dicts["tmp_dirs"],
         )
 
     def __eq__(self, other: object) -> bool:
@@ -572,26 +634,27 @@ class InOutPaths:
                 return False
         return True
 
-    def _new(self, in_files: dict = None, in_dirs: dict = None, out_files: dict = None, out_dirs: dict = None, tmp_files: dict = None):
+    def _new(self, in_files: dict = None, in_dirs: dict = None, out_files: dict = None, out_dirs: dict = None, tmp_files: dict = None, tmp_dirs: dict = None):
         """
         Create new `InOutPaths` object with new collections but keeping the rest of the settings.
 
         Parameters
         ----------
         in_files : dict
-            Dict with named paths to input files, mapping `argument name -> input filepath`.
+            Dict with named paths to input files, mapping `(argument) name -> input filepath`.
             A path can also be "-" when streaming input. 
             This value will remain a string and will not be checked
             for duplication, existence, etc.
         in_dirs : dict
-            Dict with named paths to input directories, mapping `argument name -> input directory path`.
+            Dict with named paths to input directories, mapping `(argument) name -> input directory path`.
         out_files : dict
-            Dict with named paths to output files, mapping `argument name -> output filepath`.
+            Dict with named paths to output files, mapping `(argument) name -> output filepath`.
         out_dirs : dict
-            Dict with named paths to output directories, mapping `argument name -> output directory path`.
+            Dict with named paths to output directories, mapping `(argument) name -> output directory path`.
         tmp_files : dict
             Dict with named paths to temporary files, mapping `(argument) name -> temporary filepath`.
-                The names do not have to be argument names.
+        tmp_dirs : dict
+            Dict with named paths to temporary directories, mapping `(argument) name -> temporary directory path`.
 
         Returns
         -------
@@ -603,13 +666,10 @@ class InOutPaths:
             out_files=out_files,
             out_dirs=out_dirs,
             tmp_files=tmp_files,
+            tmp_dirs=tmp_dirs,
             allow_none=self.allow_none,
             allow_overwriting=self.allow_overwriting,
-            allow_duplicates_in_files=self.allow_duplicates_in_files,
-            allow_duplicates_in_dirs=self.allow_duplicates_in_dirs,
-            allow_duplicates_out_files=self.allow_duplicates_out_files,
-            allow_duplicates_out_dirs=self.allow_duplicates_out_dirs,
-            allow_duplicates_tmp_files=self.allow_duplicates_tmp_files,
+            allow_duplicates_in=self.allow_duplicates_in,
             print_note=self.print_note
         )
 
