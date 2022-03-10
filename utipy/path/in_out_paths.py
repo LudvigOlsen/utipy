@@ -33,6 +33,12 @@ class InOutPaths:
                  allow_overwriting: bool = True,
                  allow_duplicates_in: List[str] = [
                      "in_dirs", "out_dirs", "tmp_dirs"],
+                 disallowed_nestings: List[tuple] = [
+                     ("in_files", "tmp_dirs"),
+                     ("out_files", "tmp_dirs"),
+                     ("in_dirs", "tmp_dirs"),
+                     ("out_dirs", "tmp_dirs")
+                 ],
                  print_note: bool = "",
                  ) -> None:
         """
@@ -71,6 +77,11 @@ class InOutPaths:
         allow_duplicates_in : list
             List of collections to allow duplicate paths in. One of:
                 {'in_files', 'in_dirs', 'out_files', 'out_dirs', 'tmp_files', 'tmp_dirs'}.
+        disallowed_nestings : list of tuples
+            Pairs of collections where the paths of the first cannot 
+            be nested inside the paths of the second.
+            By default, the in and out paths cannot be located within 
+            the temporary directories, as these might be deleted.
         print_note : string
             String to add to end of `__str__` method.
             That is a suffix added when printing the collection.
@@ -148,6 +159,7 @@ class InOutPaths:
         self.allow_none = allow_none
         self.allow_overwriting = allow_overwriting
         self.allow_duplicates_in = allow_duplicates_in
+        self.disallowed_nestings = disallowed_nestings
         self.print_note = print_note
 
         self._prepare_paths()
@@ -342,28 +354,14 @@ class InOutPaths:
         self._prepare_paths()
 
     def _prepare_paths(self):
-
         # Prepare paths
-        in_files, in_dirs, out_files, out_dirs, tmp_files, tmp_dirs, all_paths = prepare_in_out_paths(
-            in_files=self.get_collection("in_files"),
-            in_dirs=self.get_collection("in_dirs"),
-            out_files=self.get_collection("out_files"),
-            out_dirs=self.get_collection("out_dirs"),
-            tmp_files=self.get_collection("tmp_files"),
-            tmp_dirs=self.get_collection("tmp_dirs"),
+        self._collections, self.all_paths = prepare_in_out_paths(
+            named_collections=self._collections,
             allow_none=self.allow_none,
             allow_overwriting=self.allow_overwriting,
             allow_duplicates_in=self.allow_duplicates_in,
+            disallowed_nestings=self.disallowed_nestings,
             pathlib_out=True)
-
-        # Assign updated collections
-        self._set_collection("in_files", in_files)
-        self._set_collection("in_dirs", in_dirs)
-        self._set_collection("out_files", out_files)
-        self._set_collection("out_dirs", out_dirs)
-        self._set_collection("tmp_files", tmp_files)
-        self._set_collection("tmp_dirs", tmp_dirs)
-        self.all_paths = all_paths
 
     def mk_output_dir(
         self,
@@ -409,7 +407,7 @@ class InOutPaths:
         ----------
         collection : str
             Name of collection to create output directories for.
-                One of: ('out_dirs', 'out_files', 'tmp_files')
+                One of: ('out_dirs', 'out_files', 'tmp_files', 'mkdirs_for_tmp_dirs')
             When `None`, directories are created for all three collections.
         messenger : `utipy.Messenger` or None
             A `utipy.Messenger` instance used to print/log/... information.
@@ -540,6 +538,11 @@ class InOutPaths:
             The messenger determines the messaging function (e.g. `print`)
             and potential indentation.
         """
+
+        # TODO In case they are nested, we should check their existence
+        # before deleting some of the directories, as that might
+        # delete the existing ones
+
         # Delete each path in `tmp_dirs``
         for path in self.get_collection(name="tmp_dirs").keys():
             self.rm_dir(

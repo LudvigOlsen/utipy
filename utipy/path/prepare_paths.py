@@ -1,8 +1,9 @@
 
 import os
+import copy
 import pathlib
 from itertools import combinations
-from typing import List, Union
+from typing import Dict, List, Optional, Union
 
 
 # TODO Test (e.g. with "-" path included)
@@ -12,17 +13,19 @@ from typing import List, Union
 # TODO Convert docs to other format
 
 def prepare_in_out_paths(
-    in_files: dict = None,
-    in_dirs: dict = None,
-    out_files: dict = None,
-    out_dirs: dict = None,
-    tmp_files: dict = None,
-    tmp_dirs: dict = None,
+    named_collections: Dict[dict] = None,
     allow_none: bool = False,
     allow_overwriting: bool = True,
     allow_duplicates_in: List[str] = [
         "in_dirs", "out_dirs", "tmp_dirs"],
-    pathlib_out: bool = True
+    disallowed_nestings: List[tuple] = [
+        ("in_files", "tmp_dirs"),
+        ("out_files", "tmp_dirs"),
+        ("in_dirs", "tmp_dirs"),
+        ("out_dirs", "tmp_dirs")
+    ],
+    pathlib_out: bool = True,
+    copy: bool = True
 ):
     """
     Checks paths and converts them to `pathlib.Path` objects.
@@ -33,37 +36,35 @@ def prepare_in_out_paths(
 
     Keys must be unique across the dictionaries.
 
-    :param in_files: Dict mapping argument name -> input filepath.
-        A path can also be "-" when streaming input. 
-        This value will remain a string and will not be checked
-        for duplication, existence, etc.
-    :param in_dirs: Dict mapping argument name -> input directory path.
-    :param out_files: Dict mapping argument name -> output filepath.
-    :param out_dirs: Dict mapping argument name -> output directory path.
+    named_collections : dict of dicts
+        A dict mapping collection name -> collection where a collection
+        is a dict mapping (argument) name -> path.
+        For the `in_files` collection, a path can also be "-" when streaming input. 
+            This value will remain a string and will not be checked
+            for duplication, existence, etc.
     :param allow_none: Whether to allow paths (i.e. dict values) to be `None`,
         in which case they will be ignored.
     :param allow_overwriting: Whether to allow `out_files` paths 
         to already exist.
     allow_duplicates_in : list
-            List of collections to allow duplicate paths in. One of:
-                {'in_files', 'in_dirs', 'out_files', 'out_dirs', 'tmp_files', 'tmp_dirs'}.
+        List of collections to allow duplicate paths in. One of:
+            {'in_files', 'in_dirs', 'out_files', 'out_dirs', 'tmp_files', 'tmp_dirs'}.
+    disallowed_nestings : list of tuples
+        Pairs of collections where the paths of the first cannot 
+        be nested inside the paths of the second.
+        By default, the in and out paths cannot be located within 
+        the temporary directories, as these might be deleted.
     :param pathlib_out: Whether to convert the paths to 
         `pathlib.Path` objects on return.
     :returns: Updated dicts (or `None`) for `in_files`, `in_dirs`, `out_files` and `out_dirs`.
         Paths are `pathlib.Path` objects that have been "resolved".
     """
 
-    # Check keys are unique
+    if copy:
+        # Nested dictionaries -> deep copy
+        named_collections = copy.deepcopy(named_collections)
 
-    # Add collections to a named dict
-    named_collections = {
-        "in_files": in_files,
-        "out_files": out_files,
-        "in_dirs": in_dirs,
-        "out_dirs": out_dirs,
-        "tmp_files": tmp_files,
-        "tmp_dirs": tmp_dirs
-    }
+    # Check keys are unique
 
     # Assert non-overlapping keys in all combinations of collections
     for k1, k2 in set(combinations(named_collections.keys(), 2)):
@@ -76,8 +77,8 @@ def prepare_in_out_paths(
     # Check paths in dicts
 
     # Check input filepaths
-    in_files = _check_paths_dict(
-        d=in_files,
+    named_collections['in_files'] = _check_paths_dict(
+        d=named_collections['in_files'],
         d_name="in_files",
         allow_none=allow_none,
         check_duplicates="in_files" not in allow_duplicates_in,
@@ -86,8 +87,8 @@ def prepare_in_out_paths(
     )
 
     # Check output filepaths
-    out_files = _check_paths_dict(
-        d=out_files,
+    named_collections['out_files'] = _check_paths_dict(
+        d=named_collections['out_files'],
         d_name="out_files",
         allow_none=allow_none,
         check_duplicates="out_files" not in allow_duplicates_in,
@@ -97,8 +98,8 @@ def prepare_in_out_paths(
     )
 
     # Check tmp filepaths
-    tmp_files = _check_paths_dict(
-        d=tmp_files,
+    named_collections['tmp_files'] = _check_paths_dict(
+        d=named_collections['tmp_files'],
         d_name="tmp_files",
         allow_none=allow_none,
         check_duplicates="tmp_files" not in allow_duplicates_in,
@@ -108,8 +109,8 @@ def prepare_in_out_paths(
     )
 
     # Check input directory paths
-    in_dirs = _check_paths_dict(
-        d=in_dirs,
+    named_collections['in_dirs'] = _check_paths_dict(
+        d=named_collections['in_dirs'],
         d_name="in_dirs",
         allow_none=allow_none,
         check_duplicates="in_dirs" not in allow_duplicates_in,
@@ -118,8 +119,8 @@ def prepare_in_out_paths(
     )
 
     # Check output directory paths
-    out_dirs = _check_paths_dict(
-        d=out_dirs,
+    named_collections['out_dirs'] = _check_paths_dict(
+        d=named_collections['out_dirs'],
         d_name="out_dirs",
         allow_none=allow_none,
         check_duplicates="out_dirs" not in allow_duplicates_in,
@@ -127,39 +128,50 @@ def prepare_in_out_paths(
     )
 
     # Check temporary directory paths
-    out_dirs = _check_paths_dict(
-        d=tmp_dirs,
+    named_collections['tmp_dirs'] = _check_paths_dict(
+        d=named_collections['tmp_dirs'],
         d_name="tmp_dirs",
         allow_none=allow_none,
         check_duplicates="tmp_dirs" not in allow_duplicates_in,
+        assert_missing=True,
         path_type="directory"
     )
 
     # Check for path duplicates across file collections
-    _check_duplicates_across_dicts(d1=in_files, d2=out_files)
-    _check_duplicates_across_dicts(d1=in_files, d2=tmp_files)
-    _check_duplicates_across_dicts(d1=out_files, d2=tmp_files)
+    # and make sure `tmp_dirs` are unique as they might be deleted after use
+    to_check_for_dups = [
+        ('in_files', 'out_files'), ('in_files', 'tmp_files'),
+        ('out_files', 'tmp_files'), ('tmp_dirs', 'in_dirs'),
+        ('tmp_dirs', 'out_dirs')
+    ]
+    for coll_1, coll_2 in to_check_for_dups:
+        _check_duplicates_across_dicts(
+            d1=named_collections[coll_1],
+            d2=named_collections[coll_2]
+        )
 
-    # Make sure `tmp_dirs` are unique!
-    # As they might be deleted after use
-    _check_duplicates_across_dicts(d1=tmp_dirs, d2=in_dirs)
-    _check_duplicates_across_dicts(d1=tmp_dirs, d2=out_dirs)
+    # Check nestings
+    # Paths in coll_1 cannot be nested within coll_2
+    for coll_1, coll_2 in disallowed_nestings:
+        _check_nestings(
+            d1=named_collections[coll_1],
+            d2=named_collections[coll_2]
+        )
 
     # Convert all paths to pathlib.Path objects
     if pathlib_out:
-        in_files = _normalize_paths(in_files, type_fn=pathlib.Path)
-        in_dirs = _normalize_paths(in_dirs, type_fn=pathlib.Path)
-        out_files = _normalize_paths(out_files, type_fn=pathlib.Path)
-        out_dirs = _normalize_paths(out_dirs, type_fn=pathlib.Path)
-        tmp_files = _normalize_paths(tmp_files, type_fn=pathlib.Path)
-        tmp_dirs = _normalize_paths(tmp_dirs, type_fn=pathlib.Path)
+        for key, coll in named_collections.items():
+            named_collections[key] = _normalize_paths(
+                coll,
+                type_fn=pathlib.Path
+            )
 
     # Combine collections to single dict
     # for faster and simpler look-up
     # Hence the need for unique keys
     # across the dicts
     specified_collections = [
-        coll for coll in [in_files, in_dirs, out_files, out_dirs, tmp_files, tmp_dirs]
+        coll for coll in named_collections.values()
         if coll is not None
     ]
     for i, coll in enumerate(specified_collections):
@@ -168,13 +180,13 @@ def prepare_in_out_paths(
         else:
             all_paths.update(coll)
 
-    return in_files, in_dirs, out_files, out_dirs, tmp_files, tmp_dirs, all_paths
+    return named_collections, all_paths
 
 
 # Utilities
 
 def _check_paths_dict(
-    d: Union[dict, None],
+    d: Optional[dict],
     d_name: str,
     allow_none: bool = False,
     check_duplicates: bool = True,
@@ -289,7 +301,7 @@ def _check_paths_exist(d: dict, check_type: str = "file", raise_when: str = "unk
                 f"`{k}` is an existing {check_type}."
 
 
-def _check_duplicates_across_dicts(d1: Union[dict, None], d2: Union[dict, None]):
+def _check_duplicates_across_dicts(d1: Optional[dict], d2: Optional[dict]):
 
     # TODO This requires documentation!
 
@@ -325,7 +337,7 @@ def _check_duplicates_across_dicts(d1: Union[dict, None], d2: Union[dict, None])
     _check_duplicates(combined)
 
 
-def _check_different_keys(d1: Union[dict, None], d2: Union[dict, None], names: list):
+def _check_different_keys(d1: Optional[dict], d2: Optional[dict], names: list):
     if d1 is not None and d2 is not None:
         key_intersection = list(
             set(d1.keys()).intersection(
@@ -336,3 +348,36 @@ def _check_different_keys(d1: Union[dict, None], d2: Union[dict, None], names: l
         if len(key_intersection):
             raise ValueError(
                 f"The same keys were found in `{names[0]}` and `{names[1]}`: {key_intersection}.")
+
+
+def _check_nestings(d1: Optional[dict], d2: Optional[dict]):
+    if d1 is not None and d2 is not None:
+        nestings = _find_nested(d1, d2)
+        if nestings:
+            nestings_string = [f'({x} in {y})' for x, y in nestings]
+            raise ValueError(
+                f"Found {len(nestings)} disallowed nested paths: "
+                f"{', '.join(nestings_string)}."
+            )
+
+
+def _find_nested(d1, d2):
+    """
+    Find paths in d1 that are nested inside paths in d2.
+
+    Returns tuples with keys `(d1_key, d2_key)` where `d1_path` was a subdirectory of `d2_path`.
+    """
+    # Copy to ensure we don't alter
+    # original dicts in parent scope
+    d1 = d1.copy()
+    d2 = d2.copy()
+
+    # Make paths `pathlib.Path` objects
+    d1 = _normalize_paths(d1, type_fn=pathlib.Path)
+    d2 = _normalize_paths(d2, type_fn=pathlib.Path)
+
+    return [
+        (d1_key, d2_key) for d1_key, d1_path in d1.items()
+        for d2_key, d2_path in d2.items()
+        if d2_path in d1_path.parents
+    ]
