@@ -29,14 +29,14 @@ def _l_sizes(v, p, randomize=False, rounding='floor'):
         # if not isinstance(p, list):
         p = [p]
 
-    # Check if p sums to more than 1
-    if not 0 <= sum(p) <= 1:
-        raise ValueError('l_sizes: sum of p is not equal to or within 0 and 1')
-
     # Check if the sum of p is 0, 1 or in-between
     if False in [0 <= size <= 1 for size in p]:
         raise ValueError(
             'l_sizes: element of p is not equal to or within 0 and 1')
+
+    # Check if p sums to more than 1
+    if not 0 <= sum(p) <= 1:
+        raise ValueError('l_sizes: sum of p is not equal to or within 0 and 1')
 
     # Is sum of p 1? Then we only want the number
     # of groups passed.
@@ -74,8 +74,10 @@ def _l_sizes(v, p, randomize=False, rounding='floor'):
         raise ValueError('l_sizes: Wrong number of elements in sizes')
 
     # Create grouping factor
-    grouping_factor = np.asarray(
-        [[group] * size for size, group in zip(sizes, range(len(sizes)))])
+    grouping_factor = [
+        [group] * int(size)
+        for size, group in zip(sizes, range(len(sizes)))
+    ]
 
     # Flatten grouping factor
     grouping_factor = [item for sublist in grouping_factor for item in sublist]

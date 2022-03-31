@@ -10,6 +10,7 @@ from utipy.utils.messenger import Messenger
 
 # TODO Add tests
 # TODO Allow keys to have a list of paths?
+# TODO Allow checking if dirs are empty (e.g. checkpoints)
 
 class InOutPaths:
 
