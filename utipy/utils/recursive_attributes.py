@@ -3,6 +3,7 @@ from functools import partial
 from typing import Union, Any
 
 # TODO Add tests
+# TODO What if keys have dots in them? Add escaping of dots somehow?
 
 
 def recursive_getattr(obj: Union[object, dict], attr: str, default: Any = None, allow_none: bool = False):

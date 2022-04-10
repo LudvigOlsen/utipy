@@ -82,6 +82,45 @@ class Messenger:
             indent = self.indent
         msg_if(*args, verbose=verbose, indent=indent, msg_fn=self.msg_fn)
 
+    def __add__(self, indent: int):
+        """
+        Add to the current indentation level.
+
+        Parameters
+        ----------
+        indent : int
+            The number of additional positions to indent message.
+
+        Returns
+        -------
+        `self`
+        """
+        assert isinstance(indent, int)
+        self.indent += indent
+        return self
+
+    def __sub__(self, indent: int):
+        """
+        Subtract from the current indentation level.
+
+        Parameters
+        ----------
+        indent : int
+            The number of fewer positions to indent message.
+
+        Returns
+        -------
+        `self`
+        """
+        assert isinstance(indent, int)
+        if self.indent - indent < 0:
+            raise ValueError(
+                f"Subtracting {indent} positions would give a "
+                "negative indentation level. Can maximally subtract "
+                f"{self.indent} positions.")
+        self.indent -= indent
+        return self
+
 
 def msg_if(*args: Any, verbose: bool, indent: int = 0, msg_fn: Callable = print) -> None:
     """
