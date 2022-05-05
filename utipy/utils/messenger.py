@@ -153,8 +153,8 @@ def _args_to_string(*args):
 
 def check_messenger(messenger: Optional[Callable]):
     """
-    Check that `messenger` is a `utipy.Messenger` object or `None`, 
-    in which case a `utipy.Messenger` with `verbose=False` is returned.
+    Check that `messenger` is a `utipy.Messenger` object or `None`.  
+    In the latter case a `utipy.Messenger` with `verbose=False` is returned.
 
     Parameters
     ----------
