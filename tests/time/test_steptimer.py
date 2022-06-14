@@ -33,3 +33,13 @@ def test_steptimer(capfd):
         "first_start", "first_end",
         "third_start", "third_end"
     ])
+
+
+def test_steptimer_nested(capfd):
+    step_timer = StepTimer(message="testing took:", msg_fn=print, verbose=True)
+    with step_timer.time_step(indent=2):
+        sleep(0.1)
+        with step_timer.time_step(indent=4):
+            sleep(0.1)
+    out, err = capfd.readouterr()
+    assert out == "  testing took: 00:00:00\n    testing took: 00:00:00\n"
