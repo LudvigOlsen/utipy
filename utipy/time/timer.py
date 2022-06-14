@@ -2,6 +2,8 @@
 from contextlib import contextmanager
 from typing import Callable, Union
 
+from utipy.string.random_strings import random_alphanumeric
+
 from .timestamps import Timestamps
 
 
@@ -44,6 +46,8 @@ class StepTimer(Timestamps):
           >     b = a * 4
           output: 'Took: 00:00:01'
 
+        Can be used in a nested fashion.
+
         Parameters
         ----------
         indent : int
@@ -58,6 +62,7 @@ class StepTimer(Timestamps):
                 The final timestamp will be recorded with the name `name_prefix + '_end'`.
             This allows easily getting the specific timepoints with `.get_stamp()` or 
             the difference between two stamps with `.took()`.
+            When not specified, a prefix is generated.
 
         Yields
         ------
@@ -69,27 +74,25 @@ class StepTimer(Timestamps):
             prints message + formatted time.
         """
         assert indent >= 0
+        if not name_prefix:
+            name_prefix = f'step_{len(self)}_{random_alphanumeric(size=5)}'
         try:
-            args = {}
-            if name_prefix:
-                args["name"] = name_prefix + "_start"
-            self.stamp(**args)
+            self.stamp(name=name_prefix + "_start")
             yield None
         finally:
-            args = {}
-            if name_prefix:
-                args["name"] = name_prefix + "_end"
-            self.stamp(**args)
+            self.stamp(name=name_prefix + "_end")
             mess = self.message if message is None else message
             if self.verbose:
                 self._print_runtime(
                     indent=indent,
-                    message=mess
+                    message=mess,
+                    start=name_prefix + "_start",
+                    end=name_prefix + "_end"
                 )
 
-    def _print_runtime(self, indent: int, message: str) -> None:
+    def _print_runtime(self, indent: int, message: str, start: Union[int, str] = -2, end: Union[int, str] = -1) -> None:
         """
         Prints the indented message and step time.
         """
         indent_str = "".join([" " for _ in range(indent)])
-        self.msg_fn(f"{indent_str}{message} {self.took()}")
+        self.msg_fn(f"{indent_str}{message} {self.took(start=start, end=end)}")
