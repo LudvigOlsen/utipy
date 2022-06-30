@@ -7,7 +7,8 @@ from utipy.utils.messenger import Messenger, check_messenger
 
 
 def mk_dir(
-    path: Union[str, pathlib.Path], arg_name: Union[str, None] = "",
+    path: Union[str, pathlib.Path],
+    arg_name: Union[str, None] = "",
     raise_on_exists: bool = False,
     messenger: Optional[Callable] = Messenger(
         verbose=True, indent=0, msg_fn=print)
@@ -23,7 +24,7 @@ def mk_dir(
         Name of path argument/variable for message 
         when creating a directory and `messenger.verbose` is `True`.
     raise_on_exists : bool
-        Whether to raise a RuntimeError when the directory already exists.
+        Whether to raise a `FileExistsError` when the directory already exists.
     messenger : `utipy.Messenger` or None
         A `utipy.Messenger` instance used to print/log/... information.
         When `None`, no printing/logging is performed.
@@ -40,19 +41,28 @@ def mk_dir(
     messenger = check_messenger(messenger)
 
     # Fail for existing directory (when specified)
-    if raise_on_exists and path_exists:
-        raise RuntimeError(
-            f"{arg_name}directory already exists: {path.resolve()}")
+    # Or exit function
+    if path_exists:
+        if raise_on_exists:
+            raise FileExistsError(
+                f"{arg_name}directory already exists: {path.resolve()}")
+        return
 
     # Message user about the creation of a new directory
-    if not path_exists:
-        messenger(
-            f"{arg_name}directory does not exist and will be created: "
-            f"{path.resolve()}"
-        )
+    messenger(
+        f"{arg_name}directory does not exist and will be created: "
+        f"{path.resolve()}"
+    )
 
     # Create new directory if it does not already exist
-    path.mkdir(parents=True, exist_ok=True)
+    try:
+        path.mkdir(parents=True, exist_ok=not raise_on_exists)
+    except FileExistsError as e:
+        # In this case, the directory was likely created between
+        # our existence check and our creation attempt
+        if raise_on_exists:
+            raise FileExistsError(
+                f"{arg_name}directory already exists: {path.resolve()}")
 
 
 def rm_dir(
