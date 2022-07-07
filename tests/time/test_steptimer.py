@@ -42,4 +42,5 @@ def test_steptimer_nested(capfd):
         with step_timer.time_step(indent=4):
             sleep(0.1)
     out, err = capfd.readouterr()
-    assert out == "  testing took: 00:00:00\n    testing took: 00:00:00\n"
+    # First the inner statement prints with 4 spaces, then the outer with 2 spaces
+    assert out == "    testing took: 00:00:00\n  testing took: 00:00:00\n"

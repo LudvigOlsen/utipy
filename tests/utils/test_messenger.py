@@ -67,6 +67,61 @@ def test_messenger_logger(capfd, caplog):
     assert out == ""
 
 
+def test_messenger_indentation_with(capfd):
+
+    printer = Messenger(verbose=True, indent=2, msg_fn=print, end="")
+
+    # Temporarily change indentation to 6 spaces
+    with printer.indentation(indent=6):
+        printer("some string")
+
+    out, err = capfd.readouterr()
+    assert out == "      some string"
+
+    # Back to original indentation
+    printer("some string")
+    out, err = capfd.readouterr()
+    assert out == "  some string"
+
+    # Temporarily add 3 spaces to original indentation
+    with printer.indentation(add_indent=3):
+        printer("some string")
+
+    # Gives 5 spaces of indentation
+    out, err = capfd.readouterr()
+    assert out == "     some string"
+
+    # Back to original indentation
+    printer("some string")
+    out, err = capfd.readouterr()
+    assert out == "  some string"
+
+
+def test_messenger_kwargs(capfd):
+
+    # `end` is a kwarg
+    # Normally `end='\n'` for `print()`
+    printer = Messenger(verbose=True, indent=2, msg_fn=print, end="")
+
+    # Print with the kwargs set during initialization
+    printer("some string")
+
+    out, err = capfd.readouterr()
+    assert out == "  some string"
+
+    # Print with call-specific kwargs
+    printer("some string", end=" - Dudley")
+
+    out, err = capfd.readouterr()
+    assert out == "  some string - Dudley"
+
+    # Check that defaults did not change
+    printer("some string")
+
+    out, err = capfd.readouterr()
+    assert out == "  some string"
+
+
 def test_check_messenger():
 
     messenger = Messenger(verbose=True, indent=2, msg_fn=print)
