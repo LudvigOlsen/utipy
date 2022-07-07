@@ -1,6 +1,6 @@
 
 import pathlib
-from utipy.path import InOutPaths
+from utipy.path import IOPaths
 
 CONTENT = "content"
 
@@ -44,7 +44,7 @@ def test_in_out_paths_works(tmp_path):
 
     # Create paths container with checks
 
-    paths = InOutPaths(
+    paths = IOPaths(
         in_files=in_files,
         in_dirs=in_dirs,
         out_files=out_files,

@@ -21,7 +21,7 @@ from .array.nan_stats import nan_stats, print_nan_stats
 from .time.timestamps import Timestamps
 from .time.timer import StepTimer
 
-from .path.in_out_paths import InOutPaths
+from .path.iopaths import IOPaths
 from .path.mk_rm_dir import mk_dir, rm_dir
 
 from .string.letter_strings import letter_strings

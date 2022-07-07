@@ -1,7 +1,7 @@
 
 import os
 import pathlib
-from typing import Callable, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 
 from utipy.path.mk_rm_dir import mk_dir, rm_dir as remove_dir
 from utipy.path.prepare_paths import prepare_in_out_paths
@@ -12,7 +12,7 @@ from utipy.utils.messenger import Messenger
 # TODO Allow keys to have a list of paths?
 # TODO Allow checking if dirs are empty (e.g. checkpoints)
 
-class InOutPaths:
+class IOPaths:
 
     COLLECTION_NAMES = [
         "in_files",
@@ -24,12 +24,12 @@ class InOutPaths:
     ]
 
     def __init__(self,
-                 in_files: dict = None,
-                 in_dirs: dict = None,
-                 out_files: dict = None,
-                 out_dirs: dict = None,
-                 tmp_files: dict = None,
-                 tmp_dirs: dict = None,
+                 in_files: Dict[str, Union[str, pathlib.PurePath]] = None,
+                 in_dirs: Dict[str, Union[str, pathlib.PurePath]] = None,
+                 out_files: Dict[str, Union[str, pathlib.PurePath]] = None,
+                 out_dirs: Dict[str, Union[str, pathlib.PurePath]] = None,
+                 tmp_files: Dict[str, Union[str, pathlib.PurePath]] = None,
+                 tmp_dirs: Dict[str, Union[str, pathlib.PurePath]] = None,
                  allow_none: bool = False,
                  allow_overwriting: bool = True,
                  allow_duplicates_in: List[str] = [
@@ -90,62 +90,67 @@ class InOutPaths:
         Examples
         --------
 
-        Uncomment code to run.
+        Initialize the collection of path collections.
+        Usually the paths come from input arguments or variables.
+        Additional paths can be added later with `set_path()`.
 
-        # # Usually the paths come from input arguments or variables
-        # # Additional paths can be added later with `set_path()`.
+        >>> paths = IOPaths(
+        ...     in_files={
+        ...         "in_file": "../dir1/dir2/john.csv",
+        ...         "stream_in": "-"
+        ...     },
+        ...     in_dirs={
+        ...         "in_dir": "../dir1/dir2/",
+        ...     },
+        ...     out_files={
+        ...         "out_file": "../dir1/dir2/output/no_john.csv"
+        ...     },
+        ...     out_dirs={
+        ...         "out_path": "../dir1/dir2/output/"
+        ...     }
+        ... )
 
-        # # Initialize the collection of path collections
-        # paths = InOutPaths(
-        #     in_files={
-        #         "in_file": "../dir1/dir2/john.csv",
-        #         "stream_in": "-"
-        #     },
-        #     in_dirs={
-        #         "in_dir": "../dir1/dir2/",
-        #     },
-        #     out_files={
-        #         "out_file": "../dir1/dir2/output/no_john.csv"
-        #     },
-        #     out_dirs={
-        #         "out_path": "../dir1/dir2/output/"
-        #     }
-        # )
+        Add additional path. Reruns checks to ensure consistency.
 
-        # # Add additional path
-        # # Reruns checks to ensure consistency
-        # paths.set_path(
-        #     name="in_file_2",
-        #     path="../dir1/dir2/dennis.csv",
-        #     collection="in_files"
-        # )
-        # # Or set multiple at a time to avoid rerunning checks unnecessarily
-        # paths.set_paths(
-        #     paths={
-        #         "out_file_2": "../dir1/dir2/output/no_dennis.csv"
-        #         "out_file_3": "../dir1/dir2/output/readme.txt"
-        #     }, 
-        #     collection="out_files"
-        # )
+        >>> paths.set_path(
+        ...     name="in_file_2",
+        ...     path="../dir1/dir2/dennis.csv",
+        ...     collection="in_files"
+        ... )
 
-        # # Create the output directories that do not exist
-        # paths.mk_output_dirs(collection="out_dirs")
+        Or set multiple at a time to avoid rerunning checks unnecessarily.
 
-        # # Get a path
-        # paths["in_file"] # or
-        # paths.get_path(name="in_file", as_str=False, raise_on_fail=True)
+        >>> paths.set_paths(
+        ...     paths={
+        ...         "out_file_2": "../dir1/dir2/output/no_dennis.csv"
+        ...         "out_file_3": "../dir1/dir2/output/readme.txt"
+        ...     }, 
+        ...     collection="out_files"
+        ... )
 
-        # # Remove file from disk
-        # paths.rm_file(name="in_file")
+        Create the output directories that do not exist.
 
-        # # Update collection with another `InOutPaths` collection
-        # # The sub collections are dicts, why this is just dict.update() 
-        # # on each sub collection
-        # paths.update(other=other_paths)
+        >>> paths.mk_output_dirs(collection="out_dirs")
 
-        # # Find the combinations of keys and paths in the collections of this object
-        # # that are not in the collections of another object.
-        # paths.difference(other=other_paths):
+        Get a path.
+
+        >>> paths["in_file"]  # or
+        >>> paths.get_path(name="in_file", as_str=False, raise_on_fail=True)
+
+        Remove file from disk.
+
+        >>> paths.rm_file(name="in_file")
+
+        Update collection with another `IOPaths` collection.
+        The sub collections are dicts, why this is just dict.update() 
+        on each sub collection.
+
+        >>> paths.update(other=other_paths)
+
+        Find the combinations of keys and paths in the collections of this object
+        that are not in the collections of another object.
+
+        >>> paths.difference(other=other_paths):
         """
         self.all_paths = None
         self._collections = {
@@ -189,7 +194,7 @@ class InOutPaths:
         """
         return {
             coll: self.get_collection_size(coll)
-            for coll in InOutPaths.COLLECTION_NAMES
+            for coll in IOPaths.COLLECTION_NAMES
         }
 
     def get_collection_size(self, name: str):
@@ -253,9 +258,9 @@ class InOutPaths:
     def _set_collection(self, name: str, coll: Union[dict, None]):
         assert isinstance(name, str)
         assert coll is None or isinstance(coll, dict)
-        if name not in InOutPaths.COLLECTION_NAMES:
+        if name not in IOPaths.COLLECTION_NAMES:
             raise ValueError(
-                f"`name` was not one of the allowed collection names: {InOutPaths.COLLECTION_NAMES}")
+                f"`name` was not one of the allowed collection names: {IOPaths.COLLECTION_NAMES}")
         self._collections[name] = coll
 
     def _update_collection(self, paths: dict, collection: str):
@@ -555,16 +560,16 @@ class InOutPaths:
 
     def update(self, other: object):
         """
-        Update with paths from another `InOutPaths` collection.
+        Update with paths from another `IOPaths` collection.
 
         Parameters
         ----------
-        other : `InOutPaths` instance
-            Another `InOutPaths` instance with paths.
+        other : `IOPaths` instance
+            Another `IOPaths` instance with paths.
             Each sub collection is dict-updated one at a time.
         """
-        assert isinstance(other, InOutPaths)
-        for coll_name in InOutPaths.COLLECTION_NAMES:
+        assert isinstance(other, IOPaths)
+        for coll_name in IOPaths.COLLECTION_NAMES:
             self._update_collection(
                 paths=other.get_collection(name=coll_name),
                 collection=coll_name
@@ -577,24 +582,24 @@ class InOutPaths:
         """
         Find the combinations of keys and paths in the collections of this object
         that are not in the collections of the `other` object.
-        Creates a new `InOutPaths` object with the settings from this object.
+        Creates a new `IOPaths` object with the settings from this object.
 
         Parameters
         ----------
-        other : `InOutPaths` instance
-            Another `InOutPaths` instance with paths.
+        other : `IOPaths` instance
+            Another `IOPaths` instance with paths.
             Each sub collection is dict-updated one at a time.
 
         Returns
         -------
-        `InOutPaths` instance
-            A new `InOutPaths` instance with the keys and paths in 
+        `IOPaths` instance
+            A new `IOPaths` instance with the keys and paths in 
             the collections of this object that are not in the collections 
             of the `other` object.
         """
-        assert isinstance(other, InOutPaths)
+        assert isinstance(other, IOPaths)
         diff_dicts = {}
-        for coll_name in InOutPaths.COLLECTION_NAMES:
+        for coll_name in IOPaths.COLLECTION_NAMES:
             this_coll = self.get_collection(name=coll_name)
             if this_coll is None:
                 diff_dicts[coll_name] = None
@@ -617,20 +622,20 @@ class InOutPaths:
 
     def __eq__(self, other: object) -> bool:
         """
-        Check equality of this `InOutPaths` instance and another.
+        Check equality of this `IOPaths` instance and another.
 
         Checks that all sub collections are the same. 
         No other attributes are considered.
 
         Parameters
         ----------
-        other : `InOutPaths` instance
-            Another `InOutPaths` instance with paths.
+        other : `IOPaths` instance
+            Another `IOPaths` instance with paths.
         """
-        assert isinstance(other, InOutPaths)
+        assert isinstance(other, IOPaths)
         if self.npaths != other.npaths:
             return False
-        for coll_name in InOutPaths.COLLECTION_NAMES:
+        for coll_name in IOPaths.COLLECTION_NAMES:
             this_coll = self.get_collection(name=coll_name)
             other_coll = other.get_collection(name=coll_name)
             if sum([other_coll is None, this_coll is None]) == 1:
@@ -641,7 +646,7 @@ class InOutPaths:
 
     def _new(self, in_files: dict = None, in_dirs: dict = None, out_files: dict = None, out_dirs: dict = None, tmp_files: dict = None, tmp_dirs: dict = None):
         """
-        Create new `InOutPaths` object with new collections but keeping the rest of the settings.
+        Create new `IOPaths` object with new collections but keeping the rest of the settings.
 
         Parameters
         ----------
@@ -663,9 +668,9 @@ class InOutPaths:
 
         Returns
         -------
-        `InOutPaths` instance
+        `IOPaths` instance
         """
-        return InOutPaths(
+        return IOPaths(
             in_files=in_files,
             in_dirs=in_dirs,
             out_files=out_files,
@@ -679,7 +684,7 @@ class InOutPaths:
         )
 
     def _check_collection_name(self, name: str):
-        if name not in InOutPaths.COLLECTION_NAMES:
+        if name not in IOPaths.COLLECTION_NAMES:
             raise ValueError(f"Collection name was unknown: {name}.")
 
     def _format_path_out(self, path, as_str: bool):
@@ -694,7 +699,7 @@ class InOutPaths:
         max_paths_per_coll = 10
         lines = []
         lines.append("Input and output paths")
-        for coll_name in InOutPaths.COLLECTION_NAMES:
+        for coll_name in IOPaths.COLLECTION_NAMES:
             collection = self.get_collection(name=coll_name)
             if collection is None:
                 lines.append(f"  {coll_name} (0)")
