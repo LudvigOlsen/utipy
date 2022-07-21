@@ -304,7 +304,7 @@ class IOPaths:
                 f"{name} was not a known key in any of the path collections.")
         return None
 
-    def set_path(self, name: str, path: Union[str, pathlib.Path], collection: str):
+    def set_path(self, name: str, path: Union[str, pathlib.PurePath], collection: str) -> None:
         """
         Set a path in a collection.
 
@@ -328,7 +328,7 @@ class IOPaths:
         # Ensure consistency
         self._prepare_paths()
 
-    def set_paths(self, paths: dict, collection: str):
+    def set_paths(self, paths: dict, collection: str) -> None:
         """
         Set one or more paths in a collection.
 
@@ -347,6 +347,93 @@ class IOPaths:
         # Ensure consistency
         self._prepare_paths()
 
+    def rm_path(self, name: str) -> None:
+        """
+        Remove path from collection.
+
+        Parameters
+        ----------
+        name : str
+            Name of path in collection.
+        """
+        coll_name = self.get_collection_name_by_path_name(name)
+        del self._collections[coll_name][name]
+        del self.all_paths[name]
+
+    def rm_paths(self, names: List[str]) -> None:
+        """
+        Remove paths from collections.
+
+        Parameters
+        ----------
+        names : list of str
+            Names of paths in one or more collections.
+        """
+        [self.rm_path(name=name) for name in names]
+
+    def rm_paths_in_dir(
+        self,
+        dir_path_name: Optional[str] = None,
+        dir_path: Optional[Union[str, pathlib.PurePath]] = None,
+        rm_dir_path: bool = True
+    ) -> None:
+        """
+        Remove paths from collection that are within a directory.
+
+        Directory can be specified either as the name of a path in the collections
+        or a new path. The directory does not need to exist.
+
+        Parameters
+        ----------
+        dir_path_name : str or `None`
+            Name of path in the collections.
+        dir_path : str or `pathlib.Path` or `None`
+            A path to a directory.
+            No checks are done on this path but it is 
+            resolved with `pathlib.Path.resolve()`.
+        rm_dir_path : bool
+            Whether to remove the path to the directory itself.
+        """
+        if sum([dir_path_name is not None, dir_path is not None]) != 1:
+            raise ValueError(
+                "Exactly one of {`dir_path_name`, `dir_path`} should be specified."
+            )
+        if dir_path_name is not None:
+            dir_path = self[dir_path_name]
+        dir_path = pathlib.Path(dir_path).resolve()
+
+        path_names_to_remove = [
+            path_key
+            for path_key, path_val in self.all_paths.items()
+            if dir_path in path_val.resolve().parents
+        ]
+        if not rm_dir_path:
+            path_names_to_remove = [
+                p for p in path_names_to_remove
+                if p != dir_path
+            ]
+        self.rm_paths(names=path_names_to_remove)
+
+    def get_collection_name_by_path_name(self, name: str) -> str:
+        """
+        Get name of the collection a path is in.
+
+        Parameters
+        ----------
+        name : str
+            Name of path.
+
+        Returns
+        -------
+        str
+            Name of collection containing the path name.
+        """
+        if name not in self.all_paths:
+            raise ValueError("`name` was not in any of the collections.")
+        for coll_name, coll_paths_dict in self._collections.items():
+            if coll_paths_dict is not None and name in coll_paths_dict:
+                return coll_name
+
     # Handle paths
 
     def check_paths(self):
@@ -356,7 +443,11 @@ class IOPaths:
         These checks are automatically called after each mutation with 
         setter methods, but when overwriting attributes (like check settings) 
         manually, we may need to call it externally.
+
+        May be meaningful to run after removing files and paths, as this 
+        does not rerun the checks.
         """
+        # TODO Add better description of the checks
         self._prepare_paths()
 
     def _prepare_paths(self):
@@ -479,7 +570,7 @@ class IOPaths:
                 dir_path = pathlib.Path(v).parent
                 mk_dir(path=dir_path, arg_name=k, messenger=messenger)
 
-    def rm_file(self, name: str, raise_on_fail: bool = True):
+    def rm_file(self, name: str, rm_path: bool = True, raise_on_fail: bool = True):
         """
         Remove a file from disk.
 
@@ -487,6 +578,13 @@ class IOPaths:
         ----------
         name : str
             Name of path to a file to remove from disk.
+        rm_path : bool
+            Whether to remove path from path collection.
+            NOTE: For files that need to exist (e.g. those in the `in_files` collection),
+            leaving the path after removing the file will cause downstream
+            checking of the paths (see `.check_paths()`) will fail 
+            (as we removed the files). Those checks are called as part of 
+            some of the methods.
         raise_on_fail : bool
             Whether to raise an error when the path does not exist.
         """
@@ -500,9 +598,17 @@ class IOPaths:
         else:
             os.remove(str(path))
 
-    def rm_dir(self, name: str, raise_on_fail: bool = True,
-               messenger: Optional[Callable] = Messenger(
-                   verbose=True, indent=0, msg_fn=print)) -> None:
+        if rm_path:
+            self.rm_path(name=name)
+
+    def rm_dir(
+        self,
+        name: str,
+        rm_paths: bool = True,
+        raise_on_fail: bool = True,
+        messenger: Optional[Callable] = Messenger(
+            verbose=True, indent=0, msg_fn=print)
+    ) -> None:
         """
         Remove a directory from disk.
 
@@ -510,6 +616,15 @@ class IOPaths:
         ----------
         name : str
             Name of path to a directory to remove from disk.
+        rm_paths : bool
+            Whether to remove all paths that are within the 
+            removed directory as well as the path to the 
+            directory itself.
+            NOTE: For files that need to exist (e.g. those in the `in_files` collection),
+            leaving the path after removing the file will cause downstream
+            checking of the paths (see `.check_paths()`) will fail 
+            (as we removed the files). Those checks are called as part of 
+            some of the methods.
         raise_on_fail : bool
             Whether to raise an error when the path does not exist.
         messenger : `utipy.Messenger` or None
@@ -528,15 +643,24 @@ class IOPaths:
             raise_not_dir=raise_on_fail,
             messenger=messenger
         )
+        if rm_paths:
+            self.rm_paths_in_dir(dir_path=path, rm_dir=True)
 
-    def rm_tmp_dirs(self, raise_on_fail: bool = True,
-                    messenger: Optional[Callable] = Messenger(
-                        verbose=True, indent=0, msg_fn=print)) -> None:
+    def rm_tmp_dirs(
+        self,
+        rm_paths: bool = True,
+        raise_on_fail: bool = True,
+        messenger: Optional[Callable] = Messenger(
+            verbose=True, indent=0, msg_fn=print)) -> None:
         """
         Remove all temporary directories from disk.
 
         Parameters
         ----------
+        rm_paths : bool
+            Whether to remove all paths that are within the 
+            removed directories and the paths to the directories 
+            themselves.
         raise_on_fail : bool
             Whether to raise an error when the path does not exist.
         messenger : `utipy.Messenger` or None
@@ -549,6 +673,8 @@ class IOPaths:
         # TODO In case they are nested, we should check their existence
         # before deleting some of the directories, as that might
         # delete the existing ones
+        # (I.e. find the top-level tmp dirs and remove those, and don't
+        # try to remove those contained in them)
 
         # Delete each path in `tmp_dirs``
         for path in self.get_collection(name="tmp_dirs").keys():
@@ -557,6 +683,27 @@ class IOPaths:
                 raise_on_fail=raise_on_fail,
                 messenger=messenger
             )
+            if rm_paths:
+                self.rm_paths_in_dir(dir_path=path, rm_dir=True)
+
+    def mv_file(
+        self,
+        name: str,
+        new_path: Union[str, pathlib.PurePath],
+        update_path: bool = True
+    ) -> None:
+        """
+        Move a file to a new path.
+        Optionally update the path for `name` in the collection.
+
+        When updating the path after moving the file, it re-checks 
+        the paths. See `.check_paths()` for details.
+        """
+        coll_name = self.get_collection_name_by_path_name(name=name)
+        self[name].rename(new_path)
+        if update_path:
+            self._collections[coll_name][name] = new_path
+            self._prepare_paths()
 
     def update(self, other: object):
         """
