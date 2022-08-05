@@ -1,6 +1,6 @@
 
 import pytest
-from utipy.utils.recursive_attributes import recursive_getattr, recursive_hasattr, recursive_setattr
+from utipy.utils.recursive_attributes import recursive_getattr, recursive_hasattr, recursive_mutattr, recursive_setattr
 
 
 def test_recursive_getattr_examples():
@@ -64,3 +64,28 @@ def test_recursive_setattr_examples():
     recursive_setattr(a, "b.c.d", 2)
     # Check new value of d
     assert recursive_getattr(a, "b.c.d") == 2
+
+    # Create dict for missing `e` dict key
+    recursive_setattr(a, "b.c.e.f", 10, make_missing=True)
+    assert recursive_getattr(a, "b.c.e.f") == 10
+
+    # Create dict for missing `h` class attribute
+    recursive_setattr(a, "b.h.i", 7, make_missing=True)
+    assert recursive_getattr(a, "b.h.i") == 7
+
+
+def test_recursive_mutattr_examples():
+
+    # Create class 'B' with a dict 'c' with the member 'd'
+    class B:
+        def __init__(self):
+            self.c = {
+                "d": 1
+            }
+    # Add to a dict 'a'
+    a = {"b": B()}
+
+    # Set the value of 'd'
+    recursive_mutattr(a, "b.c.d", lambda x: x * 5)
+    # Check new value of d
+    assert recursive_getattr(a, "b.c.d") == 5

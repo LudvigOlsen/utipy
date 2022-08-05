@@ -3,7 +3,7 @@ Changelog
 
 v/1.0.0 (2022)
  - Converted to python 3 only.
- - Adds `recursive_getattr()`, `recursive_setattr()`, and `recursive_hasattr()`.
+ - Adds `recursive_getattr()`, `recursive_setattr()`, and `recursive_hasattr()`, `recursive_mutattr()`.
  - Adds `pandas.move_column_inplace()`.
  - Adds `path.IOPaths` for handling in-/output paths.
  - Adds `path.mk_dir` for creating missing directories.
