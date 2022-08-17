@@ -644,7 +644,7 @@ class IOPaths:
             messenger=messenger
         )
         if rm_paths:
-            self.rm_paths_in_dir(dir_path=path, rm_dir=True)
+            self.rm_paths_in_dir(dir_path=path, rm_dir_path=True)
 
     def rm_tmp_dirs(
         self,
@@ -684,7 +684,7 @@ class IOPaths:
                 messenger=messenger
             )
             if rm_paths:
-                self.rm_paths_in_dir(dir_path=path, rm_dir=True)
+                self.rm_paths_in_dir(dir_path=path, rm_dir_path=True)
 
     def mv_file(
         self,
