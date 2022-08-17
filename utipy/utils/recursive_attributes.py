@@ -4,6 +4,7 @@ from typing import Callable, Union, Any
 
 # TODO Add tests
 # TODO What if keys have dots in them? Add escaping of dots somehow?
+# TODO Could we allow indexing a list with integers?
 
 
 def recursive_getattr(obj: Union[object, dict], attr: str, default: Any = None, allow_none: bool = False):

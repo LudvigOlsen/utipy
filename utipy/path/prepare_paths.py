@@ -249,7 +249,7 @@ def _check_elements(d: dict):
         ]
         if len(invalid_keys) > 0:
             raise ValueError(
-                f"The following paths were of an invalid type: {invalid_keys}.")
+                f"The following paths were of an invalid type: {', '.join(invalid_keys)}.")
 
         # Check keys are strings
         invalid_keys = [
@@ -258,7 +258,7 @@ def _check_elements(d: dict):
         ]
         if len(invalid_keys) > 0:
             raise ValueError(
-                f"The following keys were of an invalid type: {invalid_keys}. Keys must be strings.")
+                f"The following keys were of an invalid type: {', '.join(invalid_keys)}. Keys must be strings.")
 
 
 def _find_duplicate_value_to_keys(d: dict):
