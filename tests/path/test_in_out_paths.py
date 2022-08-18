@@ -67,4 +67,6 @@ def test_in_out_paths_works(tmp_path):
 
 def test_in_out_paths_fails(tmp_path):
     # TODO Test all the cases where it should raise an error
+
+    # TODO Test duplicates are found correctly
     pass

@@ -277,13 +277,17 @@ def _find_duplicate_value_to_keys(d: dict):
 def _check_duplicates(d: dict):
     if d is not None:
         if len(set(d.values())) != len(d.values()):
-            duplicate_keys = _find_duplicate_value_to_keys(d).keys()
-            if len(duplicate_keys) > 0:
+            # Note: `_find_duplicate_value_to_keys` returns path->keys mappings
+            duplicates = _find_duplicate_value_to_keys(d).values()
+            if len(duplicates) > 0:
                 # Reason for extra check:
                 #   Could have been multiple "-" paths
                 #   which would have been okay
                 raise ValueError(
-                    f"Found duplicate paths for the following arguments: {duplicate_keys}")
+                    "Found duplicate paths for some paths. "
+                    "Duplicate paths had the following names: "
+                    f"\n{duplicates}"
+                )
 
 
 def _check_paths_exist(d: dict, check_type: str = "file", raise_when: str = "unkown"):
