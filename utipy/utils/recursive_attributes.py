@@ -155,7 +155,7 @@ def _recursive_hasattr(obj: Union[object, dict], attr: str):
     return _recursive_hasattr(getter(obj, left, None), right)
 
 
-def recursive_setattr(obj: Union[object, dict], attr: str, value: Any, make_missing: bool = False):
+def recursive_setattr(obj: Union[object, dict], attr: str, value: Any, make_missing: bool = False) -> None:
     """
     Set object attribute/dict member by recursive lookup, given by dot-separated names.
 
@@ -214,8 +214,9 @@ def recursive_setattr(obj: Union[object, dict], attr: str, value: Any, make_miss
     try:
         left, right = attr.split('.', 1)
     except:
-        return setter(obj, attr, value)
-    return recursive_setattr(
+        setter(obj, attr, value)
+        return
+    recursive_setattr(
         obj=getter(obj, left),
         attr=right,
         value=value,
@@ -223,7 +224,7 @@ def recursive_setattr(obj: Union[object, dict], attr: str, value: Any, make_miss
     )
 
 
-def recursive_mutattr(obj: Union[object, dict], attr: str, fn: Callable):
+def recursive_mutattr(obj: Union[object, dict], attr: str, fn: Callable, is_inplace_fn: bool = False) -> None:
     """
     Mutate object attribute/dict member by recursive lookup, given by dot-separated names.
 
@@ -244,6 +245,13 @@ def recursive_mutattr(obj: Union[object, dict], attr: str, fn: Callable):
     fn : Callable
         Function that gets existing attribute/key value and 
         returns the new value to be assigned.
+    is_inplace_fn : bool
+        Whether `fn` affects the attribute inplace. In this case, 
+        no output is expected (and is ignored), as we expect the
+        function to have made the relevant change when applied.
+        E.g. useful for `numpy.ndarrays` that we do not
+        wish to copy.
+
 
     Examples
     --------
@@ -271,12 +279,16 @@ def recursive_mutattr(obj: Union[object, dict], attr: str, fn: Callable):
     """
     old_val = recursive_getattr(obj=obj, attr=attr)
     try:
-        new_val = fn(old_val)
+        if is_inplace_fn:
+            fn(old_val)
+        else:
+            new_val = fn(old_val)
     except Exception as e:
         raise RuntimeError(
             f"Failed to apply `fn` to the existing value at `{attr}`: {e}"
         )
-    recursive_setattr(obj=obj, attr=attr, value=new_val)
+    if not is_inplace_fn:
+        recursive_setattr(obj=obj, attr=attr, value=new_val)
 
 
 #### Getter/Setter/Checker utils ####

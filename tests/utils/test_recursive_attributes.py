@@ -1,5 +1,6 @@
 
 import pytest
+import numpy as np
 from utipy.utils.recursive_attributes import recursive_getattr, recursive_hasattr, recursive_mutattr, recursive_setattr
 
 
@@ -83,9 +84,21 @@ def test_recursive_mutattr_examples():
                 "d": 1
             }
     # Add to a dict 'a'
-    a = {"b": B()}
+    a = {
+        "b": B(),
+        "n": np.array([0, 1, 2, 3, 4, 5])
+    }
 
     # Set the value of 'd'
     recursive_mutattr(a, "b.c.d", lambda x: x * 5)
     # Check new value of d
     assert recursive_getattr(a, "b.c.d") == 5
+
+    # Apply inplace function to numpy array
+    np.random.seed(1)
+    recursive_mutattr(
+        a, "n", lambda x: np.random.shuffle(x),
+        is_inplace_fn=True
+    )
+    # Check new value of n
+    assert (recursive_getattr(a, "n") == np.array([2, 1, 4, 0, 3, 5])).all()
