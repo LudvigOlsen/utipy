@@ -299,10 +299,10 @@ def _check_paths_exist(d: dict, check_type: str = "file", raise_when: str = "unk
             continue
         if raise_when == "unknown":
             assert check_fn(str(v)), \
-                f"`{k}` was not a {check_type}."
+                f"`{k}` was not a {check_type}: {v}"
         else:
             assert not check_fn(str(v)), \
-                f"`{k}` is an existing {check_type}."
+                f"`{k}` is an existing {check_type}: {v}"
 
 
 def _check_duplicates_across_dicts(d1: Optional[dict], d2: Optional[dict]):

@@ -6,6 +6,9 @@ from typing import Callable, Union, Any
 # TODO What if keys have dots in them? Add escaping of dots somehow?
 # TODO Could we allow indexing a list with integers?
 
+# TODO Add recursive update, concatenate, etc. for trees of dicts/objects
+# TODO Allow setting custom object instead of dict? Would require some thinking but could be done
+
 
 def recursive_getattr(obj: Union[object, dict], attr: str, default: Any = None, allow_none: bool = False):
     """
@@ -178,7 +181,7 @@ def recursive_setattr(obj: Union[object, dict], attr: str, value: Any, make_miss
     value : Any
         Value to set for the final attribute/member.
     make_missing : bool
-        Whether to create a dict for non-existen intermediate attributes/keys. 
+        Whether to create a dict for non-existent intermediate attributes/keys. 
         Otherwise, the function will raise an error.
 
     Examples
