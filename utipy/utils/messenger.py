@@ -1,4 +1,5 @@
 
+from datetime import datetime
 from contextlib import contextmanager
 from typing import Any, Callable, Optional, Union
 
@@ -258,6 +259,38 @@ class Messenger:
             yield None
         finally:
             self.set_indent(indent=original_indent)
+
+    def now(
+        self,
+        message: str = "Current time:",
+        time_format: str = "%a, %d %b, %Y %H:%M:%S",
+        verbose: Union[None, bool] = None,
+        indent: Union[None, int] = None,
+        sep: str = ' ',
+        **kwargs: Any
+    ) -> None:
+        """
+        Message the current date and time.
+
+        Parameters
+        ----------
+        message : str
+            Prefix string.
+        time_format : str
+            Time formatting string for the `datetime` `.strftime()` method.
+            Default leads to "Thu, 26 Jan, 2023 10:53:48"-style strings.
+        verbose : bool
+            Whether to perform the messaging for this specific call.
+        indent : int
+            Number of whitespaces to indent the message in this specific call.
+        sep : str
+            String used to separate `objects`.
+        kwargs : keyword arguments
+            Named arguments for the messaging function.
+        """
+        now = datetime.now()
+        now = now.strftime(time_format)
+        self(message, now, verbose=verbose, indent=indent, sep=sep, **kwargs)
 
 
 def msg_if(*objects: Any, verbose: bool, indent: int = 0, msg_fn: Callable = print, sep: str = ' ', **kwargs) -> None:
