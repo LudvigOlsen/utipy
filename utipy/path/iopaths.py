@@ -526,7 +526,7 @@ class IOPaths:
             if collection != "out_files":
                 mkdirs_for_out_files = False
             if collection != "out_dirs":
-                mkdirs_for_out_files = False
+                mkdirs_for_out_dirs = False
             if collection != "tmp_files":
                 mkdirs_for_tmp_files = False
             if collection != "tmp_dirs":

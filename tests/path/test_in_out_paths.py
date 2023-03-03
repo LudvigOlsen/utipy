@@ -65,6 +65,34 @@ def test_in_out_paths_works(tmp_path):
     assert paths["new_txt_file_2"] == pathlib.Path(out_files["new_txt_file_2"])
 
 
+def test_io_paths_creates_out_files_dirs(tmp_path):
+
+    out_dir = tmp_path / "out"
+
+    out_dirs = {
+        "out_dir": out_dir,
+    }
+    out_files = {
+        "new_txt_file": out_dir / "subsub" / f"new.txt",
+        "new_txt_file_2": str(out_dir / "subsub2" / f"new_2.txt"),
+    }
+
+    # Create paths container with checks
+
+    paths = IOPaths(
+        out_files=out_files,
+        out_dirs=out_dirs
+    )
+
+    print(paths)
+
+    # Create output directory
+    paths.mk_output_dirs(collection="out_files")
+    assert out_dir.is_dir()
+    assert (out_dir / "subsub").is_dir()
+    assert (out_dir / "subsub2").is_dir()
+
+
 def test_in_out_paths_fails(tmp_path):
     # TODO Test all the cases where it should raise an error
 
