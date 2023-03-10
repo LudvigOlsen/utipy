@@ -1,7 +1,7 @@
 
 from datetime import datetime
 from contextlib import contextmanager
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional, Union, List
 
 
 class Messenger:
@@ -123,7 +123,14 @@ class Messenger:
         """
         return self._indent
 
-    def __call__(self, *objects: Any, verbose: Union[None, bool] = None, indent: Union[None, int] = None, sep: str = ' ', **kwargs: Any) -> None:
+    def __call__(
+            self,
+            *objects: Any,
+            verbose: Union[None, bool] = None,
+            indent: Union[None, int] = None,
+            sep: str = ' ',
+            add_msg_fn: Optional[Callable] = None,
+            **kwargs: Any) -> None:
         """
         Perform messaging using `self.msg_fn`.
 
@@ -137,6 +144,9 @@ class Messenger:
             Number of whitespaces to indent the message in this specific call.
         sep : str
             String used to separate `objects`.
+        add_msg_fn : Callable or `None`
+            Additional messaging function to use. 
+            E.g. `warnings.warn` for throwing a warning as well.
         kwargs : keyword arguments
             Named arguments for the messaging function.
         """
@@ -149,11 +159,16 @@ class Messenger:
         call_kwargs = self.kwargs.copy()
         call_kwargs.update(kwargs)
 
+        # Set messenging functions
+        msg_fn = [self.msg_fn]
+        if add_msg_fn is not None:
+            msg_fn.append(add_msg_fn)
+
         msg_if(
             *objects,
             verbose=verbose,
             indent=indent,
-            msg_fn=self.msg_fn,
+            msg_fn=msg_fn,
             sep=sep,
             **call_kwargs
         )
@@ -293,7 +308,7 @@ class Messenger:
         self(message, now, verbose=verbose, indent=indent, sep=sep, **kwargs)
 
 
-def msg_if(*objects: Any, verbose: bool, indent: int = 0, msg_fn: Callable = print, sep: str = ' ', **kwargs) -> None:
+def msg_if(*objects: Any, verbose: bool, indent: int = 0, msg_fn: Union[Callable, List[Callable]] = print, sep: str = ' ', **kwargs) -> None:
     """
     Message (print/log/..) the given `objects` arguments when `verbose` is enabled.
 
@@ -305,8 +320,8 @@ def msg_if(*objects: Any, verbose: bool, indent: int = 0, msg_fn: Callable = pri
         Whether to perform the messaging.
     indent : int
         Number of whitespaces to indent the message.
-    msg_fn : callable
-        Function for performing the messaging.
+    msg_fn : callable or list of callables
+        Function(s) for performing the messaging.
         E.g. `print` or `log.info`.
     sep : str
             String used to separate `objects`.
@@ -319,14 +334,17 @@ def msg_if(*objects: Any, verbose: bool, indent: int = 0, msg_fn: Callable = pri
         indent_str = "".join(
             [" " for _ in range(max(0, indent - int(subtract_1)))]
         )
-        msg_fn(
-            _objects_to_string(
-                indent_str,
-                *objects,
-                sep=sep,
-            ),
-            **kwargs
-        )
+        if not isinstance(msg_fn, list):
+            msg_fn = [msg_fn]
+        for fn in msg_fn:
+            fn(
+                _objects_to_string(
+                    indent_str,
+                    *objects,
+                    sep=sep,
+                ),
+                **kwargs
+            )
 
 
 def _objects_to_string(*args: Any, sep: str = ' '):
