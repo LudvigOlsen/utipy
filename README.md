@@ -67,6 +67,3 @@ Update this package but not dependencies:
 | Class/Function      | Description |
 |:--------------------|:------------|
 | `Messenger`         | Simplify messaging (print/log) with verbosity and indentation  |
-| `recursive_getattr` | Get object attributes/dict members recursively, given by dot-separated names |
-| `recursive_setattr` | Set object attribute/dict member by recursive lookup, given by dot-separated names. |
-| `recursive_hasattr` | Check whether recursive object attributes/dict members exist. |
