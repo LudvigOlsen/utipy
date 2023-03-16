@@ -2,24 +2,26 @@
 @author: ludvigolsen
 """
 
-from typing import Callable, Optional
+from typing import Callable, Optional, Union, List
+import pandas as pd
+from numbers import Number
 
 from utipy.utils.messenger import Messenger, check_messenger
 from .makes_up import makes_up
 
 
 def drop(
-    data,
-    value='NaN',
-    thresh=0,
-    direction='>',
-    axis=0,
-    include=None,
-    exclude=None,
-    copy=True,
+    data: pd.DataFrame,
+    value: Union[str, Number] = 'NaN',
+    thresh: float = 0,
+    direction: str = '>',
+    axis: int = 0,
+    include: Optional[List[str]] = None,
+    exclude: Optional[List[str]] = None,
+    copy: bool = True,
     messenger: Optional[Callable] = Messenger(
         verbose=True, indent=0, msg_fn=print)
-):
+) -> pd.DataFrame:
     """
     Drop rows or columns from pandas DataFrame based on values.
 
@@ -71,20 +73,18 @@ def drop(
     Examples
     --------
 
-    Uncomment code to run.
-
     Remove all rows with any NaNs in dependent variable 'y'
-    # drop(data, value = 'NaN', axis = 1, thresh = 0, 
-    #      direction = '>', cols = ['y'])
+    >>> drop(data, value = 'NaN', axis = 1, thresh = 0, 
+    ...      direction = '>', cols = ['y'])
 
     Remove all columns with only 1 unique value.
     I.e. the same value in 100% of the rows.
-    # drop(data, value = 'any', axis = 0, thresh = 1, 
-    #      direction = '==')
+    >>> drop(data, value = 'any', axis = 0, thresh = 1, 
+    ...      direction = '==')
 
     Remove all columns that have less than 30% NaNs
-    # drop(data, value = 'NaN', axis = 0, thresh = 0.3, 
-    #      direction = '<')
+    >>> drop(data, value = 'NaN', axis = 0, thresh = 0.3, 
+    ...      direction = '<')
 
     """
 

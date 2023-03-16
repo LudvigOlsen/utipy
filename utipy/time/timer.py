@@ -9,7 +9,12 @@ from .timestamps import Timestamps
 
 class StepTimer(Timestamps):
 
-    def __init__(self, message: str = "Took:", verbose: bool = True, msg_fn: Callable = print) -> None:
+    def __init__(
+        self,
+        message: str = "Took:",
+        verbose: bool = True,
+        msg_fn: Callable = print
+    ) -> None:
         """
         A `StepTimer` can be used in `with` statements
         to time steps of code and print the execution time.
@@ -36,7 +41,12 @@ class StepTimer(Timestamps):
         self.msg_fn = msg_fn
 
     @contextmanager
-    def time_step(self, indent: int = 4, message: Union[str, None] = None, name_prefix=None) -> None:
+    def time_step(
+        self,
+        indent: int = 4,
+        message: Union[str, None] = None,
+        name_prefix=None
+    ) -> None:
         """
         Function to use in `with` statement. E.g.:
 
@@ -90,7 +100,13 @@ class StepTimer(Timestamps):
                     end=name_prefix + "_end"
                 )
 
-    def _print_runtime(self, indent: int, message: str, start: Union[int, str] = -2, end: Union[int, str] = -1) -> None:
+    def _print_runtime(
+        self,
+        indent: int,
+        message: str,
+        start: Union[int, str] = -2,
+        end: Union[int, str] = -1
+    ) -> None:
         """
         Prints the indented message and step time.
         """

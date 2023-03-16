@@ -95,7 +95,12 @@ class Timestamps:
             self.name_to_idx[name] = idx
             self.idx_to_name[idx] = name
 
-    def get_stamp(self, idx: Union[int, None] = None, name: Union[str, None] = None, as_str: bool = True) -> Union[int, str]:
+    def get_stamp(
+        self,
+        idx: Union[int, None] = None,
+        name: Union[str, None] = None,
+        as_str: bool = True
+    ) -> Union[int, str]:
         """
         Get specific timestamp from either the index or name it was recorded under.
 
@@ -207,8 +212,13 @@ class Timestamps:
         df = self.to_data_frame()
         df.to_csv(*args, **kwargs)
 
-    def took(self, start: Union[int, str] = -2, end: Union[int, str] = -1,
-             as_str: bool = True, raise_negative: bool = True) -> Union[int, str]:
+    def took(
+        self,
+        start: Union[int, str] = -2,
+        end: Union[int, str] = -1,
+        as_str: bool = True,
+        raise_negative: bool = True
+    ) -> Union[int, str]:
         """
         Get the difference between two timestamps.
         By default, the two latest timestamps are used.
@@ -294,7 +304,11 @@ class Timestamps:
         """
         self.merge(other=other, suffix_identical_names=False)
 
-    def merge(self, other: object, suffix_identical_names: bool = True):
+    def merge(
+        self,
+        other: object,
+        suffix_identical_names: bool = True
+    ):
         """
         Merge this `Timestamps` collection with another `Timestamps` collection.
         Combines the list of timestamps (sorted by time) and updates the name->idx and idx->name maps,

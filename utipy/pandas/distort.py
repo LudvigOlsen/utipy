@@ -5,6 +5,7 @@
 import pandas as pd
 import numpy as np
 from random import sample
+from typing import Optional, List
 
 from .resemble import resemble
 from utipy.array.blend import blend
@@ -13,16 +14,18 @@ from utipy.utils.convert_to_df import convert_to_df
 # TODO The label column concept is not properly described
 
 
-def distort(data,
-            distribution='uniform',
-            amount=1,
-            size=1,
-            randomize_original=False,
-            exclude=None,
-            label_column=None,
-            keep_labels=True,
-            new_label='noise',
-            append=False):
+def distort(
+    data: pd.DataFrame,
+    distribution: str = 'uniform',
+    amount: float = 1.,
+    size: float = 1.,
+    randomize_original: bool = False,
+    exclude: Optional[List[str]] = None,
+    label_column: Optional[str] = None,
+    keep_labels: bool = True,
+    new_label: str = 'noise',
+    append: bool = False
+) -> pd.DataFrame:
     """
     Distort data in pandas DataFrame
 

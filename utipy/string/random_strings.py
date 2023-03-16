@@ -4,7 +4,7 @@ from string import ascii_letters, digits
 from typing import Optional
 
 
-def random_alphanumeric(size: int, seed: Optional[int] = None):
+def random_alphanumeric(size: int, seed: Optional[int] = None) -> str:
     """
     Create a string with random alphanumeric characters.
 

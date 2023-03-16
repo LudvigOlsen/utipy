@@ -7,12 +7,25 @@ Alpha stage. Subject to change.
 
 > https://pypi.python.org/pypi/utipy/     
 
-> $ pip install utipy  
-> $ python -m pip install git+https://github.com/ludvigolsen/utipy
+
+Install from PyPI:
+
+```shell
+pip install utipy
+```
+
+Install from GitHub:
+
+```shell
+python -m pip install git+https://github.com/ludvigolsen/utipy
+```
 
 Update this package but not dependencies:
-> $ python -m pip install --force-reinstall --no-deps git+https://github.com/ludvigolsen/utipy
-  
+
+```shell
+python -m pip install --force-reinstall --no-deps git+https://github.com/ludvigolsen/utipy
+```
+
 
 ### Pandas operations
 

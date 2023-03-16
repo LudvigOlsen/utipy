@@ -10,9 +10,15 @@ from utipy.utils.convert_to_type import convert_to_type
 
 # TODO: Cythonize
 
-def window(x: Union[list, np.ndarray, pd.Series], size: int = 2, gap: int = 1, sample_rate: int = 1,
-           rolling: bool = True, reverse_direction: bool = False,
-           discard_shorts: bool = True) -> Tuple[List[np.ndarray], int]:
+def window(
+        x: Union[list, np.ndarray, pd.Series], 
+        size: int = 2, 
+        gap: int = 1, 
+        sample_rate: int = 1,
+        rolling: bool = True, 
+        reverse_direction: bool = False,
+        discard_shorts: bool = True
+    ) -> Tuple[List[np.ndarray], int]:
     """
 
     Splits array, e.g. time series, into rolling (optional) windows and returns as list of arrays and the number of windows.

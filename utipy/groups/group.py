@@ -2,11 +2,20 @@
 @author: ludvigolsen
 """
 
+import pandas as pd
+from numbers import Number
+from typing import Optional
 from utipy.groups.methods.l_sizes import _l_sizes
 from utipy.groups.methods.n_dist import _n_dist
 
 
-def group(data, n, col=None, method='n_dist', copy=True):
+def group(
+    data: pd.DataFrame,
+    n: Number,
+    col: Optional[str] = None,
+    method: str = 'n_dist',
+    copy: bool = True
+) -> pd.DataFrame:
     """
     Add a grouping factor to dataframe.
 

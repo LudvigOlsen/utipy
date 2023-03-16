@@ -2,10 +2,11 @@
 @author: ludvigolsen
 """
 
+from typing import Any, Union
 import numpy as np
 import pandas as pd
 
-def convert_to_type(data, data_type):
+def convert_to_type(data: Any, data_type: str) -> Union[list, tuple, np.ndarray, pd.Series, pd.DataFrame]:
     
     """
     Converts (if necessary) data into either of these data types:

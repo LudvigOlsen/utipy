@@ -2,14 +2,22 @@
 @author: ludvigolsen
 """
 
+from typing import Optional, Union
+from numbers import Number
 import pandas as pd
 from utipy.pandas import subset_by_levels
 from .group_uniques import group_uniques
 from .group import group
 
 
-def fold(data, n=5, id_col=None, cat_col=None,
-         return_factor=False, copy=True):
+def fold(
+    data: pd.DataFrame,
+    n: Number = 5,
+    id_col: Optional[str] = None,
+    cat_col: Optional[str] = None,
+    return_factor: bool = False,
+    copy: bool = True
+) -> Union[pd.DataFrame, pd.Series]:
     """
     Create balanced folds.
     Balance on a categorical column

@@ -6,7 +6,13 @@ from typing import Any, Callable, Optional, Union, List
 
 class Messenger:
 
-    def __init__(self, verbose: bool = True, msg_fn: Callable = print, indent: Union[int, None] = 0, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        verbose: bool = True,
+        msg_fn: Callable = print,
+        indent: Union[int, None] = 0,
+        **kwargs: Any
+    ) -> None:
         """
         Wraps a messaging function (print/log.info/...) to simplify messenging.
 
@@ -15,6 +21,7 @@ class Messenger:
 
         This removes `if` statements before each print/log/... call for checking
         whether we should perform the messaging or not (`verbose`).
+
 
         Parameters
         ----------
@@ -29,6 +36,8 @@ class Messenger:
             Named arguments to pass to the `msg_fn` by default. 
             The arguments can be overwritten for single calls via the `kwargs` arguments in `__call__()`.
             I.e. by passing them again with different values during the call.
+
+
         Examples
         --------
 
@@ -308,7 +317,14 @@ class Messenger:
         self(message, now, verbose=verbose, indent=indent, sep=sep, **kwargs)
 
 
-def msg_if(*objects: Any, verbose: bool, indent: int = 0, msg_fn: Union[Callable, List[Callable]] = print, sep: str = ' ', **kwargs) -> None:
+def msg_if(
+    *objects: Any,
+    verbose: bool,
+    indent: int = 0,
+    msg_fn: Union[Callable, List[Callable]] = print,
+    sep: str = ' ',
+    **kwargs
+) -> None:
     """
     Message (print/log/..) the given `objects` arguments when `verbose` is enabled.
 
@@ -357,7 +373,7 @@ def _objects_to_string(*args: Any, sep: str = ' '):
     return f"{sep}".join(obj_as_strings)
 
 
-def check_messenger(messenger: Optional[Callable]):
+def check_messenger(messenger: Optional[Callable]) -> Messenger:
     """
     Check that `messenger` is a `utipy.Messenger` object or `None`.  
     In the latter case a `utipy.Messenger` with `verbose=False` is returned.

@@ -4,7 +4,12 @@ import itertools
 from typing import List, Optional
 
 
-def letter_strings(n: int, num_chars: Optional[int] = None, upper: bool = False, descending: bool = False) -> List[str]:
+def letter_strings(
+    n: int, 
+    num_chars: Optional[int] = None, 
+    upper: bool = False, 
+    descending: bool = False
+) -> List[str]:
     """
     Generate a sequence of `n` letter strings (aa, ab, ac, ...).
 
@@ -47,7 +52,11 @@ def letter_strings(n: int, num_chars: Optional[int] = None, upper: bool = False,
     return list(itertools.islice(generator, n))
 
 
-def letter_string_generator(num_chars: int = 1, upper: bool = False, descending: bool = False):
+def letter_string_generator(
+    num_chars: int = 1, 
+    upper: bool = False, 
+    descending: bool = False
+):
     """
     Letter string generator.
 

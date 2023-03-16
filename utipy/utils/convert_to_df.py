@@ -2,14 +2,15 @@
 @author: ludvigolsen
 """
 
+from typing import Any, Tuple
 import numpy as np
 import pandas as pd
 
 
-def convert_to_df(data):
+def convert_to_df(data: Any) -> Tuple[pd.DataFrame, str]:
     """
-    Checks the type of data
-    If it is not a pd.DataFrame it 
+    Checks the type of `data`.
+    If it is not a `pd.DataFrame` it 
     attempts to convert to pd.DataFrame
 
     """

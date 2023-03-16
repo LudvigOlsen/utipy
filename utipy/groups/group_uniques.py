@@ -2,12 +2,19 @@
 @author: ludvigolsen
 """
 
+from numbers import Number
 import pandas as pd
 from .methods.l_sizes import _l_sizes
 from .methods.n_dist import _n_dist
 
 
-def group_uniques(data, n, col, method='n_dist', copy=True):
+def group_uniques(
+    data: pd.DataFrame,
+    n: Number,
+    col: str,
+    method: str = 'n_dist',
+    copy: bool = True
+) -> pd.DataFrame:
     """
     Add grouping factor to given
     dataframe by unique values in col.

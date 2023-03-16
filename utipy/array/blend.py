@@ -9,7 +9,11 @@ from utipy.utils.check_instance import check_instance
 from utipy.utils.convert_to_type import convert_to_type
 
 
-def blend(x1: Union[list, np.ndarray, pd.Series], x2: Union[list, np.ndarray, pd.Series], amount: float = 0.5) -> Union[list, np.ndarray, pd.Series]:
+def blend(
+        x1: Union[list, np.ndarray, pd.Series], 
+        x2: Union[list, np.ndarray, pd.Series], 
+        amount: float = 0.5
+    ) -> Union[list, np.ndarray, pd.Series]:
     """
     Blend two arrays
 
@@ -34,14 +38,11 @@ def blend(x1: Union[list, np.ndarray, pd.Series], x2: Union[list, np.ndarray, pd
 
     Examples
     --------
-
-    Uncomment code to run.
-
-    # x1 = [1,2,3,4,5]  
-    # x2 = [4,5,6,7,8]  
-    # blend(x1, x2, amount = 0.5)  
-
-    returns [2.5,3.5,4.5,5.5,6.5]
+    
+    >>> x1 = [1,2,3,4,5]  
+    >>> x2 = [4,5,6,7,8]  
+    >>> blend(x1, x2, amount = 0.5)  
+    [2.5,3.5,4.5,5.5,6.5]
 
     """
 

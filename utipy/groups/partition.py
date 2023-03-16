@@ -3,12 +3,21 @@
 """
 
 import pandas as pd
+from numbers import Number
+from typing import Optional, List
+
 from utipy.pandas import subset_by_levels
 from .group_uniques import group_uniques
 from .group import group
 
 
-def partition(data, p=0.2, id_col=None, cat_col=None, copy=True):
+def partition(
+    data: pd.DataFrame,
+    p: Number = 0.2,
+    id_col: Optional[str] = None,
+    cat_col: Optional[str] = None,
+    copy: bool = True
+) -> List[pd.DataFrame]:
     """
     Create balanced partitions.
     Balance on a categorical column

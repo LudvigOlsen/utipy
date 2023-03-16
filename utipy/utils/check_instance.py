@@ -2,11 +2,12 @@
 @author: ludvigolsen
 """
 
+from typing import Any
 import numpy as np
 import pandas as pd
 
 
-def check_instance(data):
+def check_instance(data: Any) -> str:
     """
     Checks if data is either:
         list

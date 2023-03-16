@@ -2,7 +2,7 @@
 import pandas as pd
 
 
-def move_column_inplace(df: pd.DataFrame, col: str, pos: int):
+def move_column_inplace(df: pd.DataFrame, col: str, pos: int) -> None:
     """
     Move a column to a given column-index position.
 

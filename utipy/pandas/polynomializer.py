@@ -4,6 +4,7 @@
 @author: ludvigolsen
 """
 
+from typing import List
 import pandas as pd
 import numpy as np
 import warnings
@@ -11,7 +12,13 @@ import warnings
 from utipy.utils.convert_to_df import convert_to_df
 
 
-def polynomializer(data, degree=2, suffix='_poly', exclude=[], copy=True):
+def polynomializer(
+    data: pd.DataFrame,
+    degree: int = 2,
+    suffix: str = '_poly',
+    exclude: List[str] = [],
+    copy: bool = True
+) -> pd.DataFrame:
     """
     Creates polymonial features.
     Adds suffix with information on which degree a column represents.
@@ -39,12 +46,10 @@ def polynomializer(data, degree=2, suffix='_poly', exclude=[], copy=True):
     Examples
     --------
 
-    Uncomment code to run.
-
-    # df = pd.DataFrame({'a': [1,2,3,4,5],
-    #                    'b': [2,3,4,5,6],
-    #                    'c': ['a','b','c','d','e']})
-    # polynomializer(df, degree = 3, exclude = ['c'])
+    >>> df = pd.DataFrame({'a': [1,2,3,4,5],
+    ...                    'b': [2,3,4,5,6],
+    ...                    'c': ['a','b','c','d','e']})
+    >>> polynomializer(df, degree = 3, exclude = ['c'])
 
     """
 
