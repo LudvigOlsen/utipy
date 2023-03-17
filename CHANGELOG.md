@@ -4,6 +4,7 @@ Changelog
 v/1.0.1 (2023)
  - Moves `recursive_getattr()`, `recursive_setattr()`, and `recursive_hasattr()`, `recursive_mutattr()` to `nattrs` package.
  - Adds typing to all arguments that did not have it.
+ - Converts to poetry packaging backend.
 
 v/1.0.0 (2022)
  - Converted to python 3 only.

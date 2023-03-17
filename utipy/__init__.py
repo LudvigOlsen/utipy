@@ -28,5 +28,3 @@ from .string.letter_strings import letter_strings
 from .string.random_strings import random_alphanumeric
 
 from .utils.messenger import Messenger, check_messenger, msg_if
-
-from .about import __version__, __title__
