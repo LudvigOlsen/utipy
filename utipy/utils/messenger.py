@@ -137,6 +137,7 @@ class Messenger:
             *objects: Any,
             verbose: Union[None, bool] = None,
             indent: Union[None, int] = None,
+            add_indent: Union[None, int] = None,
             sep: str = ' ',
             add_msg_fn: Optional[Callable] = None,
             **kwargs: Any) -> None:
@@ -151,6 +152,9 @@ class Messenger:
             Whether to perform the messaging for this specific call.
         indent : int
             Number of whitespaces to indent the message in this specific call.
+        add_indent : int
+            Number of whitespaces to add to the current indent state 
+            for the message in this specific call.
         sep : str
             String used to separate `objects`.
         add_msg_fn : Callable or `None`
@@ -161,6 +165,13 @@ class Messenger:
         """
         if verbose is None:
             verbose = self._verbose
+        if add_indent is not None:
+            if indent is not None:
+                raise ValueError(
+                    "`indent` and `add_indent` were both specified. "
+                    "Please only specify one (or none) of them."
+                )
+            indent = self._indent + add_indent
         if indent is None:
             indent = self._indent
 
