@@ -1,4 +1,3 @@
-
 import os
 import pathlib
 from typing import Callable, Dict, List, Optional, Union
@@ -12,6 +11,7 @@ from utipy.utils.messenger import Messenger
 # TODO Allow keys to have a list of paths?
 # TODO Allow checking if dirs are empty (e.g. checkpoints)
 
+
 class IOPaths:
 
     COLLECTION_NAMES = [
@@ -20,35 +20,35 @@ class IOPaths:
         "out_files",
         "out_dirs",
         "tmp_files",
-        "tmp_dirs"
+        "tmp_dirs",
     ]
 
-    def __init__(self,
-                 in_files: Dict[str, Union[str, pathlib.PurePath]] = None,
-                 in_dirs: Dict[str, Union[str, pathlib.PurePath]] = None,
-                 out_files: Dict[str, Union[str, pathlib.PurePath]] = None,
-                 out_dirs: Dict[str, Union[str, pathlib.PurePath]] = None,
-                 tmp_files: Dict[str, Union[str, pathlib.PurePath]] = None,
-                 tmp_dirs: Dict[str, Union[str, pathlib.PurePath]] = None,
-                 allow_none: bool = False,
-                 allow_overwriting: bool = True,
-                 allow_duplicates_in: List[str] = [
-                     "in_dirs", "out_dirs", "tmp_dirs"],
-                 disallowed_nestings: List[tuple] = [
-                     ("in_files", "tmp_dirs"),
-                     ("out_files", "tmp_dirs"),
-                     ("in_dirs", "tmp_dirs"),
-                     ("out_dirs", "tmp_dirs")
-                 ],
-                 print_note: bool = "",
-                 ) -> None:
+    def __init__(
+        self,
+        in_files: Dict[str, Union[str, pathlib.PurePath]] = None,
+        in_dirs: Dict[str, Union[str, pathlib.PurePath]] = None,
+        out_files: Dict[str, Union[str, pathlib.PurePath]] = None,
+        out_dirs: Dict[str, Union[str, pathlib.PurePath]] = None,
+        tmp_files: Dict[str, Union[str, pathlib.PurePath]] = None,
+        tmp_dirs: Dict[str, Union[str, pathlib.PurePath]] = None,
+        allow_none: bool = False,
+        allow_overwriting: bool = True,
+        allow_duplicates_in: List[str] = ["in_dirs", "out_dirs", "tmp_dirs"],
+        disallowed_nestings: List[tuple] = [
+            ("in_files", "tmp_dirs"),
+            ("out_files", "tmp_dirs"),
+            ("in_dirs", "tmp_dirs"),
+            ("out_dirs", "tmp_dirs"),
+        ],
+        print_note: bool = "",
+    ) -> None:
         """
         Collection of path collections for keeping track of in- and output paths,
         be it files or directories. Has relevant checks, such as duplication and
-        existence, and allows printing a summary of the paths. Paths are converted to 
+        existence, and allows printing a summary of the paths. Paths are converted to
         `pathlib.Path` objects and missing directories can be created.
 
-        Note: Even when `allow_overwriting` is enabled, 
+        Note: Even when `allow_overwriting` is enabled,
         `in_files` and `out_files` cannot contain the same paths.
 
         Keys must be unique across the path dictionaries.
@@ -57,7 +57,7 @@ class IOPaths:
         ----------
         in_files : dict
             Dict with named paths to input files, mapping `(argument) name -> input filepath`.
-            A path can also be "-" when streaming input. 
+            A path can also be "-" when streaming input.
             This value will remain a string and will not be checked
             for duplication, existence, etc.
         in_dirs : dict
@@ -79,9 +79,9 @@ class IOPaths:
             List of collections to allow duplicate paths in. One of:
                 {'in_files', 'in_dirs', 'out_files', 'out_dirs', 'tmp_files', 'tmp_dirs'}.
         disallowed_nestings : list of tuples
-            Pairs of collections where the paths of the first cannot 
+            Pairs of collections where the paths of the first cannot
             be nested inside the paths of the second.
-            By default, the in and out paths cannot be located within 
+            By default, the in and out paths cannot be located within
             the temporary directories, as these might be deleted.
         print_note : string
             String to add to end of `__str__` method.
@@ -124,7 +124,7 @@ class IOPaths:
         ...     paths={
         ...         "out_file_2": "../dir1/dir2/output/no_dennis.csv"
         ...         "out_file_3": "../dir1/dir2/output/readme.txt"
-        ...     }, 
+        ...     },
         ...     collection="out_files"
         ... )
 
@@ -142,7 +142,7 @@ class IOPaths:
         >>> paths.rm_file(name="in_file")
 
         Update collection with another `IOPaths` collection.
-        The sub collections are dicts, why this is just dict.update() 
+        The sub collections are dicts, why this is just dict.update()
         on each sub collection.
 
         >>> paths.update(other=other_paths)
@@ -193,8 +193,7 @@ class IOPaths:
         Dict mapping collection name -> number of paths.
         """
         return {
-            coll: self.get_collection_size(coll)
-            for coll in IOPaths.COLLECTION_NAMES
+            coll: self.get_collection_size(coll) for coll in IOPaths.COLLECTION_NAMES
         }
 
     def get_collection_size(self, name: str):
@@ -244,8 +243,8 @@ class IOPaths:
         ----------
         name : str
             Name of collection to set.
-        collection : dict 
-            Collection of paths as dict, mapping `name -> path`. 
+        collection : dict
+            Collection of paths as dict, mapping `name -> path`.
             Replaces existing dict.
         """
         # NOTE: Avoid internal use
@@ -260,7 +259,8 @@ class IOPaths:
         assert coll is None or isinstance(coll, dict)
         if name not in IOPaths.COLLECTION_NAMES:
             raise ValueError(
-                f"`name` was not one of the allowed collection names: {IOPaths.COLLECTION_NAMES}")
+                f"`name` was not one of the allowed collection names: {IOPaths.COLLECTION_NAMES}"
+            )
         self._collections[name] = coll
 
     def _update_collection(self, paths: dict, collection: str):
@@ -279,7 +279,9 @@ class IOPaths:
         """
         return self.get_path(name=name)
 
-    def get_path(self, name: str, as_str: bool = False, raise_on_fail: bool = True):
+    def get_path(
+        self, name: str, as_str: bool = False, raise_on_fail: bool = True
+    ) -> Optional[Union[pathlib.Path, str]]:
         """
         Get a path.
 
@@ -301,10 +303,13 @@ class IOPaths:
             return self._format_path_out(path=self.all_paths[name], as_str=as_str)
         if raise_on_fail:
             raise ValueError(
-                f"{name} was not a known key in any of the path collections.")
+                f"{name} was not a known key in any of the path collections."
+            )
         return None
 
-    def set_path(self, name: str, path: Union[str, pathlib.PurePath], collection: str) -> None:
+    def set_path(
+        self, name: str, path: Union[str, pathlib.PurePath], collection: str
+    ) -> None:
         """
         Set a path in a collection.
 
@@ -312,7 +317,7 @@ class IOPaths:
         ----------
         name : str
             Name of path for collection dict.
-        path : str or `pathlib.Path` 
+        path : str or `pathlib.Path`
             The path to set.
         collection : str
             Name of collection to set the path in.
@@ -322,8 +327,7 @@ class IOPaths:
         # as it may cause an infinite loop
         assert isinstance(name, str)
         assert isinstance(path, (str, pathlib.PurePath))
-        self._update_collection(
-            paths={name: path}, collection=collection)
+        self._update_collection(paths={name: path}, collection=collection)
 
         # Ensure consistency
         self._prepare_paths()
@@ -375,7 +379,7 @@ class IOPaths:
         self,
         dir_path_name: Optional[str] = None,
         dir_path: Optional[Union[str, pathlib.PurePath]] = None,
-        rm_dir_path: bool = True
+        rm_dir_path: bool = True,
     ) -> None:
         """
         Remove paths from collection that are within a directory.
@@ -389,7 +393,7 @@ class IOPaths:
             Name of path in the collections.
         dir_path : str or `pathlib.Path` or `None`
             A path to a directory.
-            No checks are done on this path but it is 
+            No checks are done on this path but it is
             resolved with `pathlib.Path.resolve()`.
         rm_dir_path : bool
             Whether to remove the path to the directory itself.
@@ -408,10 +412,7 @@ class IOPaths:
             if dir_path in path_val.resolve().parents
         ]
         if not rm_dir_path:
-            path_names_to_remove = [
-                p for p in path_names_to_remove
-                if p != dir_path
-            ]
+            path_names_to_remove = [p for p in path_names_to_remove if p != dir_path]
         self.rm_paths(names=path_names_to_remove)
 
     def get_collection_name_by_path_name(self, name: str) -> str:
@@ -438,13 +439,13 @@ class IOPaths:
 
     def check_paths(self):
         """
-        Call path checks manually. 
+        Call path checks manually.
 
-        These checks are automatically called after each mutation with 
-        setter methods, but when overwriting attributes (like check settings) 
+        These checks are automatically called after each mutation with
+        setter methods, but when overwriting attributes (like check settings)
         manually, we may need to call it externally.
 
-        May be meaningful to run after removing files and paths, as this 
+        May be meaningful to run after removing files and paths, as this
         does not rerun the checks.
         """
         # TODO Add better description of the checks
@@ -459,13 +460,13 @@ class IOPaths:
             allow_duplicates_in=self.allow_duplicates_in,
             disallowed_nestings=self.disallowed_nestings,
             pathlib_out=True,
-            copy=True)
+            copy=True,
+        )
 
     def mk_output_dir(
         self,
         name: str,
-        messenger: Optional[Callable] = Messenger(
-            verbose=True, indent=0, msg_fn=print)
+        messenger: Optional[Callable] = Messenger(verbose=True, indent=0, msg_fn=print),
     ):
         """
         Create non-existing output directory for a given path.
@@ -484,17 +485,12 @@ class IOPaths:
         """
         path = self.get_path(name=name)
         dir_path = pathlib.Path(path).parent
-        mk_dir(
-            path=dir_path,
-            arg_name=name,
-            messenger=messenger
-        )
+        mk_dir(path=dir_path, arg_name=name, messenger=messenger)
 
     def mk_output_dirs(
         self,
         collection: str = None,
-        messenger: Optional[Callable] = Messenger(
-            verbose=True, indent=0, msg_fn=print)
+        messenger: Optional[Callable] = Messenger(verbose=True, indent=0, msg_fn=print),
     ):
         """
         Create non-existing output directories.
@@ -522,7 +518,8 @@ class IOPaths:
         if collection is not None:
             if collection not in ["out_files", "out_dirs", "tmp_files", "tmp_dirs"]:
                 raise ValueError(
-                    f"`collection` must be one of the output path collections but was {collection}.")
+                    f"`collection` must be one of the output path collections but was {collection}."
+                )
             if collection != "out_files":
                 mkdirs_for_out_files = False
             if collection != "out_dirs":
@@ -582,8 +579,8 @@ class IOPaths:
             Whether to remove path from path collection.
             NOTE: For files that need to exist (e.g. those in the `in_files` collection),
             leaving the path after removing the file will cause downstream
-            checking of the paths (see `.check_paths()`) will fail 
-            (as we removed the files). Those checks are called as part of 
+            checking of the paths (see `.check_paths()`) will fail
+            (as we removed the files). Those checks are called as part of
             some of the methods.
         raise_on_fail : bool
             Whether to raise an error when the path does not exist.
@@ -594,7 +591,8 @@ class IOPaths:
         if not path.is_file():
             if raise_on_fail:
                 raise RuntimeError(
-                    f"Path for `{name}` was not an existing file: {path}")
+                    f"Path for `{name}` was not an existing file: {path}"
+                )
         else:
             os.remove(str(path))
 
@@ -606,8 +604,7 @@ class IOPaths:
         name: str,
         rm_paths: bool = True,
         raise_on_fail: bool = True,
-        messenger: Optional[Callable] = Messenger(
-            verbose=True, indent=0, msg_fn=print)
+        messenger: Optional[Callable] = Messenger(verbose=True, indent=0, msg_fn=print),
     ) -> None:
         """
         Remove a directory from disk.
@@ -617,13 +614,13 @@ class IOPaths:
         name : str
             Name of path to a directory to remove from disk.
         rm_paths : bool
-            Whether to remove all paths that are within the 
-            removed directory as well as the path to the 
+            Whether to remove all paths that are within the
+            removed directory as well as the path to the
             directory itself.
             NOTE: For files that need to exist (e.g. those in the `in_files` collection),
             leaving the path after removing the file will cause downstream
-            checking of the paths (see `.check_paths()`) will fail 
-            (as we removed the files). Those checks are called as part of 
+            checking of the paths (see `.check_paths()`) will fail
+            (as we removed the files). Those checks are called as part of
             some of the methods.
         raise_on_fail : bool
             Whether to raise an error when the path does not exist.
@@ -638,10 +635,10 @@ class IOPaths:
             raise ValueError(f"Path object for `{name}` was `None`.")
         remove_dir(
             path=path,
-            arg_name=f'{name} path',
+            arg_name=f"{name} path",
             raise_missing=raise_on_fail,
             raise_not_dir=raise_on_fail,
-            messenger=messenger
+            messenger=messenger,
         )
         if rm_paths:
             self.rm_paths_in_dir(dir_path=path, rm_dir_path=True)
@@ -650,16 +647,16 @@ class IOPaths:
         self,
         rm_paths: bool = True,
         raise_on_fail: bool = True,
-        messenger: Optional[Callable] = Messenger(
-            verbose=True, indent=0, msg_fn=print)) -> None:
+        messenger: Optional[Callable] = Messenger(verbose=True, indent=0, msg_fn=print),
+    ) -> None:
         """
         Remove all temporary directories from disk.
 
         Parameters
         ----------
         rm_paths : bool
-            Whether to remove all paths that are within the 
-            removed directories and the paths to the directories 
+            Whether to remove all paths that are within the
+            removed directories and the paths to the directories
             themselves.
         raise_on_fail : bool
             Whether to raise an error when the path does not exist.
@@ -678,11 +675,7 @@ class IOPaths:
 
         # Delete each path in `tmp_dirs``
         for path in self.get_collection(name="tmp_dirs").keys():
-            self.rm_dir(
-                name=path,
-                raise_on_fail=raise_on_fail,
-                messenger=messenger
-            )
+            self.rm_dir(name=path, raise_on_fail=raise_on_fail, messenger=messenger)
             if rm_paths:
                 self.rm_paths_in_dir(dir_path=path, rm_dir_path=True)
 
@@ -690,13 +683,13 @@ class IOPaths:
         self,
         name: str,
         new_path: Union[str, pathlib.PurePath],
-        update_path: bool = True
+        update_path: bool = True,
     ) -> None:
         """
         Move a file to a new path.
         Optionally update the path for `name` in the collection.
 
-        When updating the path after moving the file, it re-checks 
+        When updating the path after moving the file, it re-checks
         the paths. See `.check_paths()` for details.
         """
         coll_name = self.get_collection_name_by_path_name(name=name)
@@ -718,8 +711,7 @@ class IOPaths:
         assert isinstance(other, IOPaths)
         for coll_name in IOPaths.COLLECTION_NAMES:
             self._update_collection(
-                paths=other.get_collection(name=coll_name),
-                collection=coll_name
+                paths=other.get_collection(name=coll_name), collection=coll_name
             )
 
         # Ensure consistency
@@ -740,8 +732,8 @@ class IOPaths:
         Returns
         -------
         `IOPaths` instance
-            A new `IOPaths` instance with the keys and paths in 
-            the collections of this object that are not in the collections 
+            A new `IOPaths` instance with the keys and paths in
+            the collections of this object that are not in the collections
             of the `other` object.
         """
         assert isinstance(other, IOPaths)
@@ -771,7 +763,7 @@ class IOPaths:
         """
         Check equality of this `IOPaths` instance and another.
 
-        Checks that all sub collections are the same. 
+        Checks that all sub collections are the same.
         No other attributes are considered.
 
         Parameters
@@ -791,7 +783,15 @@ class IOPaths:
                 return False
         return True
 
-    def _new(self, in_files: dict = None, in_dirs: dict = None, out_files: dict = None, out_dirs: dict = None, tmp_files: dict = None, tmp_dirs: dict = None):
+    def _new(
+        self,
+        in_files: dict = None,
+        in_dirs: dict = None,
+        out_files: dict = None,
+        out_dirs: dict = None,
+        tmp_files: dict = None,
+        tmp_dirs: dict = None,
+    ):
         """
         Create new `IOPaths` object with new collections but keeping the rest of the settings.
 
@@ -799,7 +799,7 @@ class IOPaths:
         ----------
         in_files : dict
             Dict with named paths to input files, mapping `(argument) name -> input filepath`.
-            A path can also be "-" when streaming input. 
+            A path can also be "-" when streaming input.
             This value will remain a string and will not be checked
             for duplication, existence, etc.
         in_dirs : dict
@@ -827,7 +827,7 @@ class IOPaths:
             allow_none=self.allow_none,
             allow_overwriting=self.allow_overwriting,
             allow_duplicates_in=self.allow_duplicates_in,
-            print_note=self.print_note
+            print_note=self.print_note,
         )
 
     def _check_collection_name(self, name: str):
