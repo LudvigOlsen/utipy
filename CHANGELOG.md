@@ -1,6 +1,9 @@
 Changelog
 --------
 
+v/1.0.2 (2024)
+ - Adds `add_indent` argument to `Messenger.__call__()`.
+
 v/1.0.1 (2023)
  - Moves `recursive_getattr()`, `recursive_setattr()`, and `recursive_hasattr()`, `recursive_mutattr()` to `nattrs` package.
  - Adds typing to all arguments that did not have it.
