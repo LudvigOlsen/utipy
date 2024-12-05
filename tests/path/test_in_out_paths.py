@@ -1,4 +1,3 @@
-
 import pathlib
 from utipy.path import IOPaths
 
@@ -18,7 +17,6 @@ def test_create_file(tmp_path):
 
 
 def test_in_out_paths_works(tmp_path):
-
     in_dir = tmp_path / "in"
     out_dir = tmp_path / "out"
     in_dir.mkdir()
@@ -48,7 +46,7 @@ def test_in_out_paths_works(tmp_path):
         in_files=in_files,
         in_dirs=in_dirs,
         out_files=out_files,
-        out_dirs=out_dirs
+        out_dirs=out_dirs,
     )
 
     print(paths)
@@ -66,7 +64,6 @@ def test_in_out_paths_works(tmp_path):
 
 
 def test_io_paths_creates_out_files_dirs(tmp_path):
-
     out_dir = tmp_path / "out"
 
     out_dirs = {
@@ -79,10 +76,7 @@ def test_io_paths_creates_out_files_dirs(tmp_path):
 
     # Create paths container with checks
 
-    paths = IOPaths(
-        out_files=out_files,
-        out_dirs=out_dirs
-    )
+    paths = IOPaths(out_files=out_files, out_dirs=out_dirs)
 
     print(paths)
 
@@ -91,6 +85,11 @@ def test_io_paths_creates_out_files_dirs(tmp_path):
     assert out_dir.is_dir()
     assert (out_dir / "subsub").is_dir()
     assert (out_dir / "subsub2").is_dir()
+
+
+def test_io_paths_empty(tmp_path):
+    paths = IOPaths()
+    paths.set_path("out_dir", tmp_path / "out", "out_dirs")
 
 
 def test_in_out_paths_fails(tmp_path):
