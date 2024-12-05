@@ -1,23 +1,21 @@
-
 from datetime import datetime
 from contextlib import contextmanager
 from typing import Any, Callable, Optional, Union, List
 
 
 class Messenger:
-
     def __init__(
         self,
         verbose: bool = True,
         msg_fn: Callable = print,
         indent: Union[int, None] = 0,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         """
         Wraps a messaging function (print/log.info/...) to simplify messenging.
 
-        The `Messenger` object has specified defaults for whether to perform the messaging (`verbose`), 
-        which function to use (`msg_fn`) and how much to indent messages (`indent`). 
+        The `Messenger` object has specified defaults for whether to perform the messaging (`verbose`),
+        which function to use (`msg_fn`) and how much to indent messages (`indent`).
 
         This removes `if` statements before each print/log/... call for checking
         whether we should perform the messaging or not (`verbose`).
@@ -29,11 +27,11 @@ class Messenger:
             Default value for whether to perform the messaging.
         msg_fn : callable
             Function for performing the messaging.
-            E.g. `print` or `log.info`.
+            E.g., `print` or `log.info`.
         indent : int
             Default value for number of whitespaces to indent the message.
         kwargs : keyword arguments
-            Named arguments to pass to the `msg_fn` by default. 
+            Named arguments to pass to the `msg_fn` by default.
             The arguments can be overwritten for single calls via the `kwargs` arguments in `__call__()`.
             I.e. by passing them again with different values during the call.
 
@@ -133,14 +131,15 @@ class Messenger:
         return self._indent
 
     def __call__(
-            self,
-            *objects: Any,
-            verbose: Union[None, bool] = None,
-            indent: Union[None, int] = None,
-            add_indent: Union[None, int] = None,
-            sep: str = ' ',
-            add_msg_fn: Optional[Callable] = None,
-            **kwargs: Any) -> None:
+        self,
+        *objects: Any,
+        verbose: Union[None, bool] = None,
+        indent: Union[None, int] = None,
+        add_indent: Union[None, int] = None,
+        sep: str = " ",
+        add_msg_fn: Optional[Callable] = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Perform messaging using `self.msg_fn`.
 
@@ -153,13 +152,13 @@ class Messenger:
         indent : int
             Number of whitespaces to indent the message in this specific call.
         add_indent : int
-            Number of whitespaces to add to the current indent state 
+            Number of whitespaces to add to the current indent state
             for the message in this specific call.
         sep : str
             String used to separate `objects`.
         add_msg_fn : Callable or `None`
-            Additional messaging function to use. 
-            E.g. `warnings.warn` for throwing a warning as well.
+            Additional messaging function to use.
+            E.g., `warnings.warn` for throwing a warning as well.
         kwargs : keyword arguments
             Named arguments for the messaging function.
         """
@@ -190,7 +189,7 @@ class Messenger:
             indent=indent,
             msg_fn=msg_fn,
             sep=sep,
-            **call_kwargs
+            **call_kwargs,
         )
 
     def __add__(self, indent: int):
@@ -211,7 +210,8 @@ class Messenger:
             raise ValueError(
                 f"Subtracting {abs(indent)} positions would give a "
                 "negative indentation level. Can maximally subtract "
-                f"{self._indent} positions.")
+                f"{self._indent} positions."
+            )
         self._indent += indent
         return self
 
@@ -232,9 +232,11 @@ class Messenger:
         return self.__add__(indent=indent)
 
     @contextmanager
-    def indentation(self, indent: Optional[int] = None, add_indent: Optional[int] = None) -> None:
+    def indentation(
+        self, indent: Optional[int] = None, add_indent: Optional[int] = None
+    ) -> None:
         """
-        Function to use in `with` statement. Temporarily changes the indentation. 
+        Function to use in `with` statement. Temporarily changes the indentation.
         The original indentation is restored upon exiting the `with` context.
 
         Can be used in a nested fashion.
@@ -259,8 +261,8 @@ class Messenger:
 
         >>> msg = Messenger(indent=2)
 
-        Use `4` indentation spaces in a given context. 
-        After exiting the `with` context, the indentation 
+        Use `4` indentation spaces in a given context.
+        After exiting the `with` context, the indentation
         is restored to `2` spaces.
 
         >>> with msg.indentation(indent=4):
@@ -301,8 +303,8 @@ class Messenger:
         time_format: str = "%a, %d %b, %Y %H:%M:%S",
         verbose: Union[None, bool] = None,
         indent: Union[None, int] = None,
-        sep: str = ' ',
-        **kwargs: Any
+        sep: str = " ",
+        **kwargs: Any,
     ) -> None:
         """
         Message the current date and time.
@@ -333,8 +335,8 @@ def msg_if(
     verbose: bool,
     indent: int = 0,
     msg_fn: Union[Callable, List[Callable]] = print,
-    sep: str = ' ',
-    **kwargs
+    sep: str = " ",
+    **kwargs,
 ) -> None:
     """
     Message (print/log/..) the given `objects` arguments when `verbose` is enabled.
@@ -349,7 +351,7 @@ def msg_if(
         Number of whitespaces to indent the message.
     msg_fn : callable or list of callables
         Function(s) for performing the messaging.
-        E.g. `print` or `log.info`.
+        E.g., `print` or `log.info`.
     sep : str
             String used to separate `objects`.
     kwargs : keyword arguments
@@ -358,9 +360,7 @@ def msg_if(
     assert indent >= 0
     if verbose:
         subtract_1 = len(objects) > 0
-        indent_str = "".join(
-            [" " for _ in range(max(0, indent - int(subtract_1)))]
-        )
+        indent_str = "".join([" " for _ in range(max(0, indent - int(subtract_1)))])
         if not isinstance(msg_fn, list):
             msg_fn = [msg_fn]
         for fn in msg_fn:
@@ -370,23 +370,21 @@ def msg_if(
                     *objects,
                     sep=sep,
                 ),
-                **kwargs
+                **kwargs,
             )
 
 
-def _objects_to_string(*args: Any, sep: str = ' '):
+def _objects_to_string(*args: Any, sep: str = " "):
     try:
         obj_as_strings = [str(a) for a in args]
     except Exception as e:
-        raise RuntimeError(
-            f"Failed to convert argument to string: {e}"
-        )
+        raise RuntimeError(f"Failed to convert argument to string: {e}")
     return f"{sep}".join(obj_as_strings)
 
 
 def check_messenger(messenger: Optional[Callable]) -> Messenger:
     """
-    Check that `messenger` is a `utipy.Messenger` object or `None`.  
+    Check that `messenger` is a `utipy.Messenger` object or `None`.
     In the latter case a `utipy.Messenger` with `verbose=False` is returned.
 
     Parameters

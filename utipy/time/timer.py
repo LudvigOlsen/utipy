@@ -1,4 +1,3 @@
-
 from contextlib import contextmanager
 from typing import Callable, Union
 
@@ -8,17 +7,13 @@ from .timestamps import Timestamps
 
 
 class StepTimer(Timestamps):
-
     def __init__(
-        self,
-        message: str = "Took:",
-        verbose: bool = True,
-        msg_fn: Callable = print
+        self, message: str = "Took:", verbose: bool = True, msg_fn: Callable = print
     ) -> None:
         """
         A `StepTimer` can be used in `with` statements
         to time steps of code and print the execution time.
-        All timestamps are kept, why we can get the 
+        All timestamps are kept, why we can get the
         total time in the end as well.
 
         See `Timestamps` for methods that can be applied to recorded timestamps.
@@ -27,13 +22,13 @@ class StepTimer(Timestamps):
         ----------
         message : str
             Default message to prefix time with.
-            Can be overridden for separate timings with the `message` 
+            Can be overridden for separate timings with the `message`
             argument in `.time_step()`.
         verbose : bool
             Whether to print/log/.. the time a step took when using `.time_step()`.
         msg_fn : callable
             The function to use for printing/logging the message.
-            E.g. `print` or `logging.info`.
+            E.g., `print` or `logging.info`.
         """
         super().__init__()
         self.message = message
@@ -42,11 +37,8 @@ class StepTimer(Timestamps):
 
     @contextmanager
     def time_step(
-        self,
-        indent: int = 4,
-        message: Union[str, None] = None,
-        name_prefix=None
-    ) -> None:
+        self, indent: int = 4, message: Union[str, None] = None, name_prefix=None
+    ):
         """
         Function to use in `with` statement. E.g.:
 
@@ -63,14 +55,14 @@ class StepTimer(Timestamps):
         indent : int
             How many spaces to indent message.
         message : str or None
-            Step-specific prefix to the time string. 
-            When `None`, the message supplied during 
+            Step-specific prefix to the time string.
+            When `None`, the message supplied during
             inialization is used.
         name_prefix : str or None
             Prefix to record timestamp with.
                 The initial timestamp will be recorded with the name `name_prefix + '_start'`.
                 The final timestamp will be recorded with the name `name_prefix + '_end'`.
-            This allows easily getting the specific timepoints with `.get_stamp()` or 
+            This allows easily getting the specific timepoints with `.get_stamp()` or
             the difference between two stamps with `.took()`.
             When not specified, a prefix is generated.
 
@@ -80,12 +72,12 @@ class StepTimer(Timestamps):
 
         Prints
         ------
-        When `self.verbose` is `True`, 
+        When `self.verbose` is `True`,
             prints message + formatted time.
         """
         assert indent >= 0
         if not name_prefix:
-            name_prefix = f'step_{len(self)}_{random_alphanumeric(size=5)}'
+            name_prefix = f"step_{len(self)}_{random_alphanumeric(size=5)}"
         try:
             self.stamp(name=name_prefix + "_start")
             yield None
@@ -97,7 +89,7 @@ class StepTimer(Timestamps):
                     indent=indent,
                     message=mess,
                     start=name_prefix + "_start",
-                    end=name_prefix + "_end"
+                    end=name_prefix + "_end",
                 )
 
     def _print_runtime(
@@ -105,7 +97,7 @@ class StepTimer(Timestamps):
         indent: int,
         message: str,
         start: Union[int, str] = -2,
-        end: Union[int, str] = -1
+        end: Union[int, str] = -1,
     ) -> None:
         """
         Prints the indented message and step time.

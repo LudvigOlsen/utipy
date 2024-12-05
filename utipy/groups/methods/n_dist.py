@@ -21,7 +21,7 @@ def _n_dist(v, n, randomize=False):
     v_divided = [vi / divisor for vi in range(int(len_v) + 1)][1:]
 
     # First round to a smaller decimal number to avoid ceil of
-    # e.g. 7.00000000...03 becoming 8
+    # e.g., 7.00000000...03 becoming 8
     # Then round up to nearest integer
     v_ceiled = np.ceil(np.around(v_divided, 5)).astype(int)
 

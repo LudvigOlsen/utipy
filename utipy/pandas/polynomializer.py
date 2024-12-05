@@ -34,7 +34,7 @@ def polynomializer(
         Text between column name and degree number.
         Added to the new columns.
     exclude: list
-        List of column names to exclude, e.g. non-numeric
+        List of column names to exclude, e.g., non-numeric
         columns.
 
 

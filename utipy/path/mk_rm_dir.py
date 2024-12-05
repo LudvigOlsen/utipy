@@ -28,7 +28,7 @@ def mk_dir(
     messenger : `utipy.Messenger` or None
         A `utipy.Messenger` instance used to print/log/... information.
         When `None`, no printing/logging is performed.
-        The messenger determines the messaging function (e.g. `print`)
+        The messenger determines the messaging function (e.g., `print`)
         and potential indentation.
     """
     path = pathlib.Path(path)
@@ -96,7 +96,7 @@ def rm_dir(
     messenger : `utipy.Messenger` or None
         A `utipy.Messenger` instance used to print/log/... information.
         When `None`, no printing/logging is performed.
-        The messenger determines the messaging function (e.g. `print`)
+        The messenger determines the messaging function (e.g., `print`)
         and potential indentation.
     """
     path = pathlib.Path(path)

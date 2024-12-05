@@ -21,7 +21,7 @@ def window(
     ) -> Tuple[List[np.ndarray], int]:
     """
 
-    Splits array, e.g. time series, into rolling (optional) windows and returns as list of arrays and the number of windows.
+    Splits array, e.g., time series, into rolling (optional) windows and returns as list of arrays and the number of windows.
 
     Parameters
     ----------

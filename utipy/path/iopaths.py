@@ -9,7 +9,7 @@ from utipy.utils.messenger import Messenger
 
 # TODO Add tests
 # TODO Allow keys to have a list of paths?
-# TODO Allow checking if dirs are empty (e.g. checkpoints)
+# TODO Allow checking if dirs are empty (e.g., checkpoints)
 
 
 class IOPaths:
@@ -275,7 +275,7 @@ class IOPaths:
         """
         Get path from its key:
 
-        e.g. d['key']
+        e.g., d['key']
         """
         return self.get_path(name=name)
 
@@ -480,7 +480,7 @@ class IOPaths:
         messenger : `utipy.Messenger` or None
             A `utipy.Messenger` instance used to print/log/... information.
             When `None`, no printing/logging is performed.
-            The messenger determines the messaging function (e.g. `print`)
+            The messenger determines the messaging function (e.g., `print`)
             and potential indentation.
         """
         path = self.get_path(name=name)
@@ -506,7 +506,7 @@ class IOPaths:
         messenger : `utipy.Messenger` or None
             A `utipy.Messenger` instance used to print/log/... information.
             When `None`, no printing/logging is performed.
-            The messenger determines the messaging function (e.g. `print`)
+            The messenger determines the messaging function (e.g., `print`)
             and potential indentation.
         """
 
@@ -577,7 +577,7 @@ class IOPaths:
             Name of path to a file to remove from disk.
         rm_path : bool
             Whether to remove path from path collection.
-            NOTE: For files that need to exist (e.g. those in the `in_files` collection),
+            NOTE: For files that need to exist (e.g., those in the `in_files` collection),
             leaving the path after removing the file will cause downstream
             checking of the paths (see `.check_paths()`) will fail
             (as we removed the files). Those checks are called as part of
@@ -617,7 +617,7 @@ class IOPaths:
             Whether to remove all paths that are within the
             removed directory as well as the path to the
             directory itself.
-            NOTE: For files that need to exist (e.g. those in the `in_files` collection),
+            NOTE: For files that need to exist (e.g., those in the `in_files` collection),
             leaving the path after removing the file will cause downstream
             checking of the paths (see `.check_paths()`) will fail
             (as we removed the files). Those checks are called as part of
@@ -627,7 +627,7 @@ class IOPaths:
         messenger : `utipy.Messenger` or None
             A `utipy.Messenger` instance used to print/log/... information.
             When `None`, no printing/logging is performed.
-            The messenger determines the messaging function (e.g. `print`)
+            The messenger determines the messaging function (e.g., `print`)
             and potential indentation.
         """
         path = self[name]
@@ -663,7 +663,7 @@ class IOPaths:
         messenger : `utipy.Messenger` or None
             A `utipy.Messenger` instance used to print/log/... information.
             When `None`, no printing/logging is performed.
-            The messenger determines the messaging function (e.g. `print`)
+            The messenger determines the messaging function (e.g., `print`)
             and potential indentation.
         """
 

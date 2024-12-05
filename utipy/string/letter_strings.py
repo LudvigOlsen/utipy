@@ -1,14 +1,13 @@
-
 from string import ascii_lowercase, ascii_uppercase
 import itertools
 from typing import List, Optional
 
 
 def letter_strings(
-    n: int, 
-    num_chars: Optional[int] = None, 
-    upper: bool = False, 
-    descending: bool = False
+    n: int,
+    num_chars: Optional[int] = None,
+    upper: bool = False,
+    descending: bool = False,
 ) -> List[str]:
     """
     Generate a sequence of `n` letter strings (aa, ab, ac, ...).
@@ -16,7 +15,7 @@ def letter_strings(
     Parameters
     ----------
     n : int
-        Number of letter strings to generate. 
+        Number of letter strings to generate.
         When `num_chars` is not specified, this also determines the number of
         characters in the strings.
     num_chars : int or None
@@ -30,8 +29,8 @@ def letter_strings(
     Returns
     -------
     list of str
-        A list of letter strings. 
-        E.g. `['aa', 'ab', 'ac']`.
+        A list of letter strings.
+        E.g., `['aa', 'ab', 'ac']`.
     """
 
     # Number of letters in the ascii alphabet
@@ -41,21 +40,20 @@ def letter_strings(
         # Find the necessary number of characters
         # to create the IDs
         num_chars = 1
-        while n > num_available_letters ** num_chars:
+        while n > num_available_letters**num_chars:
             num_chars += 1
 
     # Init letter string generator
     generator = letter_string_generator(
-        num_chars=num_chars, upper=upper, descending=descending)
+        num_chars=num_chars, upper=upper, descending=descending
+    )
 
     # Get the n first letter IDs
     return list(itertools.islice(generator, n))
 
 
 def letter_string_generator(
-    num_chars: int = 1, 
-    upper: bool = False, 
-    descending: bool = False
+    num_chars: int = 1, upper: bool = False, descending: bool = False
 ):
     """
     Letter string generator.

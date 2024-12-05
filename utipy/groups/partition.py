@@ -22,7 +22,7 @@ def partition(
     Create balanced partitions.
     Balance on a categorical column
     and/or make sure that datapoints that share 
-    an ID (e.g. participant id) are kept in the
+    an ID (e.g., participant id) are kept in the
     same partitions.
 
     """

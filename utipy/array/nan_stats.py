@@ -26,7 +26,7 @@ def print_nan_stats(
     messenger : `utipy.Messenger` or None
         A `utipy.Messenger` instance used to print/log/... information.
         When `None`, no printing/logging is performed.
-        The messenger determines the messaging function (e.g. `print` or `log.info`)
+        The messenger determines the messaging function (e.g., `print` or `log.info`)
         and indentation when `indent` is `None`.
     indent : int
         Indentation of message. When `None`, indentation is determined by `messenger`.

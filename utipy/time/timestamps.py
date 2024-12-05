@@ -1,5 +1,3 @@
-
-
 import time
 from typing import Any, Union
 import numpy as np
@@ -9,12 +7,11 @@ from .format_time import format_time_hhmmss
 
 
 class Timestamps:
-
     def __init__(self) -> None:
         """
         Container for storing timestamps
         and calculating the difference between two
-        timestamps (e.g. the latest 2).
+        timestamps (e.g., the latest 2).
         """
         self.timestamps = []
         self.name_to_idx = {}
@@ -30,7 +27,7 @@ class Timestamps:
         """
         Equality test.
 
-        Checks whether the list of timestamps and the dict 
+        Checks whether the list of timestamps and the dict
         mapping `stamp name -> index` are equal.
 
         Parameters
@@ -77,9 +74,9 @@ class Timestamps:
         """
         Add current time to list of timestamps.
 
-        *Optionally* save the timestamp index with a name in the 
-        `name_to_idx` dictionary to allow easy extraction later. 
-        E.g. use to get the time difference between
+        *Optionally* save the timestamp index with a name in the
+        `name_to_idx` dictionary to allow easy extraction later.
+        E.g., use to get the time difference between
         two larger blocks of code with in-between timestamps.
 
         Parameters
@@ -99,13 +96,13 @@ class Timestamps:
         self,
         idx: Union[int, None] = None,
         name: Union[str, None] = None,
-        as_str: bool = True
+        as_str: bool = True,
     ) -> Union[int, str]:
         """
         Get specific timestamp from either the index or name it was recorded under.
 
-        Note: The raw list of timestamps are also available as `.timestamps` 
-        while the `name->index` dict is available as 
+        Note: The raw list of timestamps are also available as `.timestamps`
+        while the `name->index` dict is available as
         `.name_to_idx`.
 
         Parameters
@@ -120,12 +117,11 @@ class Timestamps:
         Returns
         -------
         int or str
-            Timestamp made with `time.time()`. 
+            Timestamp made with `time.time()`.
             Optionally formatted as a string with hh:mm:ss.
         """
         if sum([idx is not None, name is not None]) != 1:
-            raise ValueError(
-                "Exactly one of `idx` and `name` should be specified.")
+            raise ValueError("Exactly one of `idx` and `name` should be specified.")
         if idx is not None:
             t = self.timestamps[idx]
         else:
@@ -171,7 +167,8 @@ class Timestamps:
         """
         if np.abs(idx) > len(self) - 1:
             raise ValueError(
-                f"`idx` was out of bounds: '{idx}'. Currently stores {len(self)} timestamps.")
+                f"`idx` was out of bounds: '{idx}'. Currently stores {len(self)} timestamps."
+            )
         return self.idx_to_name.get(idx, None)
 
     def to_data_frame(self):
@@ -189,11 +186,9 @@ class Timestamps:
         times = self.timestamps.copy()
         times_from_start = [t - times[0] for t in times]
         times_from_start = [format_time_hhmmss(t) for t in times_from_start]
-        return pd.DataFrame({
-            "Name": names,
-            "Time Raw": times,
-            "Time From Start": times_from_start
-        })
+        return pd.DataFrame(
+            {"Name": names, "Time Raw": times, "Time From Start": times_from_start}
+        )
 
     def to_csv(self, *args: Any, **kwargs: Any) -> None:
         """
@@ -217,7 +212,7 @@ class Timestamps:
         start: Union[int, str] = -2,
         end: Union[int, str] = -1,
         as_str: bool = True,
-        raise_negative: bool = True
+        raise_negative: bool = True,
     ) -> Union[int, str]:
         """
         Get the difference between two timestamps.
@@ -250,19 +245,22 @@ class Timestamps:
         start_time = self.get_stamp(
             idx=None if not isinstance(start, int) else start,
             name=None if not isinstance(start, str) else start,
-            as_str=False
+            as_str=False,
         )
         end_time = self.get_stamp(
             idx=None if not isinstance(end, int) else end,
             name=None if not isinstance(end, str) else end,
-            as_str=False
+            as_str=False,
         )
         diff = end_time - start_time
         if diff < 0 and raise_negative:
-            raise ValueError((
-                "Difference between timestamps was negative. "
-                "`start` should correspond to an earlier timestamp than `end` "
-                "(or disable `raise_negative`)."))
+            raise ValueError(
+                (
+                    "Difference between timestamps was negative. "
+                    "`start` should correspond to an earlier timestamp than `end` "
+                    "(or disable `raise_negative`)."
+                )
+            )
         if as_str:
             return format_time_hhmmss(diff)
         return diff
@@ -282,11 +280,7 @@ class Timestamps:
             Difference in time between first and last timestamp,
             either as a number or a formatted string.
         """
-        return self.took(
-            start=0,
-            end=-1,
-            as_str=as_str
-        )
+        return self.took(start=0, end=-1, as_str=as_str)
 
     def update(self, other: object):
         """
@@ -304,11 +298,7 @@ class Timestamps:
         """
         self.merge(other=other, suffix_identical_names=False)
 
-    def merge(
-        self,
-        other: object,
-        suffix_identical_names: bool = True
-    ):
+    def merge(self, other: object, suffix_identical_names: bool = True):
         """
         Merge this `Timestamps` collection with another `Timestamps` collection.
         Combines the list of timestamps (sorted by time) and updates the name->idx and idx->name maps,
@@ -325,17 +315,15 @@ class Timestamps:
         suffix_identical_names : bool
             Whether to add a suffix ("_0", "_1", etc.) to clashing names
             with an increasing count until names are unique.
-            When `False`, the dict members in `.name_to_idx` and `.idx_to_name` 
+            When `False`, the dict members in `.name_to_idx` and `.idx_to_name`
             from `other` is used.
         """
         # Add the two timestamps lists together
         # but as tuples with indices and an identifier
         # of which collection it came from
-        combined_timestamps = \
-            _list_to_enumerated_tuple(
-                l=self.timestamps, identifier="this") + \
-            _list_to_enumerated_tuple(
-                l=other.timestamps, identifier="other")
+        combined_timestamps = _list_to_enumerated_tuple(
+            l=self.timestamps, identifier="this"
+        ) + _list_to_enumerated_tuple(l=other.timestamps, identifier="other")
 
         # Sort by ascending time
         combined_timestamps = sorted(combined_timestamps, key=lambda x: x[0])
@@ -352,10 +340,10 @@ class Timestamps:
         # Either by suffixing or overwriting
         if suffix_identical_names:
             # Find the clashing names
-            all_names = list(self.name_to_idx.keys()) + \
-                list(other.name_to_idx.keys())
+            all_names = list(self.name_to_idx.keys()) + list(other.name_to_idx.keys())
             duplicate_names = set(self.name_to_idx.keys()).intersection(
-                other.name_to_idx.keys())
+                other.name_to_idx.keys()
+            )
             if duplicate_names:
                 for coll in [self, other]:
                     for name in duplicate_names:
@@ -378,6 +366,7 @@ def _list_to_enumerated_tuple(l, identifier):
         if identifier is None:
             return (t, i)
         return (t, i, identifier)
+
     return [make_tuple(t, i, identifier) for i, t in enumerate(l)]
 
 
