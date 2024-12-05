@@ -28,3 +28,12 @@ from .string.letter_strings import letter_strings
 from .string.random_strings import random_alphanumeric
 
 from .utils.messenger import Messenger, check_messenger, msg_if
+
+
+def get_version():
+    import importlib.metadata
+
+    return importlib.metadata.version("utipy")
+
+
+__version__ = get_version()
