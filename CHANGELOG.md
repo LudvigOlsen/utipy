@@ -1,6 +1,10 @@
 Changelog
 --------
 
+v/1.0.3 (2024)
+ - Fixes empty initialization of `IOPaths`.
+ - Adds `__version__` attribute to package.
+
 v/1.0.2 (2024)
  - Adds `add_indent` argument to `Messenger.__call__()`.
 
