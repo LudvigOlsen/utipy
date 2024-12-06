@@ -13,7 +13,6 @@ from utipy.utils.messenger import Messenger
 
 
 class IOPaths:
-
     COLLECTION_NAMES = [
         "in_files",
         "in_dirs",
@@ -702,6 +701,9 @@ class IOPaths:
         """
         Update with paths from another `IOPaths` collection.
 
+        Note: When a collection in `other` is `None`, we
+        keep the original collection.
+
         Parameters
         ----------
         other : `IOPaths` instance
@@ -710,9 +712,10 @@ class IOPaths:
         """
         assert isinstance(other, IOPaths)
         for coll_name in IOPaths.COLLECTION_NAMES:
-            self._update_collection(
-                paths=other.get_collection(name=coll_name), collection=coll_name
-            )
+            other_paths = other.get_collection(name=coll_name)
+            if other_paths is None:
+                continue
+            self._update_collection(paths=other_paths, collection=coll_name)
 
         # Ensure consistency
         self._prepare_paths()
