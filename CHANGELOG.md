@@ -1,6 +1,9 @@
 Changelog
 --------
 
+v/1.0.4 (2025)
+ - Fixes `IOPaths.update()` when `other` has empty (`None`) collections.
+
 v/1.0.3 (2024)
  - Fixes empty initialization of `IOPaths`.
  - Adds `__version__` attribute to package.
