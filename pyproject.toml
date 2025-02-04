@@ -1,11 +1,10 @@
-[tool.poetry]
+[project]
 name = "utipy"
-version = "1.0.4"
+version = "1.0.5"
 description = "Utility functions for python"
-authors = ["Ludvig Renbo Olsen <mail@ludvigolsen.dk>"]
+authors = [{name = "Ludvig", email = "<mail@ludvigolsen.dk>"}]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/ludvigolsen/utipy"
 keywords = [
     "pandas",
     "numpy",
@@ -24,8 +23,13 @@ keywords = [
     "time"
 ]
 
-[tool.poetry.urls]
-issues = "https://github.com/ludvigolsen/utipy/issues"
+[project.urls]
+Repository = "https://github.com/ludvigolsen/utipy"
+Issues = "https://github.com/ludvigolsen/utipy/issues"
+Changelog = "https://github.com/ludvigolsen/utipy/blob/main/CHANGELOG.md"
+
+[tool.poetry]
+include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
 python = "^3.7"

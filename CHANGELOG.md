@@ -1,6 +1,10 @@
 Changelog
 --------
 
+v/1.0.5 (2025)
+
+ - Updates pyproject.toml for new poetry version.
+
 v/1.0.4 (2025)
  - Fixes `IOPaths.update()` when `other` has empty (`None`) collections.
 
