@@ -500,7 +500,7 @@ class IOPaths:
         ----------
         collection : str
             Name of collection to create output directories for.
-                One of: ('out_dirs', 'out_files', 'tmp_files', 'mkdirs_for_tmp_dirs')
+                One of: ('out_dirs', 'out_files', 'tmp_files', 'tmp_dirs')
             When `None`, directories are created for all three collections.
         messenger : `utipy.Messenger` or None
             A `utipy.Messenger` instance used to print/log/... information.
@@ -672,11 +672,17 @@ class IOPaths:
         # (I.e. find the top-level tmp dirs and remove those, and don't
         # try to remove those contained in them)
 
-        # Delete each path in `tmp_dirs``
-        for path in self.get_collection(name="tmp_dirs").keys():
-            self.rm_dir(name=path, raise_on_fail=raise_on_fail, messenger=messenger)
+        # Delete each path in `tmp_dirs`
+        # We can't delete from a dict and remove keys from it,
+        # so we extract the paths beforehand
+        path_keys = list(self.get_collection(name="tmp_dirs").keys())
+        for path_key in path_keys:
+            if path_key in self.get_collection(name="tmp_dirs").keys():
+                self.rm_dir(
+                    name=path_key, raise_on_fail=raise_on_fail, messenger=messenger
+                )
             if rm_paths:
-                self.rm_paths_in_dir(dir_path=path, rm_dir_path=True)
+                self.rm_paths_in_dir(dir_path=path_key, rm_dir_path=True)
 
     def mv_file(
         self,

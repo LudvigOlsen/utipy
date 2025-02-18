@@ -1,6 +1,10 @@
 Changelog
 --------
 
+v/1.0.* (2025)
+
+ - Fixes removal of nested tmp directories via `IOPaths.rm_tmp_dirs()`.
+
 v/1.0.5 (2025)
 
  - Updates pyproject.toml for new poetry version.
