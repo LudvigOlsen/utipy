@@ -4,7 +4,7 @@
 @author: ludvigolsen
 """
 
-from typing import List
+from typing import List, Optional
 import pandas as pd
 import numpy as np
 import warnings
@@ -15,9 +15,9 @@ from utipy.utils.convert_to_df import convert_to_df
 def polynomializer(
     data: pd.DataFrame,
     degree: int = 2,
-    suffix: str = '_poly',
-    exclude: List[str] = [],
-    copy: bool = True
+    suffix: str = "_poly",
+    exclude: Optional[List[str]] = None,
+    copy: bool = True,
 ) -> pd.DataFrame:
     """
     Creates polymonial features.
@@ -52,6 +52,9 @@ def polynomializer(
     >>> polynomializer(df, degree = 3, exclude = ['c'])
 
     """
+    # Set default values for mutable types
+    if exclude is None:
+        exclude = []
 
     # Create copy of data
     if copy:
@@ -67,7 +70,7 @@ def polynomializer(
 
     try:
         # Create dataframes with exponential columns
-        polynomialized = [data_include ** deg for deg in range(degree + 1)[1:]]
+        polynomialized = [data_include**deg for deg in range(degree + 1)[1:]]
     except:
         # This exception is most likely seen
         # because a column in data_include is NOT numeric.
@@ -77,19 +80,16 @@ def polynomializer(
 
         # Get excluded columns and add to exclude
         auto_excluded = [
-            i for i in data_include.columns
-            if i not in numeric_data.columns
+            i for i in data_include.columns if i not in numeric_data.columns
         ]
         exclude = np.concatenate([exclude, auto_excluded])
 
         if len(auto_excluded) != 0:
-            warnings.warn(
-                "Excluded {} non-numeric columns.".format(len(auto_excluded)))
+            warnings.warn("Excluded {} non-numeric columns.".format(len(auto_excluded)))
 
             try:
                 # Create dataframes with exponential columns
-                polynomialized = [numeric_data **
-                                  deg for deg in range(degree + 1)[1:]]
+                polynomialized = [numeric_data**deg for deg in range(degree + 1)[1:]]
             except Exception as e:
                 print("Something went wrong when creating polynomials.")
                 raise e
@@ -105,9 +105,7 @@ def polynomializer(
 
     # Add suffices to dataframes
     polynomialized = map(
-        lambda df, deg: suffixicate(df, deg),
-        polynomialized,
-        range(degree)
+        lambda df, deg: suffixicate(df, deg), polynomialized, range(degree)
     )
 
     # Combine dataframes
@@ -119,8 +117,7 @@ def polynomializer(
     # Reorder
 
     # First get all the new column names
-    new_cols = [c for c in polynomialized.columns
-                if c not in data.columns]
+    new_cols = [c for c in polynomialized.columns if c not in data.columns]
 
     # Append old and new column names
     all_columns_sorted = np.append(data.columns, new_cols)

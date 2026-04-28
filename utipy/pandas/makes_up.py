@@ -5,7 +5,7 @@
 """
 
 # Import operator module for dynamically passing operators
-from typing import Union
+from typing import Union, cast
 from numbers import Number
 import pandas as pd
 import operator
@@ -107,7 +107,7 @@ def makes_up(
 
     # Check if x is a pd.Series
     # and convert if necessary
-    x = convert_to_type(x, 'pd.Series')
+    x = cast(pd.Series, convert_to_type(x, 'pd.Series'))
 
     # If it is an object, we can only recognize NaN and inf as strings
     # and fall back to checking it as a string

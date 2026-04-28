@@ -5,6 +5,7 @@
 import pandas as pd
 import numpy as np
 from random import sample
+from numbers import Real
 from typing import Optional, List
 
 from .resemble import resemble
@@ -16,15 +17,15 @@ from utipy.utils.convert_to_df import convert_to_df
 
 def distort(
     data: pd.DataFrame,
-    distribution: str = 'uniform',
-    amount: float = 1.,
-    size: float = 1.,
+    distribution: str = "uniform",
+    amount: float = 1.0,
+    size: float = 1.0,
     randomize_original: bool = False,
     exclude: Optional[List[str]] = None,
     label_column: Optional[str] = None,
     keep_labels: bool = True,
-    new_label: str = 'noise',
-    append: bool = False
+    new_label: str = "noise",
+    append: bool = False,
 ) -> pd.DataFrame:
     """
     Distort data in pandas DataFrame
@@ -86,42 +87,66 @@ def distort(
         Distorted data. Either by itself or appended to original data.
     """
 
-    # Check inputs
-    # `exclude`` must be array not scalar
-
     # If data is a pd.Series or np.ndarray
     # Make into a dataframe and
     # remember what type it originally was
     data, _ = convert_to_df(data)
 
+    # Validate blend and row-sampling proportions early. Values outside [0, 1]
+    # otherwise extrapolate the blend or produce surprising slices.
+    _check_fraction(amount, name="amount")
+    _check_fraction(size, name="size")
+
+    exclude = _normalize_exclude(exclude)
+
+    if label_column is not None and label_column not in data.columns:
+        raise ValueError(f"`label_column` was not in `data.columns`: {label_column}")
+
+    missing_exclude = [col for col in exclude if col not in data.columns]
+    if missing_exclude:
+        raise ValueError(
+            "All columns in `exclude` must exist in `data`. "
+            f"Missing: {missing_exclude}"
+        )
+
     # Subsets
-    # Select excluded and included columns
-    if exclude is not None:
-        # Select column names to regenerate as noise
-        included_cols = [
-            col for col in data.columns
-            if col not in np.append(label_column, exclude)
-        ]
-    else:
-        # Select columns to regenerate as noise
-        included_cols = data.columns[data.columns != label_column]
+    # Select columns to regenerate as noise. Label and excluded columns are
+    # handled separately because categorical/object columns cannot be
+    # summarized by `resemble()`'s numeric distribution logic.
+    protected_cols = set(exclude)
+    if label_column is not None:
+        protected_cols.add(label_column)
+    included_cols = [col for col in data.columns if col not in protected_cols]
+
+    non_numeric_cols = [
+        col
+        for col in included_cols
+        if not pd.api.types.is_numeric_dtype(data[col])
+        or pd.api.types.is_bool_dtype(data[col])
+    ]
+    if non_numeric_cols:
+        raise ValueError(
+            "Only numeric columns can be distorted. Pass non-numeric columns "
+            "as `label_column` or in `exclude`. "
+            f"Non-numeric columns: {non_numeric_cols}"
+        )
 
     # Get included columns from column names
     data_included = data.filter(items=included_cols)
 
     # Regenerate included columns as noise
-    data_regenerated = data_included.apply(
-        resemble,
-        distribution=distribution
-    )
+    data_regenerated = data_included.apply(resemble, distribution=distribution)
 
     # Blend
     # Based on amount, blend the two signals
     if amount != 1:
-        data_blended = pd.concat([
-            blend(data[v], data_regenerated[v], amount=amount)
-            for v in data_regenerated.columns
-        ], axis=1)
+        data_blended = pd.concat(
+            [
+                blend(data[v], data_regenerated[v], amount=amount)
+                for v in data_regenerated.columns
+            ],
+            axis=1,
+        )
     else:
         data_blended = data_regenerated
 
@@ -135,16 +160,10 @@ def distort(
             data_blended[label_column] = new_label
 
     # Set excluded columns to NaN
-    if exclude is not None:
-        # Create empty dataframe the shape of [rows, excluded cols]
-        # , columns = exclude)
-        null_data = pd.DataFrame(np.zeros([len(data), len(exclude)]))
-
-        # Set 0'es to NaN
-        null_data[null_data == 0] = 'nan'
-
-        # Set column names
-        null_data.columns = exclude
+    if exclude:
+        # Excluded columns are intentionally blanked out in the distorted
+        # rows, while preserving the original index for safe concat alignment.
+        null_data = pd.DataFrame(np.nan, index=data.index, columns=exclude)
 
         # Add columns to the blended dataset
         data_blended = pd.concat([data_blended, null_data], axis=1)
@@ -161,12 +180,31 @@ def distort(
         # Get the rows with the sampled indices
         keep_data = data_ordered.iloc[keep_indices]
     else:
-        keep_data = data_ordered[:int(len(data) * size)]
+        keep_data = data_ordered[: int(len(data) * size)]
 
     # Append
     if append:
         # Make sure they are the same size
         # TODO Shouldn't it raise an error instead if they're not?
-        return pd.concat([data[:len(keep_data)], keep_data])
+        return pd.concat([data[: len(keep_data)], keep_data])
     else:
         return keep_data
+
+
+def _check_fraction(value: float, name: str) -> None:
+    if not isinstance(value, Real) or isinstance(value, bool):
+        raise TypeError(f"`{name}` must be a number between 0 and 1.")
+    if not 0 <= value <= 1:
+        raise ValueError(f"`{name}` must be between 0 and 1.")
+
+
+def _normalize_exclude(exclude: Optional[List[str]]) -> List[str]:
+    if exclude is None:
+        return []
+    if isinstance(exclude, str):
+        raise TypeError("`exclude` must be a list of column names, not a string.")
+    if not isinstance(exclude, list):
+        raise TypeError("`exclude` must be a list of column names.")
+    if not all(isinstance(col, str) for col in exclude):
+        raise TypeError("All entries in `exclude` must be strings.")
+    return exclude

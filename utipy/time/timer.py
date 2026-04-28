@@ -75,7 +75,8 @@ class StepTimer(Timestamps):
         When `self.verbose` is `True`,
             prints message + formatted time.
         """
-        assert indent >= 0
+        if indent < 0:
+            raise ValueError(f"indent must be non-negative but was: {indent}")
         if not name_prefix:
             name_prefix = f"step_{len(self)}_{random_alphanumeric(size=5)}"
         try:

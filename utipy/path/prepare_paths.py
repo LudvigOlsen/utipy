@@ -301,17 +301,21 @@ def _check_duplicates(d: dict):
                 )
 
 
-def _check_paths_exist(d: dict, check_type: str = "file", raise_when: str = "unkown"):
-    assert raise_when in ["unknown", "known"]
-    assert check_type in ["file", "directory"]
+def _check_paths_exist(d: dict, check_type: str = "file", raise_when: str = "unknown"):
+    if raise_when not in ["unknown", "known"]:
+        raise ValueError("`raise_when` must be either 'unknown' or 'known'.")
+    if check_type not in ["file", "directory"]:
+        raise ValueError("`check_type` must be either 'file' or 'directory'.")
     check_fn = os.path.isfile if check_type == "file" else os.path.isdir
     for k, v in d.items():
         if str(v) == "-":
             continue
         if raise_when == "unknown":
-            assert check_fn(str(v)), f"`{k}` was not a {check_type}: {v}"
+            if not check_fn(str(v)):
+                raise FileNotFoundError(f"`{k}` was not a {check_type}: {v}")
         else:
-            assert not check_fn(str(v)), f"`{k}` is an existing {check_type}: {v}"
+            if check_fn(str(v)):
+                raise FileExistsError(f"`{k}` is an existing {check_type}: {v}")
 
 
 def _check_duplicates_across_dicts(d1: Optional[dict], d2: Optional[dict]):

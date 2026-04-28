@@ -15,7 +15,7 @@ def test_steptimer(capfd):
     out, err = capfd.readouterr()
     assert out == "        testing took: 00:00:00\n"
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         # Should not record anything
         with step_timer.time_step(indent=-1, name_prefix="second"):
             sleep(0.1)

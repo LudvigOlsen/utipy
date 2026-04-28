@@ -1,6 +1,6 @@
 from datetime import datetime
 from contextlib import contextmanager
-from typing import Any, Callable, Optional, Union, List
+from typing import Any, Callable, Iterator, Optional, Union, List
 
 
 class Messenger:
@@ -73,9 +73,12 @@ class Messenger:
         "INFO  Mr.Logger:script.py:xz  anything printable - even multiple arguments"
         """
         # Check types
-        assert isinstance(verbose, bool)
-        assert callable(msg_fn)
-        assert isinstance(indent, int)
+        if not isinstance(verbose, bool):
+            raise TypeError(f"verbose must be a bool but had type: {type(verbose)}")
+        if not callable(msg_fn):
+            raise TypeError("msg_fn must be callable")
+        if not isinstance(indent, int):
+            raise TypeError(f"indent must be an int but had type: {type(indent)}")
 
         self._verbose = verbose
         self.msg_fn = msg_fn
@@ -205,7 +208,8 @@ class Messenger:
         -------
         `self`
         """
-        assert isinstance(indent, int)
+        if not isinstance(indent, int):
+            raise TypeError(f"indent must be int but had type: {type(indent)}")
         if self._indent + indent < 0:
             raise ValueError(
                 f"Subtracting {abs(indent)} positions would give a "
@@ -228,13 +232,14 @@ class Messenger:
         -------
         `self`
         """
-        assert isinstance(indent, int)
-        return self.__add__(indent=indent)
+        if not isinstance(indent, int):
+            raise TypeError(f"indent must be int but had type: {type(indent)}")
+        return self.__add__(indent=-indent)
 
     @contextmanager
     def indentation(
         self, indent: Optional[int] = None, add_indent: Optional[int] = None
-    ) -> None:
+    ) -> Iterator[None]:
         """
         Function to use in `with` statement. Temporarily changes the indentation.
         The original indentation is restored upon exiting the `with` context.
@@ -357,7 +362,8 @@ def msg_if(
     kwargs : keyword arguments
         Named arguments for the messaging function.
     """
-    assert indent >= 0
+    if indent < 0:
+        raise ValueError(f"indent must be non-negative but was: {indent}")
     if verbose:
         subtract_1 = len(objects) > 0
         indent_str = "".join([" " for _ in range(max(0, indent - int(subtract_1)))])
@@ -400,6 +406,8 @@ def check_messenger(messenger: Optional[Callable]) -> Messenger:
     # Check the messenger function
     if messenger is None:
         messenger = Messenger(verbose=False)
-    else:
-        assert isinstance(messenger, Messenger)
+    elif not isinstance(messenger, Messenger):
+        raise TypeError(
+            f"messenger must be either None or a Messenger but was: {type(messenger)}"
+        )
     return messenger

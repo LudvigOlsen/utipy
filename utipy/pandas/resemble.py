@@ -10,9 +10,8 @@ from random import shuffle
 
 
 def resemble(
-    x: Union[pd.Series, np.ndarray, list],
-    distribution: str = 'uniform'
-) -> pd.Series:
+    x: Union[pd.Series, np.ndarray, list], distribution: str = "uniform"
+) -> np.ndarray:
     """
     Generate pandas.Series that resembles `x`.
 
@@ -38,7 +37,7 @@ def resemble(
 
     Returns
     -------
-    pd.Series
+    numpy.ndarray
     """
 
     # TODO Do a tryCatch on describe to
@@ -52,38 +51,33 @@ def resemble(
     # Get description of `x`
     desc = _extended_describe(x)
 
-    if distribution == 'uniform':
+    if distribution == "uniform":
         generated = np.random.uniform(
-            low=desc['min'],
-            high=desc['max'],
-            size=int(desc['count'])
+            low=desc["min"], high=desc["max"], size=int(desc["count"])
         )
 
-    elif distribution == 'gaussian':
+    elif distribution == "gaussian":
         generated = np.random.normal(
-            loc=desc['mean'],
-            scale=desc['std'],
-            size=int(desc['count'])
+            loc=desc["mean"], scale=desc["std"], size=int(desc["count"])
         )
 
-    elif distribution == 'robust gaussian':
+    elif distribution == "robust gaussian":
         generated = np.random.normal(
-            loc=desc['median'],
-            scale=desc['IQR'],
-            size=int(desc['count'])
+            loc=desc["median"], scale=desc["IQR"], size=int(desc["count"])
         )
 
-    elif distribution == 'poisson':
+    elif distribution == "poisson":
         # TODO Check up on this one. Should there be a min/max?
-        generated = np.random.poisson(
-            lam=desc['max'],
-            size=int(desc['count'])
-        )
+        generated = np.random.poisson(lam=desc["max"], size=int(desc["count"]))
 
-    elif distribution == 'shuffle':
-        generated = shuffle(x)
+    elif distribution == "shuffle":
+        generated = np.asarray(x).copy()
+        shuffle(generated)
+
+    else:
+        raise ValueError(f"Unknown distribution: {distribution}")
 
     # Change back to original dtype
-    generated = generated.astype(desc['dtype'])
+    generated = generated.astype(desc["dtype"])
 
     return generated

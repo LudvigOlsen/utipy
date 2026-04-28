@@ -1,13 +1,13 @@
-
-from numbers import Number
+from typing import Union
 import numpy as np
 
 # TODO cythonize
 # TODO add tests
 
-def format_time_hhmmss(t: int) -> str:
+
+def format_time_hhmmss(t: Union[int, float]) -> str:
     """
-    Format a count of seconds into hh:mm:ss where hh is allowed to be >24 
+    Format a count of seconds into hh:mm:ss where hh is allowed to be >24
     (i.e. hhh, hhhh or even MORE 'h's!).
 
     Parameters
@@ -34,13 +34,15 @@ def format_time_hhmmss(t: int) -> str:
     mins_seconds = mins * 60
 
     # Seconds
-    secs = (t - hours_seconds - mins_seconds)
+    secs = t - hours_seconds - mins_seconds
 
     neg_string = "-" if is_negative else ""
-    return f"{neg_string}{_format_part(hours)}:{_format_part(mins)}:{_format_part(secs)}"
+    return (
+        f"{neg_string}{_format_part(hours)}:{_format_part(mins)}:{_format_part(secs)}"
+    )
 
 
-def _format_part(t: Number) -> str:
+def _format_part(t: Union[int, float]) -> str:
     """
     Format integer-like number as 2-digit string (either hh, mm, or ss).
 

@@ -3,9 +3,21 @@ Changelog
 
 v/1.0.* (2025)
 
+ - Raised the minimum supported Python version to `3.8`.
  - Fixes removal of nested tmp directories via `IOPaths.rm_tmp_dirs()`.
  - Improves typing annotations in `IOPaths`.
  - Better handling of streaming paths `"-"` in `IOPaths` helpers.
+ - Fixed pandas compatibility issues in grouping helpers and added regression coverage for grouping, folding, and partitioning.
+ - Fixed resemble() distribution handling, including shuffle behavior, dtype restoration, and unknown-distribution errors.
+ - Improved distort() validation and behavior for excluded, label, and nonnumeric columns; excluded columns now use real missing values.
+ - Replaced several user-facing assert validations with explicit TypeError, ValueError, FileNotFoundError, or FileExistsError.
+ - Improved IOPaths validation and temporary-directory cleanup behavior, including nested temporary directories and stream-path guards.
+ - Fixed Messenger indentation subtraction and improved context-manager typing.
+ - Improved array/window validation and typing around windowing, blending, and type restoration.
+ - Fixed Timestamps edge cases around equality, negative index name lookup, empty collections, float timestamp typing, and merging type checks.
+ - Fixed format_time_hhmmss tests and broadened time formatting typing to support elapsed float seconds.
+ - Removed mutable default arguments from relevant public APIs.
+ - Added focused regression tests for grouping, resemblance generation, distortion, path handling, timestamp edge cases, and formatting.
 
 v/1.0.5 (2025)
 

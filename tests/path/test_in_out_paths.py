@@ -1,7 +1,20 @@
 import pathlib
+import pytest
 from utipy.path import IOPaths
+from utipy.path.prepare_paths import prepare_in_out_paths
 
 CONTENT = "content"
+
+
+def _empty_path_collections():
+    return {
+        "in_files": None,
+        "in_dirs": None,
+        "out_files": None,
+        "out_dirs": None,
+        "tmp_files": None,
+        "tmp_dirs": None,
+    }
 
 
 def test_create_file(tmp_path):
@@ -97,3 +110,115 @@ def test_in_out_paths_fails(tmp_path):
 
     # TODO Test duplicates are found correctly
     pass
+
+
+def test_prepare_paths_missing_input_file_raises_file_not_found(tmp_path):
+    collections = _empty_path_collections()
+    collections["in_files"] = {"missing_file": tmp_path / "missing.txt"}
+
+    with pytest.raises(FileNotFoundError, match="missing_file"):
+        prepare_in_out_paths(collections)
+
+
+def test_prepare_paths_existing_output_file_raises_file_exists(tmp_path):
+    existing_file = tmp_path / "existing.txt"
+    existing_file.write_text(CONTENT)
+
+    collections = _empty_path_collections()
+    collections["out_files"] = {"existing_file": existing_file}
+
+    with pytest.raises(FileExistsError, match="existing_file"):
+        prepare_in_out_paths(collections, allow_overwriting=False)
+
+
+def test_prepare_paths_existing_tmp_dir_raises_file_exists(tmp_path):
+    tmp_dir = tmp_path / "existing_tmp"
+    tmp_dir.mkdir()
+
+    collections = _empty_path_collections()
+    collections["tmp_dirs"] = {"tmp_dir": tmp_dir}
+
+    with pytest.raises(FileExistsError, match="tmp_dir"):
+        prepare_in_out_paths(collections)
+
+
+def test_io_paths_invalid_argument_types_raise_type_error():
+    paths = IOPaths()
+
+    with pytest.raises(TypeError, match="name"):
+        paths.get_collection(1)
+
+    with pytest.raises(TypeError, match="path"):
+        paths.set_path("out", object(), "out_files")
+
+    with pytest.raises(TypeError, match="paths"):
+        paths.set_paths([], "out_files")
+
+    with pytest.raises(TypeError, match="other"):
+        paths.update(object())
+
+    with pytest.raises(TypeError, match="other"):
+        paths.difference(object())
+
+    assert (paths == object()) is False
+
+
+def test_rm_tmp_dirs_none_raises_value_error():
+    paths = IOPaths()
+
+    with pytest.raises(ValueError, match="tmp_dirs"):
+        paths.rm_tmp_dirs(messenger=None)
+
+
+def test_rm_tmp_dirs_with_rm_paths_false_keeps_nested_path_entries(tmp_path):
+    parent_tmp_dir = tmp_path / "tmp_parent"
+    child_tmp_dir = parent_tmp_dir / "tmp_child"
+
+    paths = IOPaths(
+        tmp_dirs={
+            "parent_tmp_dir": parent_tmp_dir,
+            "child_tmp_dir": child_tmp_dir,
+        }
+    )
+    paths.mk_output_dirs(collection="tmp_dirs", messenger=None)
+
+    assert parent_tmp_dir.is_dir()
+    assert child_tmp_dir.is_dir()
+
+    paths.rm_tmp_dirs(rm_paths=False, messenger=None)
+
+    assert not parent_tmp_dir.exists()
+    assert not child_tmp_dir.exists()
+    assert set(paths.get_collection("tmp_dirs").keys()) == {
+        "parent_tmp_dir",
+        "child_tmp_dir",
+    }
+    assert set(paths.all_paths.keys()) == {"parent_tmp_dir", "child_tmp_dir"}
+
+
+def test_rm_tmp_dirs_removes_nested_path_entries(tmp_path):
+    parent_tmp_dir = tmp_path / "tmp_parent"
+    child_tmp_dir = parent_tmp_dir / "tmp_child"
+    tmp_file = child_tmp_dir / "tmp.txt"
+
+    paths = IOPaths(
+        tmp_files={"tmp_file": tmp_file},
+        tmp_dirs={
+            "parent_tmp_dir": parent_tmp_dir,
+            "child_tmp_dir": child_tmp_dir,
+        },
+    )
+    paths.mk_output_dirs(collection="tmp_dirs", messenger=None)
+    tmp_file.write_text(CONTENT)
+
+    paths.rm_tmp_dirs(messenger=None)
+
+    assert not parent_tmp_dir.exists()
+    assert paths.get_collection("tmp_dirs") == {}
+    assert paths.get_collection("tmp_files") == {}
+    assert paths.all_paths == {}
+
+
+def test_stream_path_is_rejected_outside_in_files():
+    with pytest.raises(ValueError, match="only allowed"):
+        IOPaths(tmp_dirs={"stream": "-"})

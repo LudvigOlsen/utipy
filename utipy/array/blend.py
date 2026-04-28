@@ -2,7 +2,7 @@
 @author: ludvigolsen
 """
 
-from typing import Union
+from typing import Union, cast
 import numpy as np
 import pandas as pd
 from utipy.utils.check_instance import check_instance
@@ -55,4 +55,7 @@ def blend(
     blended = x1_weighted + x2_weighted
 
     # Convert to original type (np.ndarray, list, pd.Series)
-    return convert_to_type(blended, instance_type)
+    return cast(
+        Union[list, np.ndarray, pd.Series],
+        convert_to_type(blended, instance_type),
+    )

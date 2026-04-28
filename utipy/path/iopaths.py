@@ -13,6 +13,19 @@ from utipy.utils.messenger import Messenger
 # TODO Allow checking if dirs are empty (e.g., checkpoints)
 
 
+def default_allow_duplicates_in():
+    return ["in_dirs", "out_dirs", "tmp_dirs"]
+
+
+def default_disallowed_nestings():
+    return [
+        ("in_files", "tmp_dirs"),
+        ("out_files", "tmp_dirs"),
+        ("in_dirs", "tmp_dirs"),
+        ("out_dirs", "tmp_dirs"),
+    ]
+
+
 class IOPaths:
     COLLECTION_NAMES = [
         "in_files",
@@ -33,13 +46,8 @@ class IOPaths:
         tmp_dirs: Optional[Dict[str, Union[str, pathlib.PurePath]]] = None,
         allow_none: bool = False,
         allow_overwriting: bool = True,
-        allow_duplicates_in: List[str] = ["in_dirs", "out_dirs", "tmp_dirs"],
-        disallowed_nestings: List[tuple] = [
-            ("in_files", "tmp_dirs"),
-            ("out_files", "tmp_dirs"),
-            ("in_dirs", "tmp_dirs"),
-            ("out_dirs", "tmp_dirs"),
-        ],
+        allow_duplicates_in: Optional[List[str]] = None,
+        disallowed_nestings: Optional[List[tuple]] = None,
         print_note: str = "",
     ) -> None:
         """
@@ -78,6 +86,7 @@ class IOPaths:
         allow_duplicates_in : list
             List of collections to allow duplicate paths in. One of:
                 {'in_files', 'in_dirs', 'out_files', 'out_dirs', 'tmp_files', 'tmp_dirs'}.
+            Defaults to 'in_dirs', 'out_dirs', and 'tmp_dirs'.
         disallowed_nestings : list of tuples
             Pairs of collections where the paths of the first cannot
             be nested inside the paths of the second.
@@ -152,6 +161,12 @@ class IOPaths:
 
         >>> paths.difference(other=other_paths):
         """
+        # Set defaults for mutable types
+        if allow_duplicates_in is None:
+            allow_duplicates_in = default_allow_duplicates_in()
+        if disallowed_nestings is None:
+            disallowed_nestings = default_disallowed_nestings()
+
         self.all_paths: Dict[str, Union[pathlib.Path, str]] = {}
         self._collections = {
             "in_files": in_files,
@@ -229,7 +244,8 @@ class IOPaths:
         -------
         Dict mapping `name -> path`.
         """
-        assert isinstance(name, str)
+        if not isinstance(name, str):
+            raise TypeError("`name` must be a string.")
         self._check_collection_name(name)
         return self._collections[name]
 
@@ -255,8 +271,10 @@ class IOPaths:
         self._prepare_paths()
 
     def _set_collection(self, name: str, coll: Union[dict, None]):
-        assert isinstance(name, str)
-        assert coll is None or isinstance(coll, dict)
+        if not isinstance(name, str):
+            raise TypeError("`name` must be a string.")
+        if coll is not None and not isinstance(coll, dict):
+            raise TypeError("`coll` must be either a dict or `None`.")
         if name not in IOPaths.COLLECTION_NAMES:
             raise ValueError(
                 f"`name` was not one of the allowed collection names: {IOPaths.COLLECTION_NAMES}"
@@ -264,8 +282,10 @@ class IOPaths:
         self._collections[name] = coll
 
     def _update_collection(self, paths: dict, collection: str):
-        assert isinstance(paths, dict)
-        assert isinstance(collection, str)
+        if not isinstance(paths, dict):
+            raise TypeError("`paths` must be a dict.")
+        if not isinstance(collection, str):
+            raise TypeError("`collection` must be a string.")
         self._check_collection_name(collection)
 
         coll = self._collections[collection]
@@ -283,7 +303,10 @@ class IOPaths:
         Usually returns `pathlib.Path`. May return '-' for stream paths.
         """
         path = self.get_path(name=name)
-        assert path is not None
+        if path is None:
+            raise RuntimeError(
+                f"Internal error: `{name}` was found but resolved to `None`."
+            )
         return path
 
     def get_path(
@@ -332,8 +355,10 @@ class IOPaths:
         """
         # NOTE: Avoid internal use
         # as it may cause an infinite loop
-        assert isinstance(name, str)
-        assert isinstance(path, (str, pathlib.PurePath))
+        if not isinstance(name, str):
+            raise TypeError("`name` must be a string.")
+        if not isinstance(path, (str, pathlib.PurePath)):
+            raise TypeError("`path` must be a string or pathlib path.")
         self._update_collection(paths={name: path}, collection=collection)
 
         # Ensure consistency
@@ -369,7 +394,11 @@ class IOPaths:
         """
         coll_name = self.get_collection_name_by_path_name(name)
         coll = self._collections[coll_name]
-        assert coll is not None  # Satisfies type checker
+        if coll is None:
+            raise RuntimeError(
+                f"Internal error: `{name}` was found in collection `{coll_name}`, "
+                "but the collection was `None`."
+            )
         del coll[name]
         del self.all_paths[name]
 
@@ -413,7 +442,8 @@ class IOPaths:
             )
         if dir_path_name is not None:
             dir_path = self[dir_path_name]
-        assert dir_path is not None
+        if dir_path is None:
+            raise RuntimeError("Internal error: directory path resolved to `None`.")
         if str(dir_path) == "-":
             raise ValueError("`-` is a stream path, not a directory path.")
 
@@ -504,7 +534,10 @@ class IOPaths:
             and potential indentation.
         """
         path = self.get_path(name=name, raise_on_fail=True)
-        assert path is not None  # Should not happen, we raise on fail
+        if path is None:
+            raise RuntimeError(
+                f"Internal error: `{name}` was found but resolved to `None`."
+            )
         if str(path) == "-":
             raise ValueError(
                 f"`{name}` is a stream input path (`-`) and "
@@ -704,23 +737,46 @@ class IOPaths:
             and potential indentation.
         """
 
-        # TODO In case they are nested, we should check their existence
-        # before deleting some of the directories, as that might
-        # delete the existing ones
-        # (I.e. find the top-level tmp dirs and remove those, and don't
-        # try to remove those contained in them)
-
-        # Delete each path in `tmp_dirs`
-        # We can't delete from a dict and remove keys from it,
-        # so we extract the paths beforehand
-
         tmp_dirs = self.get_collection(name="tmp_dirs")
         if tmp_dirs is None:
             raise ValueError("`tmp_dirs` collection was `None`.")
 
-        path_keys = list(tmp_dirs.keys())
+        # Resolve paths once before mutation. The removal step may delete path
+        # entries from the collections, so later logic should not depend on
+        # iterating over the live `tmp_dirs` dict.
+        path_items = [
+            (path_key, pathlib.Path(path).resolve())
+            for path_key, path in tmp_dirs.items()
+        ]
 
-        for path_key in path_keys:
+        if raise_on_fail:
+            # Check all tmp dirs before removing any of them. This avoids
+            # partially deleting directories and then failing on a later path.
+            for path_key, path in path_items:
+                if not path.exists():
+                    raise RuntimeError(f"`{path_key}` path did not exist: {path}")
+                if not path.is_dir():
+                    raise RuntimeError(f"`{path_key}` path was not a directory: {path}")
+
+        # When tmp dirs are nested, deleting the parent removes the child on
+        # disk too. Only remove top-level dirs to avoid raising on a child path
+        # that was already deleted as part of its parent.
+        seen_top_level_paths = set()
+        top_level_path_keys = []
+        for path_key, path in path_items:
+            if any(
+                other_path != path and other_path in path.parents
+                for _, other_path in path_items
+            ):
+                continue
+            if path in seen_top_level_paths:
+                continue
+            seen_top_level_paths.add(path)
+            top_level_path_keys.append(path_key)
+
+        # Re-read the live collection for each deletion because `rm_dir()` can
+        # remove path entries when `rm_paths=True`.
+        for path_key in top_level_path_keys:
             tmp_dirs = self.get_collection(name="tmp_dirs")
             if tmp_dirs is not None and path_key in tmp_dirs:
                 self.rm_dir(
@@ -757,7 +813,11 @@ class IOPaths:
         if update_path:
             coll_name = self.get_collection_name_by_path_name(name=name)
             coll = self._collections[coll_name]
-            assert coll is not None
+            if coll is None:
+                raise RuntimeError(
+                    f"Internal error: `{name}` was found in collection `{coll_name}`, "
+                    "but the collection was `None`."
+                )
             coll[name] = new_path
             self._prepare_paths()
 
@@ -774,7 +834,8 @@ class IOPaths:
             Another `IOPaths` instance with paths.
             Each sub collection is dict-updated one at a time.
         """
-        assert isinstance(other, IOPaths)
+        if not isinstance(other, IOPaths):
+            raise TypeError("`other` must be an `IOPaths` instance.")
         for coll_name in IOPaths.COLLECTION_NAMES:
             other_paths = other.get_collection(name=coll_name)
             if other_paths is None:
@@ -803,7 +864,8 @@ class IOPaths:
             the collections of this object that are not in the collections
             of the `other` object.
         """
-        assert isinstance(other, IOPaths)
+        if not isinstance(other, IOPaths):
+            raise TypeError("`other` must be an `IOPaths` instance.")
         diff_dicts = {}
         for coll_name in IOPaths.COLLECTION_NAMES:
             this_coll = self.get_collection(name=coll_name)
@@ -838,7 +900,8 @@ class IOPaths:
         other : `IOPaths` instance
             Another `IOPaths` instance with paths.
         """
-        assert isinstance(other, IOPaths)
+        if not isinstance(other, IOPaths):
+            return False
         if self.npaths != other.npaths:
             return False
         for coll_name in IOPaths.COLLECTION_NAMES:

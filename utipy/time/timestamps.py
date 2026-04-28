@@ -1,5 +1,5 @@
 import time
-from typing import Any, Union
+from typing import Any, List, Optional, Tuple, Union, cast
 import numpy as np
 import pandas as pd
 
@@ -40,12 +40,14 @@ class Timestamps:
         bool
             Whether the two `Timestamps` collections are equal.
         """
+        if not isinstance(other, Timestamps):
+            return False
         return (
             self.timestamps == other.timestamps
             and self.name_to_idx == other.name_to_idx
         )
 
-    def __getitem__(self, idx_or_name: Union[str, int]) -> int:
+    def __getitem__(self, idx_or_name: Union[str, int]) -> float:
         """
         Get numeric timestamp (as recorded with `time.time()`)
         by indexing (via idx or name) in square brackets.
@@ -55,9 +57,11 @@ class Timestamps:
         idx_or_name : int or str
             Index or name of timestamp.
         """
-        assert isinstance(idx_or_name, (str, int))
-        key = "idx" if isinstance(idx_or_name, int) else "name"
-        return self.get_stamp(**{key: idx_or_name}, as_str=False)
+        if isinstance(idx_or_name, int):
+            return cast(float, self.get_stamp(idx=idx_or_name, as_str=False))
+        if isinstance(idx_or_name, str):
+            return cast(float, self.get_stamp(name=idx_or_name, as_str=False))
+        raise ValueError(f"idx_or_name can be str or int but was: {type(idx_or_name)}")
 
     def __str__(self) -> str:
         string = "Timestamps:\n\n"
@@ -70,7 +74,7 @@ class Timestamps:
         t = time.time()
         self.timestamps.append(t)
 
-    def stamp(self, name: str = None) -> None:
+    def stamp(self, name: Optional[str] = None) -> None:
         """
         Add current time to list of timestamps.
 
@@ -94,10 +98,10 @@ class Timestamps:
 
     def get_stamp(
         self,
-        idx: Union[int, None] = None,
-        name: Union[str, None] = None,
+        idx: Optional[int] = None,
+        name: Optional[str] = None,
         as_str: bool = True,
-    ) -> Union[int, str]:
+    ) -> Union[float, str]:
         """
         Get specific timestamp from either the index or name it was recorded under.
 
@@ -116,7 +120,7 @@ class Timestamps:
 
         Returns
         -------
-        int or str
+        float or str
             Timestamp made with `time.time()`.
             Optionally formatted as a string with hh:mm:ss.
         """
@@ -125,6 +129,7 @@ class Timestamps:
         if idx is not None:
             t = self.timestamps[idx]
         else:
+            assert name is not None
             if name not in self.name_to_idx:
                 raise KeyError(f"`name` '{name}' was not found.")
             t = self.timestamps[self.get_stamp_idx(name=name)]
@@ -150,7 +155,7 @@ class Timestamps:
             raise KeyError(f"`name` '{name}' was not found.")
         return self.name_to_idx[name]
 
-    def get_stamp_name(self, idx: int) -> str:
+    def get_stamp_name(self, idx: int) -> Optional[str]:
         """
         Get timestamp name from index of timestamp.
 
@@ -165,10 +170,13 @@ class Timestamps:
             Name of timestamp at the given index.
             When no name was recorded, `None` is returned.
         """
-        if np.abs(idx) > len(self) - 1:
+        if not -len(self) <= idx < len(self):
             raise ValueError(
                 f"`idx` was out of bounds: '{idx}'. Currently stores {len(self)} timestamps."
             )
+        if idx < 0:
+            # Allow negative-index lookup in the map
+            idx = len(self) + idx
         return self.idx_to_name.get(idx, None)
 
     def to_data_frame(self):
@@ -180,6 +188,8 @@ class Timestamps:
         `pandas.DataFrame`
             Data frame with names and times in the recorded order.
         """
+        if len(self) == 0:
+            return pd.DataFrame({"Name": [], "Time Raw": [], "Time From Start": []})
         names = [""] * len(self)
         for idx, name in self.idx_to_name.items():
             names[idx] = name
@@ -213,7 +223,7 @@ class Timestamps:
         end: Union[int, str] = -1,
         as_str: bool = True,
         raise_negative: bool = True,
-    ) -> Union[int, str]:
+    ) -> Union[float, str]:
         """
         Get the difference between two timestamps.
         By default, the two latest timestamps are used.
@@ -238,19 +248,25 @@ class Timestamps:
 
         Returns
         -------
-        int or str
+        float or str
             Difference in time between two given timestamps,
             either as a number or a formatted string.
         """
-        start_time = self.get_stamp(
-            idx=None if not isinstance(start, int) else start,
-            name=None if not isinstance(start, str) else start,
-            as_str=False,
+        start_time = cast(
+            float,
+            self.get_stamp(
+                idx=None if not isinstance(start, int) else start,
+                name=None if not isinstance(start, str) else start,
+                as_str=False,
+            ),
         )
-        end_time = self.get_stamp(
-            idx=None if not isinstance(end, int) else end,
-            name=None if not isinstance(end, str) else end,
-            as_str=False,
+        end_time = cast(
+            float,
+            self.get_stamp(
+                idx=None if not isinstance(end, int) else end,
+                name=None if not isinstance(end, str) else end,
+                as_str=False,
+            ),
         )
         diff = end_time - start_time
         if diff < 0 and raise_negative:
@@ -265,7 +281,7 @@ class Timestamps:
             return format_time_hhmmss(diff)
         return diff
 
-    def get_total_time(self, as_str: str = True) -> Union[int, str]:
+    def get_total_time(self, as_str: bool = True) -> Union[float, str]:
         """
         Get the time difference between the first and last timestamps.
 
@@ -276,10 +292,12 @@ class Timestamps:
 
         Returns
         -------
-        int
+        float or str
             Difference in time between first and last timestamp,
             either as a number or a formatted string.
         """
+        if len(self) == 0:
+            raise ValueError("no timestamps have been added")
         return self.took(start=0, end=-1, as_str=as_str)
 
     def update(self, other: object):
@@ -318,6 +336,9 @@ class Timestamps:
             When `False`, the dict members in `.name_to_idx` and `.idx_to_name`
             from `other` is used.
         """
+        if not isinstance(other, Timestamps):
+            raise TypeError(f"`other` was not a Timestamps object but a {type(other)}")
+
         # Add the two timestamps lists together
         # but as tuples with indices and an identifier
         # of which collection it came from
@@ -361,13 +382,10 @@ class Timestamps:
         self.timestamps = [x[0] for x in combined_timestamps]
 
 
-def _list_to_enumerated_tuple(l, identifier):
-    def make_tuple(t, i, identifier):
-        if identifier is None:
-            return (t, i)
-        return (t, i, identifier)
-
-    return [make_tuple(t, i, identifier) for i, t in enumerate(l)]
+def _list_to_enumerated_tuple(
+    l: List[float], identifier: str
+) -> List[Tuple[float, int, str]]:
+    return [(t, i, identifier) for i, t in enumerate(l)]
 
 
 def _create_unique_name(name, l):

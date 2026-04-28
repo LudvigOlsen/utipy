@@ -32,7 +32,7 @@ Changelog = "https://github.com/ludvigolsen/utipy/blob/main/CHANGELOG.md"
 include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 pandas = "^1.3.5"
 numpy = "^1.21.6"
 

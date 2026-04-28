@@ -9,11 +9,7 @@ from .methods.n_dist import _n_dist
 
 
 def group_uniques(
-    data: pd.DataFrame,
-    n: Number,
-    col: str,
-    method: str = 'n_dist',
-    copy: bool = True
+    data: pd.DataFrame, n: Number, col: str, method: str = "n_dist", copy: bool = True
 ) -> pd.DataFrame:
     """
     Add grouping factor to given
@@ -27,16 +23,18 @@ def group_uniques(
     uniques = list(set(data[col]))
 
     # Create grouping factor from unique IDs
-    if method == 'n_dist':
+    if method == "n_dist":
         all_group_ids = _n_dist(uniques, n, randomize=True)
-    elif method == 'l_sizes':
+    elif method == "l_sizes":
         all_group_ids = _l_sizes(uniques, n, randomize=True)
+    else:
+        raise ValueError(f"unknown method: {method}")
 
     # Create dictionary with unique values
     # and groups
     groups_dict = {}
     groups_dict[col] = uniques
-    groups_dict['group'] = all_group_ids
+    groups_dict["group"] = all_group_ids
 
     # Create dataframe with unique IDs and the
     # grouping factor
@@ -44,4 +42,4 @@ def group_uniques(
 
     # Merge and return the given dataframe with the
     # new grouping factor
-    return data.merge(df_grouped, on=col, how='outer')
+    return data.merge(df_grouped, on=col, how="outer")
