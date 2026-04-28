@@ -7,7 +7,7 @@ from utipy.utils.messenger import Messenger, check_messenger
 
 
 def mk_dir(
-    path: Union[str, pathlib.Path],
+    path: Union[str, pathlib.PurePath],
     arg_name: Union[str, None] = "",
     raise_on_exists: bool = False,
     messenger: Optional[Callable] = Messenger(
@@ -66,7 +66,7 @@ def mk_dir(
 
 
 def rm_dir(
-    path: Union[str, pathlib.Path],
+    path: Union[str, pathlib.PurePath],
     arg_name: Union[str, None] = "",
     raise_missing: bool = False,
     raise_not_dir: bool = True,
