@@ -4,6 +4,8 @@ Changelog
 v/1.0.* (2025)
 
  - Fixes removal of nested tmp directories via `IOPaths.rm_tmp_dirs()`.
+ - Improves typing annotations in `IOPaths`.
+ - Better handling of streaming paths `"-"` in `IOPaths` helpers.
 
 v/1.0.5 (2025)
 
