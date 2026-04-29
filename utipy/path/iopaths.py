@@ -1,7 +1,6 @@
 import os
 import pathlib
 from typing import Callable, Dict, List, Optional, Union
-from typing import Literal, overload
 
 from utipy.path.mk_rm_dir import mk_dir, rm_dir as remove_dir
 from utipy.path.prepare_paths import prepare_in_out_paths

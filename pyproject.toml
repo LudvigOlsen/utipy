@@ -1,6 +1,6 @@
 [project]
 name = "utipy"
-version = "1.0.5"
+version = "1.1.0"
 description = "Utility functions for python"
 authors = [{name = "Ludvig", email = "<mail@ludvigolsen.dk>"}]
 license = "MIT"

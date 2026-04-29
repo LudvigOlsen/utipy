@@ -1,7 +1,7 @@
 Changelog
 --------
 
-v/1.0.* (2025)
+v/1.1.0 (2026)
 
  - Raised the minimum supported Python version to `3.8`.
  - Fixes removal of nested tmp directories via `IOPaths.rm_tmp_dirs()`.
